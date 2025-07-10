@@ -14,7 +14,6 @@ export function createElement(vNode) {
     vNode.forEach((child) => fragment.appendChild(createElement(child)));
     return fragment;
   }
-
   const $el = document.createElement(vNode.type);
 
   updateAttributes($el, vNode.props ?? {});
@@ -33,8 +32,10 @@ function updateAttributes($el, props) {
       $el.setAttribute("class", value);
     } else if (attr === "style" && typeof value === "object") {
       Object.assign($el.style, value);
+    } else if (typeof value === "boolean") {
+      $el[attr] = value;
     } else {
-      $el.setAttribute(attr, value);
+      $el.setAttribute(attr, String(value));
     }
   });
 }

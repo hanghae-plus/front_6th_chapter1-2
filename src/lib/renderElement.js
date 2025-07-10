@@ -5,7 +5,7 @@ import { updateElement } from "./updateElement";
 
 const OldNodeMap = new WeakMap();
 
-export function renderElement(vNode, container) {
+export const renderElement = (vNode, container) => {
   const oldNode = OldNodeMap.get(container);
   const newNode = normalizeVNode(vNode);
 
@@ -17,4 +17,4 @@ export function renderElement(vNode, container) {
 
   OldNodeMap.set(container, newNode);
   setupEventListeners(container);
-}
+};
