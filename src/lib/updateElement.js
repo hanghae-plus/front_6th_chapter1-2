@@ -18,7 +18,14 @@ export function updateAttributes(element, newProps, oldProps = null) {
         const eventType = key.substring(2).toLowerCase();
         removeEvent(element, eventType, oldProps[key]);
       } else if (!newProps || !(key in newProps)) {
-        element.removeAttribute(key);
+        if (key === "className") {
+          element.removeAttribute("class");
+        } else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+          element[key] = false;
+          element.removeAttribute(key);
+        } else {
+          element.removeAttribute(key);
+        }
       }
     });
   }
@@ -28,7 +35,11 @@ export function updateAttributes(element, newProps, oldProps = null) {
       if (key === "children") return;
 
       if (key === "className") {
-        if (value) element.setAttribute("class", value);
+        if (value) {
+          element.setAttribute("class", value);
+        } else {
+          element.removeAttribute("class");
+        }
         return;
       }
 
@@ -92,17 +103,25 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     return;
   }
 
-  if (parentElement.childNodes[index]) {
-    updateAttributes(parentElement.childNodes[index], newNode.props || {}, oldNode.props || {});
-  }
+  const childNode = parentElement.childNodes[index];
+  if (childNode) {
+    updateAttributes(childNode, newNode.props || {}, oldNode.props || {});
 
-  const newChildren = newNode.children || [];
-  const oldChildren = oldNode.children || [];
-  const maxLength = Math.max(newChildren.length, oldChildren.length);
+    const newChildren = newNode.children || [];
+    const oldChildren = oldNode.children || [];
+    const maxLength = Math.max(newChildren.length, oldChildren.length);
 
-  for (let i = 0; i < maxLength; i++) {
-    if (parentElement.childNodes[index]) {
-      updateElement(parentElement.childNodes[index], newChildren[i], oldChildren[i], i);
+    for (let i = 0; i < maxLength; i++) {
+      updateElement(childNode, newChildren[i], oldChildren[i], i);
+    }
+
+    if (oldChildren.length > newChildren.length) {
+      for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+        const extraChild = childNode.childNodes[i];
+        if (extraChild) {
+          childNode.removeChild(extraChild);
+        }
+      }
     }
   }
 }
