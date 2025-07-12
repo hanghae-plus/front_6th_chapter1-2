@@ -38,6 +38,11 @@ export function updateAttributes(element, newProps, oldProps = null) {
         return;
       }
 
+      if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+        element[key] = Boolean(value);
+        return;
+      }
+
       if (value != null && (!oldProps || oldProps[key] !== value)) {
         element.setAttribute(key, String(value));
       }

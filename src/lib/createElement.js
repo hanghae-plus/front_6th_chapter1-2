@@ -41,6 +41,8 @@ function updateAttributes($el, props) {
     if (attr.startsWith("on") && typeof value === "function") {
       const eventType = attr.toLowerCase().slice(2);
       addEvent($el, eventType, value);
+    } else if (["checked", "disabled", "selected", "readOnly"].includes(attr)) {
+      $el[attr] = Boolean(value);
     } else if (attr === "className") {
       $el.setAttribute("class", value);
     } else if (attr === "style" && typeof value === "object") {
