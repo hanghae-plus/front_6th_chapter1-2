@@ -48,3 +48,23 @@ export function setupEventListeners(container) {
 
   container.setAttribute("data-event-listeners", "true");
 }
+
+/**
+ * 특정 엘리먼트에 이벤트 핸들러를 등록합니다.
+ *
+ * @param {HTMLElement} element - 이벤트를 등록할 엘리먼트
+ * @param {string} eventType - 이벤트 타입 (예: 'click')
+ * @param {Function} handler - 이벤트 핸들러 함수
+ */
+export function addEvent(element, eventType, handler) {
+  if (!eventMap.has(element)) {
+    eventMap.set(element, new Map());
+  }
+
+  const elementEvents = eventMap.get(element);
+  if (!elementEvents.has(eventType)) {
+    elementEvents.set(eventType, new Set());
+  }
+
+  elementEvents.get(eventType).add(handler);
+}
