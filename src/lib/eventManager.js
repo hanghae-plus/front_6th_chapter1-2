@@ -1,18 +1,6 @@
-const eventTypes = [
-  "click",
-  "dblclick",
-  "mousedown",
-  "mouseup",
-  "mousemove",
-  "keydown",
-  "keyup",
-  "input",
-  "change",
-  "focus",
-  "blur",
-];
-
 const eventMap = new WeakMap();
+const delegatedEvents = new Set();
+let rootElement = null;
 
 /**
  * 컨테이너에 이벤트 리스너를 한 번만 등록합니다.
@@ -20,33 +8,26 @@ const eventMap = new WeakMap();
  * @param {HTMLElement} container - 이벤트 리스너를 등록할 컨테이너 엘리먼트
  */
 export function setupEventListeners(container) {
-  if (container.getAttribute("data-event-listeners") === "true") {
-    return;
-  }
-
-  eventTypes.forEach((eventType) => {
-    container.addEventListener(eventType, (e) => {
-      let target = e.target;
-      while (target && target !== container) {
-        const elementEvents = eventMap.get(target);
-        if (elementEvents) {
-          const handlers = elementEvents.get(eventType);
-          if (handlers) {
-            const handlerArray = Array.from(handlers);
-            for (const handler of handlerArray) {
-              if (typeof handler === "function") {
-                handler(e);
-                return;
-              }
-            }
-          }
-        }
-        target = target.parentElement;
-      }
-    });
+  rootElement = container;
+  delegatedEvents.forEach((eventType) => {
+    container.removeEventListener(eventType, handleEvent);
+    container.addEventListener(eventType, handleEvent);
   });
+}
 
-  container.setAttribute("data-event-listeners", "true");
+function handleEvent(event) {
+  let target = event.target;
+  while (target && target !== rootElement) {
+    const elementEvents = eventMap.get(target);
+    if (elementEvents) {
+      const handlers = elementEvents.get(event.type);
+      if (handlers) {
+        handlers.forEach((handler) => handler(event));
+        return;
+      }
+    }
+    target = target.parentElement;
+  }
 }
 
 /**
@@ -65,8 +46,16 @@ export function addEvent(element, eventType, handler) {
   if (!elementEvents.has(eventType)) {
     elementEvents.set(eventType, new Set());
   }
-
   elementEvents.get(eventType).add(handler);
+
+  if (!delegatedEvents.has(eventType)) {
+    delegatedEvents.add(eventType);
+
+    if (rootElement) {
+      rootElement.removeEventListener(eventType, handleEvent);
+      rootElement.addEventListener(eventType, handleEvent);
+    }
+  }
 }
 
 /**
