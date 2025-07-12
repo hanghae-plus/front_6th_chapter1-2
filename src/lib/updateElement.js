@@ -44,3 +44,60 @@ export function updateAttributes(element, newProps, oldProps = null) {
     });
   }
 }
+
+/**
+ * 가상 DOM의 diff 알고리즘을 통해 실제 DOM을 효율적으로 업데이트합니다.
+ *
+ * @param {HTMLElement} parentElement - 업데이트할 부모 DOM 엘리먼트
+ * @param {any} newNode - 새로운 가상 노드(VNode) 또는 문자열/숫자
+ * @param {any} oldNode - 이전 가상 노드(VNode) 또는 문자열/숫자
+ * @param {number} [index=0] - 부모 엘리먼트 내에서의 자식 인덱스
+ */
+export function updateElement(parentElement, newNode, oldNode, index = 0) {
+  if (!newNode && oldNode) {
+    if (parentElement.childNodes[index]) {
+      parentElement.removeChild(parentElement.childNodes[index]);
+    }
+    return;
+  }
+
+  if (newNode && !oldNode) {
+    parentElement.appendChild(createElement(newNode));
+    return;
+  }
+
+  if (typeof newNode === "string" || typeof newNode === "number") {
+    if (newNode !== oldNode) {
+      const newTextNode = document.createTextNode(String(newNode));
+      if (parentElement.childNodes[index]) {
+        parentElement.replaceChild(newTextNode, parentElement.childNodes[index]);
+      } else {
+        parentElement.appendChild(newTextNode);
+      }
+    }
+    return;
+  }
+
+  if (newNode.type !== oldNode.type) {
+    if (parentElement.childNodes[index]) {
+      parentElement.replaceChild(createElement(newNode), parentElement.childNodes[index]);
+    } else {
+      parentElement.appendChild(createElement(newNode));
+    }
+    return;
+  }
+
+  if (parentElement.childNodes[index]) {
+    updateAttributes(parentElement.childNodes[index], newNode.props || {}, oldNode.props || {});
+  }
+
+  const newChildren = newNode.children || [];
+  const oldChildren = oldNode.children || [];
+  const maxLength = Math.max(newChildren.length, oldChildren.length);
+
+  for (let i = 0; i < maxLength; i++) {
+    if (parentElement.childNodes[index]) {
+      updateElement(parentElement.childNodes[index], newChildren[i], oldChildren[i], i);
+    }
+  }
+}
