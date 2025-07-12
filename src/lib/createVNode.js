@@ -1,3 +1,5 @@
+import { isNil } from "../utils/isNil";
+
 export function createVNode(type, props, ...children) {
   return {
     type,
@@ -8,5 +10,3 @@ export function createVNode(type, props, ...children) {
       .filter((child) => child !== false),
   };
 }
-
-const isNil = (value) => value == undefined;
