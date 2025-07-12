@@ -44,7 +44,11 @@ function updateAttributes($el, props) {
     } else if (["checked", "disabled", "selected", "readOnly"].includes(attr)) {
       $el[attr] = Boolean(value);
     } else if (attr === "className") {
-      $el.setAttribute("class", value);
+      if (value) {
+        $el.setAttribute("class", value);
+      } else {
+        $el.removeAttribute("class");
+      }
     } else if (attr === "style" && typeof value === "object") {
       Object.assign($el.style, value);
     } else {
