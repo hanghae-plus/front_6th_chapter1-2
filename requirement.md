@@ -1,6 +1,10 @@
 # 2주차 과제 요구사항 명세서
 
-
+[] createVNode 함수 작성
+[] normalizeVNode 함수 작성
+[] createElement 함수 작성
+[] eventManager 함수 작성
+[] renderElement 함수 작성
 
 # 1주차 과제 요구사항 명세서
 
