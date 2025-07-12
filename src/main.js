@@ -20,7 +20,7 @@ const enableMocking = () =>
  * 애플리케이션 초기화
  */
 function main() {
-  console.log("🚀 애플리케이션이 시작되었습니다.");
+  console.log("🚀 애플리케이션이 시작되었습니다");
 
   console.log("✅ MSW 워커 시작 완료");
 
