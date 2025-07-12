@@ -68,3 +68,20 @@ export function addEvent(element, eventType, handler) {
 
   elementEvents.get(eventType).add(handler);
 }
+
+/**
+ * 특정 엘리먼트에서 이벤트 핸들러를 제거합니다.
+ *
+ * @param {HTMLElement} element - 이벤트를 제거할 엘리먼트
+ * @param {string} eventType - 이벤트 타입 (예: 'click')
+ * @param {Function} handler - 제거할 이벤트 핸들러 함수
+ */
+export function removeEvent(element, eventType, handler) {
+  const elementEvents = eventMap.get(element);
+  if (!elementEvents) return;
+
+  const handlers = elementEvents.get(eventType);
+  if (!handlers) return;
+
+  handlers.delete(handler);
+}
