@@ -14,6 +14,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
   describe("createVNode > ", () => {
     it("올바른 구조의 vNode를 생성해야 한다", () => {
       const vNode = createVNode("div", { id: "test" }, "Hello");
+
       expect(vNode).toEqual({
         type: "div",
         props: { id: "test" },
@@ -28,6 +29,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
 
     it("자식 배열을 평탄화해야 한다", () => {
       const vNode = createVNode("div", null, ["Hello", ["world", "!"]]);
+      // console.log("vNode => ", vNode);
       expect(vNode.children).toEqual(["Hello", "world", "!"]);
     });
 
@@ -196,6 +198,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           },
         },
       ])("$name", ({ vNode, expected }) => {
+        // console.log("vNode => ", vNode);
         expect(vNode).toEqual(expected);
       });
     });
