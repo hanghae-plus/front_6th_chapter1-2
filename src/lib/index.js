@@ -2,7 +2,7 @@ export * from "./createElement";
 export * from "./createObserver";
 export * from "./createStorage";
 export * from "./createStore";
-export * from "./createVNode";
+export * from "./createVNode.ts";
 export * from "./eventManager";
 export * from "./normalizeVNode";
 export * from "./renderElement";
