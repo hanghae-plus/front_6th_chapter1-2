@@ -8,6 +8,7 @@ export function createElement(vNode) {
   }
 
   const $el = document.createElement(vNode.type);
+  $el.vDOMProps = vNode.props ?? {};
   updateAttributes($el, vNode.props ?? {});
 
   const children = vNode.children.map(createElement);
