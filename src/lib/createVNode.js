@@ -13,7 +13,7 @@ export function createVNode(type, props, ...children) {
 
   // Remove null, undefined, boolean (except 0/number)
   function filterValid(child) {
-    return !(child === null || child === undefined || typeof child === 'boolean');
+    return !(child === null || child === undefined || typeof child === "boolean");
   }
 
   // Flatten and filter children
@@ -21,7 +21,7 @@ export function createVNode(type, props, ...children) {
 
   return {
     type,
-    props: props === undefined ? null : props,
+    props,
     children: flatChildren,
   };
 }
