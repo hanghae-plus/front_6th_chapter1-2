@@ -4,7 +4,7 @@ import { addEvent } from "./eventManager";
  * 가상 DOM 노드를 실제 DOM 요소로 변환하는 함수입니다.
  *
  * @param {*} vNode - 변환할 가상 DOM 노드
- * @param {string} [vNode.type] - DOM 요소의 타입 (예: 'div', 'span' 등)
+ * @param {string|function} [vNode.type] - DOM 요소의 타입 또는 함수형 컴포넌트
  * @param {Object} [vNode.props] - DOM 요소의 속성들
  * @param {string} [vNode.props.className] - 요소의 클래스 이름
  * @param {boolean} [vNode.props.selected] - option 요소의 선택 상태
@@ -35,6 +35,11 @@ export function createElement(vNode) {
       }
     });
     return fragment;
+  }
+
+  // 객체가 아닌 경우 문자열로 변환
+  if (typeof vNode !== "object") {
+    return document.createTextNode(String(vNode));
   }
 
   // DOM 엘리먼트 생성

@@ -23,7 +23,10 @@ export function normalizeVNode(vNode) {
 
   // 함수형 컴포넌트 처리
   if (typeof vNode.type === "function") {
-    const props = { ...vNode.props, children: vNode.children };
+    const props = { ...vNode.props };
+    if (vNode.children?.length > 0) {
+      props.children = vNode.children.map((child) => normalizeVNode(child));
+    }
     const result = vNode.type(props);
     return normalizeVNode(result);
   }
@@ -31,11 +34,16 @@ export function normalizeVNode(vNode) {
   // children 정규화 및 falsy 값 필터링
   const normalizedChildren = Array.isArray(vNode.children)
     ? vNode.children.map((child) => normalizeVNode(child)).filter((child) => child !== "" && child != null)
-    : [];
+    : vNode.children
+      ? [normalizeVNode(vNode.children)]
+      : [];
+
+  // 빈 배열이면 undefined로 설정
+  const children = normalizedChildren.length > 0 ? normalizedChildren : undefined;
 
   return {
     type: vNode.type,
     props: vNode.props || null,
-    children: normalizedChildren,
+    children,
   };
 }
