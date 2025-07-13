@@ -4,8 +4,10 @@ import { createElement } from "./createElement.js";
 // 모든 태그를 비교하여 변경된 부분 수정
 // Node = { type, props, children: children.flat() }
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
+  const target = parentElement.childNodes[index];
+
   // oldNode만 있거나 newNode만 있는 경우
-  if (!newNode && oldNode) parentElement.removeChild(parent.childNode[index]);
+  if (!newNode && oldNode) parentElement.removeChild(target);
   if (newNode && oldNode) parentElement.appendChild(createElement(newNode));
 
   // 모두 text인 경우
@@ -15,21 +17,21 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   ) {
     if (newNode === oldNode) return;
 
-    return parentElement.replaceChild(createElement(newNode), parentElement.childNodes[index]);
+    return parentElement.replaceChild(createElement(newNode), target);
   }
 
   // oldNode와 newNode의 type이 다른 경우
   if (newNode.type !== oldNode.type) {
-    return parent.replaceChild(createElement(newNode), parent.childnodes[index]);
+    return parentElement.replaceChild(createElement(newNode), target);
   }
 
   // oldNode와 newNode의 태그가 같은 경우
-  updateAttributes(parentElement.childNodes[index], newNode.props ?? {}, oldNode.props ?? {});
+  updateAttributes(target, newNode.props ?? {}, oldNode.props ?? {});
 
   // 모든 자식 태그를 순회
   const maxLength = Math.max(newNode.chiledren.length, oldNode.children.length);
   for (let i = 0; i < maxLength; i++) {
-    updateElement(parent.childNodex[index], newNode.children[i], oldNode.children[i], i);
+    updateElement(target, newNode.children[i], oldNode.children[i], i);
   }
 }
 
