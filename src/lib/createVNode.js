@@ -8,5 +8,11 @@
  */
 
 export function createVNode(type, props, ...children) {
-  return { type, props, children: children.flat(Infinity) };
+  return {
+    type,
+    props,
+    children: children
+      .flat(Infinity)
+      .filter((node) => node !== undefined && node !== null && node !== false && !Number.isNaN(node)),
+  };
 }
