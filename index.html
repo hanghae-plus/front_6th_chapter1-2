@@ -1,26 +1,44 @@
 <!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>상품 쇼핑몰</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/src/styles.css">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#3b82f6",
-            secondary: "#6b7280"
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>상품 쇼핑몰</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b82f6",
+              secondary: "#6b7280",
+            },
+          },
+        },
+      };
+    </script>
+    <script>
+      (function (l) {
+        if (l.search) {
+          var q = {};
+          l.search
+            .slice(1)
+            .split("&")
+            .forEach(function (v) {
+              var a = v.split("=");
+              q[a[0]] = a.slice(1).join("=").replace(/~and~/g, "&");
+            });
+          if (q.p !== undefined) {
+            window.history.replaceState(null, null, q.p + (q.q ? "?" + q.q : "") + l.hash);
           }
         }
-      }
-    };
-  </script>
-</head>
-<body class="bg-gray-50">
-<div id="root"></div>
-<script type="module" src="/src/main.js"></script>
-</body>
+      })(window.location);
+    </script>
+  </head>
+
+  <body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

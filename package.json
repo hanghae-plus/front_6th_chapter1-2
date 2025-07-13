@@ -10,9 +10,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:prod": "NODE_ENV=production vite build",
+    "preview": "vite preview",
+    "preview:prod": "NODE_ENV=production vite preview",
     "lint:fix": "eslint --fix",
     "prettier:write": "prettier --write ./src",
-    "preview": "vite preview",
     "test": "vitest",
     "test:basic": "vitest basic",
     "test:advanced": "vitest advanced",
