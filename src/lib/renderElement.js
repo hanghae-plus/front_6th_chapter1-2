@@ -9,21 +9,7 @@ import { updateElement } from "./updateElement";
  *
  * @param {Object|string|null} vNode - 렌더링할 가상 DOM 노드
  * @param {HTMLElement} container - 렌더링될 컨테이너 엘리먼트
- * @param {Object|string|null} [oldVNode] - 이전에 렌더링된 가상 DOM 노드
- *
- * @example
- * // 초기 렌더링
- * renderElement(
- *   { type: 'div', props: { className: 'app' }, children: ['Hello'] },
- *   document.getElementById('root')
- * );
- *
- * // 업데이트
- * renderElement(
- *   { type: 'div', props: { className: 'app updated' }, children: ['Updated'] },
- *   document.getElementById('root'),
- *   previousVNode
- * );
+ * @returns {HTMLElement} 렌더링된 DOM 엘리먼트
  */
 export function renderElement(vNode, container) {
   // vNode 정규화
@@ -43,7 +29,15 @@ export function renderElement(vNode, container) {
     container.appendChild(element);
   } else {
     // 재렌더링: DOM 업데이트
-    updateElement(container, normalizedNode, oldVNode);
+    const oldElement = container.firstElementChild;
+    if (!oldElement) {
+      // 기존 엘리먼트가 없으면 새로 생성
+      const element = createElement(normalizedNode);
+      container.appendChild(element);
+    } else {
+      // 기존 엘리먼트 업데이트
+      updateElement(container, normalizedNode, oldVNode, 0);
+    }
   }
 
   // 현재 vNode를 container에 저장
