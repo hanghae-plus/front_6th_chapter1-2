@@ -1,4 +1,4 @@
-// import { addEvent } from "./eventManager";
+import { addEvent } from "./eventManager";
 import { convert } from "../utils/converter";
 import { isNil } from "../utils/isNil";
 
@@ -55,7 +55,14 @@ const componentCreateElement = (vNode) => {
 function updateAttributes($el, props) {
   if (props) {
     Object.entries(props).forEach(([key, value]) => {
-      $el.setAttribute(normalizeAttributeKey(key), value);
+      if (key.startsWith("on")) {
+        if (typeof value !== "function") {
+          throw new Error(`Event handler must be a function: ${key}`);
+        }
+        addEvent($el, key.substring(2).toLowerCase(), value);
+      } else {
+        $el.setAttribute(normalizeAttributeKey(key), value);
+      }
     });
   }
 }
