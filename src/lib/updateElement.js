@@ -7,11 +7,6 @@ import { addEvent, removeEvent } from "./eventManager";
  * @param {HTMLElement} $element - 업데이트할 DOM 요소
  * @param {Object} newProps - 새로운 속성들
  * @param {Object} oldProps - 이전 속성들
- * @param {string} [newProps.className] - 새로운 클래스 이름
- * @param {boolean} [newProps.selected] - option 요소의 선택 상태
- * @param {boolean} [newProps.checked] - 체크박스/라디오 버튼의 체크 상태
- * @param {boolean} [newProps.disabled] - 요소의 비활성화 상태
- * @param {boolean} [newProps.readOnly] - 요소의 읽기 전용 상태
  */
 function updateAttributes($element, newProps, oldProps) {
   // null 체크 및 기본값 설정
@@ -81,14 +76,6 @@ function updateAttributes($element, newProps, oldProps) {
  * @param {Object|string} newNode - 새로운 가상 DOM 노드
  * @param {Object|string} oldNode - 이전 가상 DOM 노드
  * @param {number} [index=0] - 자식 노드의 인덱스
- * @param {string} [newNode.type] - DOM 요소의 타입 (예: 'div', 'span' 등)
- * @param {Object} [newNode.props] - DOM 요소의 속성들
- * @param {string} [newNode.props.className] - 요소의 클래스 이름
- * @param {boolean} [newNode.props.selected] - option 요소의 선택 상태
- * @param {boolean} [newNode.props.checked] - 체크박스/라디오 버튼의 체크 상태
- * @param {boolean} [newNode.props.disabled] - 요소의 비활성화 상태
- * @param {boolean} [newNode.props.readOnly] - 요소의 읽기 전용 상태
- * @param {Array} [newNode.children] - 자식 노드들
  */
 export function updateElement($parent, newNode, oldNode, index = 0) {
   // 노드가 없는 경우 처리
@@ -106,17 +93,21 @@ export function updateElement($parent, newNode, oldNode, index = 0) {
   // 노드가 새로 추가된 경우
   if (!oldNode) {
     const newElement = createElement(newNode);
-    $parent.appendChild(newElement);
+    if (index < $parent.childNodes.length) {
+      $parent.insertBefore(newElement, $parent.childNodes[index]);
+    } else {
+      $parent.appendChild(newElement);
+    }
     return;
   }
 
   // 둘 다 텍스트 노드인 경우
   if (typeof newNode === "string" && typeof oldNode === "string") {
-    if (newNode !== oldNode) {
-      const childNode = $parent.childNodes[index];
-      if (childNode) {
-        childNode.textContent = newNode;
-      }
+    const childNode = $parent.childNodes[index];
+    if (childNode && newNode !== oldNode) {
+      childNode.textContent = newNode;
+    } else if (!childNode) {
+      $parent.appendChild(document.createTextNode(newNode));
     }
     return;
   }
@@ -139,18 +130,51 @@ export function updateElement($parent, newNode, oldNode, index = 0) {
 
   // 속성 업데이트
   const currentNode = $parent.childNodes[index];
-  if (currentNode) {
-    updateAttributes(currentNode, newNode.props, oldNode.props);
+  if (!currentNode) {
+    $parent.appendChild(createElement(newNode));
+    return;
   }
 
-  // 자식 노드 업데이트
-  const newLength = newNode.children?.length || 0;
-  const oldLength = oldNode.children?.length || 0;
-  const maxLength = Math.max(newLength, oldLength);
+  updateAttributes(currentNode, newNode.props, oldNode.props);
 
-  // 자식 노드들을 역순으로 처리 (제거 시 인덱스 문제 방지)
-  for (let i = maxLength - 1; i >= 0; i--) {
-    const childNode = currentNode || $parent;
-    updateElement(childNode, newNode.children?.[i], oldNode.children?.[i], i);
+  // 자식 노드 업데이트
+  const newChildren = newNode.children || [];
+  const oldChildren = oldNode.children || [];
+  const maxLength = Math.max(newChildren.length, oldChildren.length);
+
+  // 자식 노드들을 순서대로 처리
+  for (let i = 0; i < maxLength; i++) {
+    const newChild = newChildren[i];
+    const oldChild = oldChildren[i];
+
+    // 새로운 자식이 없고 이전 자식이 있는 경우 제거
+    if (!newChild && oldChild) {
+      const targetNode = currentNode.childNodes[i];
+      if (targetNode) {
+        currentNode.removeChild(targetNode);
+      }
+      continue;
+    }
+
+    // 새로운 자식이 있고 이전 자식이 없는 경우 추가
+    if (newChild && !oldChild) {
+      const newElement = createElement(newChild);
+      if (i < currentNode.childNodes.length) {
+        currentNode.insertBefore(newElement, currentNode.childNodes[i]);
+      } else {
+        currentNode.appendChild(newElement);
+      }
+      continue;
+    }
+
+    // 둘 다 있는 경우 업데이트
+    if (newChild && oldChild) {
+      updateElement(currentNode, newChild, oldChild, i);
+    }
+  }
+
+  // 남은 자식 노드 제거
+  while (currentNode.childNodes.length > newChildren.length) {
+    currentNode.removeChild(currentNode.lastChild);
   }
 }
