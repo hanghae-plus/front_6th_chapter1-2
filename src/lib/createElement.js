@@ -17,13 +17,13 @@ export function createElement(vNode) {
 }
 
 // 새 DOM 노드에 속성 세팅
-// prpos - type, className, boolean, handler
+// props - type, className, boolean, handler
 function updateAttributes($el, props) {
   Object.entries(props).forEach(([attr, value]) => {
     if (attr === "className") {
       $el.setAttribute("class", value);
-    } else if (typeof attr === "boolean") {
-      attr && $el.setAttribute(attr, "");
+    } else if (typeof value === "boolean") {
+      value && $el.setAttribute(attr, "");
     } else if (attr.startsWith("on")) {
       const eventType = attr.slice(2).toLowerCase();
       addEvent($el, eventType, value);
