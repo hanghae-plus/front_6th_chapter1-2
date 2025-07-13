@@ -4,7 +4,7 @@ export * from "./createStorage";
 export * from "./createStore";
 export * from "./createVNode.ts";
 export * from "./eventManager";
-export * from "./normalizeVNode";
+export * from "./normalizeVNode.ts";
 export * from "./renderElement";
 export * from "./Router";
 export * from "./updateElement";
