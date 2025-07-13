@@ -1,4 +1,4 @@
-export * from "./createElement";
+export * from "./createElement.ts";
 export * from "./createObserver";
 export * from "./createStorage";
 export * from "./createStore";
