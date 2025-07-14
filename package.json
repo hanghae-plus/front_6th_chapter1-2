@@ -53,6 +53,5 @@
     "vite": "6.0.3",
     "vitest": "latest",
     "gh-pages": "^6.3.0"
-  },
-  "packageManager": "pnpm@10.13.1"
+  }
 }
