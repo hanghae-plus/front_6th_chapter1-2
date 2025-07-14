@@ -13,8 +13,10 @@ export function normalizeVNode(vNode) {
     return String(vNode);
   }
 
-  // * 함수형 컴포넌트 일 때
-  // * children도 모두 vNode로 변환되어야 한다.
+  if (Array.isArray(vNode)) {
+    return vNode.map(normalizeVNode).filter((child) => child !== "");
+  }
+
   if (typeof vNode === "object" && typeof vNode.type === "function") {
     const Component = vNode.type;
     const props = vNode.props ?? {};
@@ -38,5 +40,8 @@ export function normalizeVNode(vNode) {
     return result;
   }
 
-  return vNode;
+  return {
+    ...vNode,
+    children: vNode.children.map(normalizeVNode),
+  };
 }
