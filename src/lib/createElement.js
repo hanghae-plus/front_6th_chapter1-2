@@ -38,7 +38,8 @@ function updateAttributes($el, props) {
   for (const [key, value] of Object.entries(props)) {
     // on으로 시작하면 함수이니 addEvent로 분기
     if (key.startsWith("on")) {
-      addEvent($el, key.substring(2), value);
+      const eventType = key.substring(2).toLowerCase();
+      addEvent($el, eventType, value);
     } else if (key === "className") {
       $el.setAttribute("class", value);
     } else if (key.startsWith("data-")) {

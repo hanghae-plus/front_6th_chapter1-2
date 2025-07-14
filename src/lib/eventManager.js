@@ -1,29 +1,31 @@
-// 이벤트 핸들러를 저장할 WeakMap
+// 이벤트 핸들러를 저장할 WeakMap (root와 일반 엘리먼트 모두 관리)
 const eventHandlers = new WeakMap();
 
 export function setupEventListeners(root) {
+  // root에 __delegated 플래그가 있으면 중복 등록 방지
+  const rootMeta = eventHandlers.get(root);
+  if (rootMeta && rootMeta.__delegated) return;
+
+  // 플래그 세팅
+  eventHandlers.set(root, { __delegated: true });
+
   // 이벤트 위임을 위한 이벤트 리스너 설정
   const eventTypes = ["click", "mouseover", "focus", "keydown", "submit", "change", "input"];
 
-  // react의 이벤트 위임 방식처럼 root요소에 eventListener를 등록해서 이벤트를 위임
   eventTypes.forEach((eventType) => {
     root.addEventListener(
       eventType,
       (event) => {
-        // 이벤트가 발생한 타겟요소 가지고오기
         const element = event.target;
-        // 이벤트 핸들러 가지고 오기
         const handlers = eventHandlers.get(element);
-
-        // 핸들러가 있고 그안에 이벤트 타입이 있다면
+        // root(container)에는 __delegated만 있으므로, 일반 엘리먼트만 핸들러 실행
         if (handlers && handlers[eventType]) {
-          // 핸들러가 있고 그안에 이벤트 타입이 있다면 핸들러를 실행
           handlers[eventType].forEach((handler) => {
             handler(event);
           });
         }
       },
-      false, // 버블링 단계에서 처리
+      false,
     );
   });
 }
@@ -40,18 +42,17 @@ export function setupEventListeners(root) {
  * 이런 형태로 들어올껀데 여기서 이벤트 리스너를 등록.
  */
 export function addEvent(element, eventType, handler) {
-  // 이벤트 핸들러가 없으면 생성
+  // root(container)는 핸들러 배열 관리하지 않음
   if (!eventHandlers.has(element)) {
     eventHandlers.set(element, {});
   }
-
-  // 이벤트 타입이 없으면 생성
-  if (!eventHandlers.get(element)[eventType]) {
-    eventHandlers.get(element)[eventType] = [];
+  const handlers = eventHandlers.get(element);
+  // root에 __delegated만 있는 경우, 핸들러 배열 관리하지 않음
+  if (handlers.__delegated) return;
+  if (!handlers[eventType]) handlers[eventType] = [];
+  if (!handlers[eventType].includes(handler)) {
+    handlers[eventType].push(handler);
   }
-
-  // 이벤트 핸들러 배열에 추가
-  eventHandlers.get(element)[eventType].push(handler);
 }
 
 export function removeEvent(element, eventType, handler) {

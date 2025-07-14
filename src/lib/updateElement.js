@@ -1,7 +1,7 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
-function updateAttributes(target, newProps, oldProps) {
+function updateAttributes(target, newProps = {}, oldProps = {}) {
   // 1. oldProps 중에 newProps에 없는 건 제거
   for (const key in oldProps) {
     // newProps에 없는 속성이라면
@@ -76,6 +76,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     parentElement.replaceChild(createElement(newNode), parentElement.childNodes[index]);
     return;
   }
+
   // 동일 타입일 때 props 업데이트
   updateAttributes(parentElement.childNodes[index], newNode.props, oldNode.props);
 
