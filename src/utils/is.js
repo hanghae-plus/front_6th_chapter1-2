@@ -11,3 +11,4 @@ export const isNode = (value) => value instanceof Node;
 export const isEvent = (value) => value instanceof Event;
 export const isPromise = (value) => value instanceof Promise;
 export const isSymbol = (value) => typeof value === "symbol";
+export const isEmptyString = (value) => value === "";
