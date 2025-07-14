@@ -1,10 +1,10 @@
 export function normalizeVNode(vNode) {
-  const isNullorBoolean = (value) => value == null || typeof value === "boolean";
+  const isFalsyVNodeValue = (value) => value == null || typeof value === "boolean";
   const isPrimitive = (value) => typeof value === "string" || typeof value === "number";
   const isFunction = (value) => typeof value === "function";
 
   // null, undefined, boolean → 빈 문자열
-  if (isNullorBoolean(vNode)) {
+  if (isFalsyVNodeValue(vNode)) {
     return "";
   }
 
