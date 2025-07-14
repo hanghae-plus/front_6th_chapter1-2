@@ -5,7 +5,7 @@ import { isNil } from "../utils/isNil";
 export function createElement(vNode) {
   return basicCreateElement(vNode)
     .merge(() => componentCreateElement(vNode))
-    .otherwise((val) => {
+    .default((val) => {
       const $el = document.createElement(val.type);
       updateAttributes($el, val.props);
       if (val.children && val.children.length > 0) {
@@ -19,26 +19,18 @@ export function createElement(vNode) {
 
 const basicCreateElement = (vNode) => {
   return convert(vNode, { earlyTermination: true })
-    .when((val) => isNil(val) || typeof val === "boolean")
-    .then(() => {
-      return document.createTextNode("");
-    })
-    .when((val) => typeof val === "string" || typeof val === "number")
-    .then((val) => {
-      return document.createTextNode(val.toString());
-    })
-    .when((val) => Array.isArray(val))
-    .then((val) => {
-      if (val.length === 1) {
-        return createElement(val[0]);
-      }
-
-      const $el = new DocumentFragment();
+    .case((val) => isNil(val) || typeof val === "boolean")
+    .to(() => document.createTextNode(""))
+    .case((val) => typeof val === "string" || typeof val === "number")
+    .to((val) => document.createTextNode(val.toString()))
+    .case((val) => Array.isArray(val))
+    .to((val) => {
+      const $df = new DocumentFragment();
       val.forEach((child) => {
         const $child = createElement(child);
-        $el.appendChild($child);
+        $df.appendChild($child);
       });
-      return $el;
+      return $df;
     });
 };
 
@@ -48,7 +40,7 @@ const isUnnormalizedComponent = (vNode) => {
 
 const componentCreateElement = (vNode) => {
   return convert(vNode, { earlyTermination: true })
-    .when(isUnnormalizedComponent)
+    .case(isUnnormalizedComponent)
     .error("Component should be normalized");
 };
 

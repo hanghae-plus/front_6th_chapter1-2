@@ -10,7 +10,7 @@ class Converter {
     this.pendingCondition = null;
   }
 
-  when(condition) {
+  case(condition) {
     if (this.hasTransformed && this.earlyTermination) {
       return this;
     }
@@ -19,7 +19,7 @@ class Converter {
     return this;
   }
 
-  then(transform) {
+  to(transform) {
     if (this.hasTransformed && this.earlyTermination) {
       return this;
     }
@@ -39,7 +39,7 @@ class Converter {
     return this;
   }
 
-  otherwise(fallback) {
+  default(fallback) {
     if (!this.hasTransformed) {
       this.value = typeof fallback === "function" ? fallback(this.value) : fallback;
     }
