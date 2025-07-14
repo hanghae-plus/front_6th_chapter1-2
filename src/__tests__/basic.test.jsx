@@ -515,7 +515,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
 
       renderElement(<TestComponent />, $container);
 
-      console.log("$container.innerHTML");
+      console.log("$container.innerHTML", $container.innerHTML);
 
       expect($container.innerHTML).toEqual(
         `<ul><li id="item-1" class="list-item list-item "><button></button></li><li id="item-2" class="list-item list-item "><div></div></li><li id="item-3" class="list-item list-item "><input></li><li id="item-4" class="list-item list-item last-item"><input></li></ul>`,

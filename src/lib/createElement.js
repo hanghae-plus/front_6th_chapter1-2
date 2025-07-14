@@ -1,5 +1,4 @@
 export function createElement(vNode) {
-  console.log("createElement", vNode);
   const isFalsyVNodeValue = (value) => value == null || typeof value === "boolean";
   const isPrimitive = (value) => typeof value === "string" || typeof value === "number";
 
@@ -36,21 +35,27 @@ export function createElement(vNode) {
     });
   }
 
-  console.log("$el", $el);
-
   return $el;
 }
 
 function updateAttributes($el, props) {
   if (!props) return;
 
-  // props의 각 key-value 반복하며 DOM에 적용
   Object.entries(props).forEach(([key, value]) => {
     if (key === "className") {
-      // className은 DOM의 className 속성에 직접 할당
       $el.className = value;
-    } else {
-      // 그 외의 속성은 setAttribute로 추가
+    } else if (/^on[A-Z]/.test(key) && typeof value === "function") {
+      // 이벤트 핸들러는 addEventListener로 등록
+      const eventType = key.slice(2).toLowerCase();
+      $el.addEventListener(eventType, value);
+    } else if (typeof value === "boolean") {
+      // 불리언 속성은 true일 때만 설정
+      if (value) {
+        $el.setAttribute(key, "");
+        $el[key] = true; // 실제 DOM 속성도 설정
+      }
+    } else if (value != null) {
+      // null/undefined가 아닌 경우만 setAttribute
       $el.setAttribute(key, value);
     }
   });
