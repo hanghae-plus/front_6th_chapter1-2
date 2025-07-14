@@ -42,6 +42,21 @@ function updateAttributes($el, props) {
       addEvent($el, eventType, value);
     } else if (key === "className") {
       $el.setAttribute("class", value);
+    }
+    // 특수한 속성 처리
+    else if (key === "checked" || key === "disabled" || key === "readOnly" || key === "selected") {
+      // boolean 속성 처리
+      if (value) {
+        $el[key] = true;
+        if (key === "disabled") {
+          $el.setAttribute(key, "");
+        }
+      } else {
+        $el[key] = false;
+        if (key === "disabled") {
+          $el.removeAttribute(key);
+        }
+      }
     } else if (key.startsWith("data-")) {
       $el.dataset[key.substring(5)] = value;
     } else {
