@@ -10,7 +10,7 @@ export function normalizeVNode(vNode) {
       return normalizeVNode(renderedVNode);
     }
 
-    // 일반 VNode면 children 정규화
+    // 일반 VNode면 children 평탄화
     return {
       ...vNode,
       children: normalizeChildren(vNode.children),
