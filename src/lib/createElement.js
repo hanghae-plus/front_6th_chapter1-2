@@ -1,31 +1,37 @@
+/** @typedef {import('./type').VNode} VNode */
+
 import { addEvent } from "./eventManager";
+
+const BOOLEAN_ATTRIBUTES = ["checked", "disabled", "readOnly"];
 
 /**
  * 가상 DOM 노드를 실제 DOM 요소로 변환하는 함수입니다.
  *
- * @param {*} vNode - 변환할 가상 DOM 노드
- * @param {string|function} [vNode.type] - DOM 요소의 타입 또는 함수형 컴포넌트
- * @param {Object} [vNode.props] - DOM 요소의 속성들
- * @param {string} [vNode.props.className] - 요소의 클래스 이름
- * @param {boolean} [vNode.props.selected] - option 요소의 선택 상태
- * @param {boolean} [vNode.props.checked] - 체크박스/라디오 버튼의 체크 상태
- * @param {boolean} [vNode.props.disabled] - 요소의 비활성화 상태
- * @param {boolean} [vNode.props.readOnly] - 요소의 읽기 전용 상태
- * @param {Array} [vNode.children] - 자식 노드들
+ * @param {VNode} vNode - 변환할 가상 DOM 노드
  * @returns {Node} 생성된 DOM 노드
  */
 export function createElement(vNode) {
   // null, undefined, boolean 처리
-  if (vNode == null || typeof vNode === "boolean") {
+  if (vNode === undefined || vNode === null || vNode === false || vNode === true) {
     return document.createTextNode("");
   }
 
-  // 문자열이나 숫자 처리
+  // 나머지 원시타입 정리
   if (typeof vNode === "string" || typeof vNode === "number") {
     return document.createTextNode(String(vNode));
   }
 
-  // 배열 처리
+  /**
+   * Bigint / Symbol 타입은 문자열로 변환
+   */
+  if (typeof vNode !== "object") {
+    return document.createTextNode(String(vNode));
+  }
+
+  /**
+   * 배열 처리
+   * Fragment는 가상요소 컨테이너로 사용되며, 실제 DOM 요소는 생성되지 않습니다.
+   */
   if (Array.isArray(vNode)) {
     const fragment = document.createDocumentFragment();
     vNode.forEach((child) => {
@@ -37,13 +43,8 @@ export function createElement(vNode) {
     return fragment;
   }
 
-  // 객체가 아닌 경우 문자열로 변환
-  if (typeof vNode !== "object") {
-    return document.createTextNode(String(vNode));
-  }
-
   // DOM 엘리먼트 생성
-  const $el = document.createElement(vNode.type);
+  const $element = document.createElement(vNode.type);
 
   // 속성 설정
   if (vNode.props) {
@@ -51,34 +52,34 @@ export function createElement(vNode) {
       // 이벤트 리스너
       if (name.startsWith("on")) {
         const eventType = name.toLowerCase().substring(2);
-        addEvent($el, eventType, value);
+        addEvent($element, eventType, value);
         return;
       }
 
-      // className 특별 처리
+      // className 특별 처리(React의 관용 처리)
       if (name === "className") {
-        $el.className = value;
+        $element.className = value;
         return;
       }
 
       // select와 option 요소의 특별 처리
-      if (name === "selected" && $el.tagName === "OPTION") {
-        $el.selected = !!value;
+      if (name === "selected" && $element.tagName === "OPTION") {
+        $element.selected = !!value;
         return;
       }
 
       // boolean 속성 특별 처리
-      if (name === "checked" || name === "disabled" || name === "readOnly") {
-        $el[name] = !!value;
+      if (BOOLEAN_ATTRIBUTES.includes(name)) {
+        $element[name] = !!value;
         if (value) {
-          $el.setAttribute(name, "");
+          $element.setAttribute(name, "");
         }
         return;
       }
 
       // 일반 속성 처리
       if (value !== false && value != null) {
-        $el.setAttribute(name, value);
+        $element.setAttribute(name, value);
       }
     });
   }
@@ -86,12 +87,12 @@ export function createElement(vNode) {
   // 자식 요소 처리
   if (vNode.children) {
     vNode.children.forEach((child) => {
-      if (child != null) {
-        const childElement = createElement(child);
-        $el.appendChild(childElement);
-      }
+      if (!child) return;
+
+      const childElement = createElement(child);
+      $element.appendChild(childElement);
     });
   }
 
-  return $el;
+  return $element;
 }
