@@ -117,3 +117,19 @@ AST 변환 후 -> createVNode("div", { id: "foo" }, "bar");
 | 1. Parse     | 코드 → AST        | `<div>Hello</div>` → JSXElement     |
 | 2. Transform | JSX → 함수 호출 AST | `JSXElement` → `createVNode(...)`   |
 | 3. Generate  | AST → JS 코드     | `createVNode("div", null, "Hello")` |
+
+### esBuild 의 깃허브의 자세한 내용이 궁금하다면?
+
+- JSX Factory 적용 처리
+👉 [esbuild/internal/js_ast/js_ast.go](https://github.com/evanw/esbuild/blob/main/internal/js_ast/js_ast.go)
+JSX 요소를 createElement나 custom factory 함수 호출로 바꾸는 처리 포함.
+
+- JSX 관련 설정 처리 (jsxFactory, jsxFragment)
+👉 [esbuild/internal/config/config.go](https://github.com/evanw/esbuild/blob/main/internal/config/config.go)
+CLI나 API로 넘긴 설정(jsxFactory, jsxFragment, jsx)을 처리합니다.
+
+### 참고문서
+
+- https://ko.vite.dev/config/shared-options.html#esbuild
+- https://esbuild.github.io/api/#jsx
+- https://esbuild.github.io/api/#jsx-factory
