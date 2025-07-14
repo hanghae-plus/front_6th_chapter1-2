@@ -1,0 +1,13 @@
+export const isNil = (value) => value === null || value === undefined;
+export const isFalse = (value) => value === false;
+export const isBoolean = (value) => typeof value === "boolean";
+export const isString = (value) => typeof value === "string";
+export const isNumber = (value) => typeof value === "number";
+export const isFunction = (value) => typeof value === "function";
+export const isObject = (value) => typeof value === "object" && value !== null;
+export const isArray = (value) => Array.isArray(value);
+export const isElement = (value) => value instanceof Element;
+export const isNode = (value) => value instanceof Node;
+export const isEvent = (value) => value instanceof Event;
+export const isPromise = (value) => value instanceof Promise;
+export const isSymbol = (value) => typeof value === "symbol";
