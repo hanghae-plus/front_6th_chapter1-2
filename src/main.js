@@ -1,3 +1,4 @@
+// main.js
 import { initRender } from "./render";
 import { loadCartFromStorage } from "./services";
 import { router } from "./router";
