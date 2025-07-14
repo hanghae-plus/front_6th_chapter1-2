@@ -1,7 +1,12 @@
 const eventMap = new WeakMap();
 const eventTypes = new Set();
+const setupRoots = new WeakSet();
 
 export function setupEventListeners(root) {
+  if (setupRoots.has(root)) {
+    return;
+  }
+
   eventTypes.forEach((eventType) => {
     root.addEventListener(eventType, (e) => {
       const handler = eventMap.get(e.target)?.[eventType];
@@ -10,6 +15,8 @@ export function setupEventListeners(root) {
       }
     });
   });
+
+  setupRoots.add(root);
 }
 
 export function addEvent(element, eventType, handler) {
@@ -19,11 +26,9 @@ export function addEvent(element, eventType, handler) {
   eventTypes.add(eventType);
 }
 
-export function removeEvent(element, eventType, handler) {
+export function removeEvent(element, eventType) {
   const event = eventMap.get(element) || {};
 
-  if (event[eventType] === handler) {
-    delete event[eventType];
-    eventMap.set(element, event);
-  }
+  delete event[eventType];
+  eventMap.set(element, event);
 }
