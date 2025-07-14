@@ -35,7 +35,7 @@ export function createElement(vNode) {
 }
 
 function updateAttributes($el, props) {
-  for (const [key, value] in Object.entries(props)) {
+  for (const [key, value] of Object.entries(props)) {
     // on으로 시작하면 함수이니 addEvent로 분기
     if (key.startsWith("on")) {
       addEvent($el, key.substring(2), value);
@@ -43,6 +43,9 @@ function updateAttributes($el, props) {
       $el.setAttribute("class", value);
     } else if (key.startsWith("data-")) {
       $el.dataset[key.substring(5)] = value;
+    } else {
+      // 일반적인 HTML 속성들 (id, class, style 등) 처리
+      $el.setAttribute(key, value);
     }
   }
 }
