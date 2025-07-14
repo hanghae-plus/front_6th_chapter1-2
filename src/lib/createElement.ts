@@ -57,8 +57,8 @@ function updateAttributes(element: HTMLElement, props: Record<string, any> | nul
     }
 
     if (typeof value === "boolean") {
-      // any를 사용한 실용적인 이유: HTMLElement에 어떤 속성이 들어올지는 현재 단계에서 추측할 수 없으며 복잡한 타이핑을 하기보다는 과제 본직에 집중하기 위함
-      //boolean 속성의 경우 attribute의 value(string)와 DOM 프로퍼티의 value(boolean)의 타입이 다르기때문에 동기화 이슈가 생겨 둘다 업데이트해줌
+      // MEMO: any를 사용한 실용적인 이유: HTMLElement에 어떤 속성이 들어올지는 현재 단계에서 추측할 수 없으며 복잡한 타이핑을 하기보다는 과제 본질에 집중하기 위함
+      // boolean 속성의 경우 attribute의 value(string)와 DOM 프로퍼티의 value(boolean)의 타입이 다르기때문에 동기화 이슈가 생겨 둘다 업데이트해줌
       (element as any)[key] = value;
       // 속성의 존재만 확인하면되므로 value에 빈스트링을 넣어줌
       if (value) element.setAttribute(key, "");
