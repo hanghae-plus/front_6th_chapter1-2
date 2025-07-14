@@ -5,16 +5,24 @@ const eventMap = new WeakMap();
 // export function setupEventListeners(root) {}
 
 export function addEvent(element, eventType, handler) {
-    if (!eventMap.has(element)) {
-        eventMap.set(element, new Map());
-    }
+  if (!eventMap.has(element)) {
+    eventMap.set(element, new Map());
+  }
 
-    const elementEvents = eventMap.get(element);
-    if (!elementEvents.has(eventType)) {
-        elementEvents.set(eventType, new Set());
-    }
+  const elementEvents = eventMap.get(element);
+  if (!elementEvents.has(eventType)) {
+    elementEvents.set(eventType, new Set());
+  }
 
-    elementEvents.get(eventType).add(handler);    
+  elementEvents.get(eventType).add(handler);
 }
 
-// export function removeEvent(element, eventType, handler) {}
+export function removeEvent(element, eventType, handler) {
+    const elementEvents = eventMap.get(element);
+    if (!elementEvents) return;
+
+    const handlers = elementEvents.get(eventType);
+    if (!handlers) return;
+
+    handlers.delete(handler);
+}
