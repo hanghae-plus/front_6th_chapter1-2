@@ -3,18 +3,35 @@ import { addEvent } from "./eventManager";
 // VirtualDOM을 RealDOM으로 변환
 // vNode = { type, props, children: children.flat() }
 export function createElement(vNode) {
+  if (typeof vNode === "boolean" || vNode === null || vNode === undefined) {
+    return document.createTextNode("");
+  }
   if (typeof vNode === "string" || typeof vNode === "number") {
     return document.createTextNode(vNode);
   }
 
-  const $el = document.createElement(vNode.type);
-  $el.vDOMProps = vNode.props ?? {};
-  updateAttributes($el, vNode.props ?? {});
+  if (Array.isArray(vNode)) {
+    const fragment = document.createDocumentFragment();
 
-  const children = vNode.children.map(createElement);
-  children.map((child) => $el.appendChild(child));
+    vNode.forEach((child) => {
+      const el = createElement(child);
+      if (el) fragment.appendChild(el);
+    });
 
-  return $el;
+    return fragment;
+  }
+
+  if (typeof vNode === "object") {
+    const $el = document.createElement(vNode.type);
+    updateAttributes($el, vNode.props ?? {});
+
+    const children = (vNode.children ?? []).map(createElement);
+    children.forEach((child) => {
+      if (child) $el.appendChild(child);
+    });
+
+    return $el;
+  }
 }
 
 // 새 DOM 노드에 속성 세팅
