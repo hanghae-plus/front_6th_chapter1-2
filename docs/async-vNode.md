@@ -8,12 +8,12 @@
  * 함수 컴포넌트는 자식 노드를 포함하는 객체를 반환하므로 재귀적으로 처리
  */
 if (typeof vNode.type === "function") {
-const props = { ...vNode.props };
-if (vNode.children?.length > 0) {
-    props.children = vNode.children.map((child) => normalizeVNode(child));
-}
-const result = vNode.type(props); //  🚨 Promise를 반환 하는경우 문제 발생
-return normalizeVNode(result);
+    const props = { ...vNode.props };
+    if (vNode.children?.length > 0) {
+        props.children = vNode.children.map((child) => normalizeVNode(child));
+    }
+    const result = vNode.type(props); //  🚨 Promise를 반환 하는경우 문제 발생
+    return normalizeVNode(result);
 }
 
 async function AsynchronousComponent({ userId }) {
