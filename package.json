@@ -13,7 +13,7 @@
     "lint:fix": "eslint --fix",
     "prettier:write": "prettier --write ./src",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run --reporter verbose",
     "test:basic": "vitest basic",
     "test:advanced": "vitest advanced",
     "test:ui": "vitest --ui",

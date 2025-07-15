@@ -17,40 +17,59 @@
  */
 
 export function normalizeVNode(vNode) {
+  // null, undefined, boolean은 빈값으로 리턴
   if (vNode == null || typeof vNode === "boolean") {
-    // vNode가 null, undefined, boolean이면 빈 문자를 리턴한다
     return "";
-  } else if (typeof vNode === "string" || typeof vNode === "number") {
-    // vNode가 string 또는 number 타입이면 string으로 리턴
-    return vNode.toString();
-  } else if (typeof vNode === "function") {
-    // vNode가 함수면 재귀
+  }
+
+  // string, number 타입은 string으로 리턴
+  if (typeof vNode === "string" || typeof vNode === "number") {
+    return String(vNode);
+  }
+
+  // function이면 재귀
+  if (typeof vNode === "function") {
     return normalizeVNode(vNode());
-  } else {
-    // 함수형 컴포넌트일 때
-    if (vNode && typeof vNode === "object" && vNode.type) {
-      if (typeof vNode.type === "function") {
-        // vNode가 함수형 컴포넌트라면
-        return normalizeVNode(vNode.type(vNode.props));
-      }
+  }
+
+  // 함수형 컴포넌트면
+  // falsy 체크 + <Component />라고 하면 내부적으로 Object로 변환 (babel)
+  if (vNode && typeof vNode === "object") {
+    // 함수형 컴포넌트 타입은 자기 자신, 즉 함수
+    if (typeof vNode.type === "function") {
+      // vNode의 props는, 기존의 Props + children
+      const props = {
+        ...vNode.props,
+        children: vNode.children,
+      };
+
+      // vNode.type이 함수 -> TestComponent(props)
+      return normalizeVNode(vNode.type(props));
     }
 
-    // // vNode가 객체일 때
-    // if (vNode && typeof vNode === "object" && vNode.type) {
-    //   if (typeof vNode.type === "function") {
-    //     return normalizeVNode(vNode.type(vNode.props));
-    //   }
-    //   // 자식을 normalizedChildren으로 반복하여 normalizeVNode 재귀 호출 해 준다, 자식 없으면 빈 배열 리턴
-    //   const normalizedChildren = vNode.children ? vNode.children.map((child) => normalizeVNode(child)) : [];
-    //   // normalizedChildren로 호출한 자식들을 다시 체크해 준다
-    //   const filteredChildren = normalizedChildren.filter(
-    //     (child) => child !== null && child !== undefined && child !== false && child !== true,
-    //   );
-    //   return {
-    //     ...vNode,
-    //     children: filteredChildren,
-    //   };
-    // }
+    // 컴포넌트가 함수형 const MyComp = () => ... 이 아닌 일반 태그일 때
+    // 1. children이 있는지 확인하고, 없으면 빈 배열
+    // 2. children(array) 반복문으로 normalizeVNode 재귀
+    // 3. 그리고 거기에서 null, undefined, false, 빈 스트링 빼고 리턴
+
+    function cleanChildren(children) {
+      const childArray = Array.isArray(children) ? children : [];
+      return childArray
+        .map((child) => normalizeVNode(child))
+        .filter((child) => {
+          const isEmpty = child === null || child === undefined || child === false || child === "";
+          // 다음 중 위에 거가 아닌 것만 리턴
+          return !isEmpty;
+        });
+    }
+
+    const normalizedChildren = cleanChildren(vNode.children);
+
+    return {
+      type: vNode.type,
+      props: vNode.props,
+      children: normalizedChildren,
+    };
   }
 
   return vNode;
