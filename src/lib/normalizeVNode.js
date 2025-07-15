@@ -10,7 +10,7 @@ export function normalizeVNode(vNode) {
   }
 
   if (typeof vNode === "string" || typeof vNode === "number") {
-    return String(vNode);
+    return vNode.toString();
   }
 
   if (Array.isArray(vNode)) {

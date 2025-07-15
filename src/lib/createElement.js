@@ -82,7 +82,7 @@ function updateAttributes($el, props) {
 
     // checked, disabled, selected, readOnly인 경우
     if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
-      $el.setAttribute(key, value);
+      $el[key] = value;
 
       if (!value) {
         $el.removeAttribute(key);
