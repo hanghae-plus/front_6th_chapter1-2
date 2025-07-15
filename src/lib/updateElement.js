@@ -1,43 +1,45 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
-function updateAttributes(target, newProps = {}, oldProps = {}) {
-  // 1. oldProps 중에 newProps에 없는 건 제거
+function updateAttributes(target, newProps, oldProps) {
   for (const [key, value] of Object.entries(oldProps)) {
-    if (!(key in newProps)) {
-      if (key.startsWith("on") && typeof value === "function") {
-        const eventType = key.slice(2).toLowerCase();
-        removeEvent(target, eventType, value);
-      } else if (key === "className") {
+    if (key === "children") continue;
+    if (key.startsWith("on") && typeof value === "function") {
+      const eventType = key.slice(2).toLowerCase();
+      removeEvent(target, eventType, value);
+    } else if (!(key in newProps)) {
+      // 2. 'className' 속성 제거
+      if (key === "className") {
         target.removeAttribute("class");
-      } else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+      }
+      // 3. 불리언 속성 제거
+      else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
         target[key] = false;
         target.removeAttribute(key);
-      } else {
+      }
+      // 4. 그 외 일반 속성 제거
+      else {
         target.removeAttribute(key);
       }
     }
   }
-
   // 2. newProps 처리
   for (const [key, value] of Object.entries(newProps)) {
+    if (key === "children") continue;
+
     if (key.startsWith("on")) {
       const eventType = key.slice(2).toLowerCase();
       addEvent(target, eventType, value);
     } else if (key === "className") {
-      if (value) {
-        target.setAttribute("class", value);
-      } else {
-        target.removeAttribute("class");
-      }
+      value ? target.setAttribute("class", value) : target.removeAttribute("class");
     }
     // Boolean 속성은 property로 직접 설정
-    if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+    else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
       target[key] = value;
     }
     // 나머지 속성은 attribute로 설정
     else {
-      target.setAttribute(key, String(value));
+      target.setAttribute(key, value);
     }
   }
 }
@@ -68,11 +70,6 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
         childNode.textContent = newNode;
       }
     }
-    // 텍스트 노드가 아니면 새로 교체
-    else {
-      parentElement.replaceChild(document.createTextNode(newNode), parentElement.childNodes[index]);
-    }
-    return;
   }
 
   // 다른 태그면 교체
