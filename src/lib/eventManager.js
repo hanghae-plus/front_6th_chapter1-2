@@ -1,7 +1,21 @@
 const eventTypes = new Set(); // 등록된 이벤트 타입 순회를 위해 Set 정의
 const eventMap = new WeakMap(); // 이벤트 핸들러 저장을 위해 WeakMap 정의
 
-// export function setupEventListeners(root) {}
+export function setupEventListeners(root) {
+  eventTypes.forEach((eventType) => {
+    root.addEventListener(eventType, (e) => {
+      const target = e.target;
+
+      if (!eventMap.has(target)) return;
+
+      const handlers = eventMap.get(target);
+
+      if (handlers[eventType]) {
+        handlers[eventType](e);
+      }
+    });
+  });
+}
 
 export function addEvent(element, eventType, handler) {
   if (!eventMap.has(element)) {
