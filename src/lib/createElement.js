@@ -1,5 +1,5 @@
-// import { addEvent } from "./eventManager";
 // function updateAttributes($el, props) {}
+import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
   if (isString(vNode) || isNumber(vNode)) {
@@ -19,7 +19,7 @@ export function createElement(vNode) {
     return createElementFromJSX(vNode);
   }
 
-  return document.createTextNode("").insertBefore;
+  return document.createTextNode("");
 }
 
 function setAttributes($el, props) {
@@ -31,7 +31,12 @@ function setAttributes($el, props) {
 
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
-    const isValidValue = isString(value) || isNumber(value) || isBoolean(value);
+    const isValidValue = isString(value) || isNumber(value) || isBoolean(value) || isFunction(value);
+
+    if (isEvent(key, value)) {
+      addEvent($el, normalizeEventName(key), value);
+      continue;
+    }
 
     if (!isValidValue) {
       continue;
@@ -97,6 +102,14 @@ function isNumber(value) {
 
 function isFunction(value) {
   return typeof value === "function";
+}
+
+function isEvent(key, value) {
+  return key.startsWith("on") && isFunction(value);
+}
+
+function normalizeEventName(name) {
+  return name.slice(2).toLowerCase();
 }
 
 function isJSX(value) {
