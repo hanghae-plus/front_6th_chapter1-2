@@ -39,19 +39,20 @@
     "@testing-library/jest-dom": "latest",
     "@testing-library/user-event": "latest",
     "@vitejs/plugin-react": "latest",
-    "@vitest/ui": "latest",
     "@vitest/coverage-v8": "latest",
+    "@vitest/ui": "latest",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "gh-pages": "^6.3.0",
     "globals": "^15.13.0",
     "husky": "^9.1.7",
     "jsdom": "latest",
     "lint-staged": "^15.2.11",
     "msw": "^2.10.2",
     "prettier": "^3.4.2",
+    "typescript": "^5.8.3",
     "vite": "npm:rolldown-vite@latest",
-    "vitest": "latest",
-    "gh-pages": "^6.3.0"
+    "vitest": "latest"
   }
 }

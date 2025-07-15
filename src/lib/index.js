@@ -1,10 +1,10 @@
-export * from "./createElement";
 export * from "./createObserver";
 export * from "./createStorage";
 export * from "./createStore";
-export * from "./createVNode";
-export * from "./eventManager";
-export * from "./normalizeVNode";
-export * from "./renderElement";
 export * from "./Router";
-export * from "./updateElement";
+
+export * from "./createElement.ts";
+export * from "./createVNode.ts";
+export * from "./eventManager.ts";
+export * from "./normalizeVNode.ts";
+export * from "./renderElement.ts";
