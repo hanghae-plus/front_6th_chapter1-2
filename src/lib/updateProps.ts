@@ -1,20 +1,41 @@
-import type { VElementProps } from "../../types";
-import { addEvent, removeEvent } from "../eventManager";
+/**
+ * 동작원리
+ * createElement와 updateElement 모듈이 updateProps 모듈을 공용으로 사용함.
+ *
+ * 크게 2가지 케이스의 처리 방식의 분기 존재
+ * 1. 속성제거: prevProps에만 존재하는 속성이 있다면 제거
+ * 2. 속성추가 / 갱신: prevProps에 없는 속성이 있다면 추가, 이미 존재하는 속성은 필요에 따라 갱신
+ *
+ * 속성 유형은 크게 4가지 존재
+ * 1. 이벤트 핸들러
+ * 2. className / class
+ * 3. boolean 속성
+ * 4. 그 외 일반 속성
+ *
+ * 처리 방식에 따라 유형별로 속성을 업데이트함
+ */
 
-// 이벤트 핸들러 프로퍼티 식별용 정규식 (onClick, onMouseOver 등)
+import type { VElementProps } from "../types";
+import { addEvent, removeEvent } from "./eventManager";
 
-const isEvent = (key: string) => /^on[A-Z]/.test(key);
+const isEventAttr = (key: string): boolean => /^on[A-Z]/.test(key);
 
-export function updateProps(element: HTMLElement, prevProps: VElementProps, currentProps: VElementProps): void {
+export function updateProps(
+  element: HTMLElement,
+  prevProps: VElementProps | null | undefined,
+  currentProps: VElementProps | null | undefined,
+): void {
   prevProps = prevProps || {};
   currentProps = currentProps || {};
 
   // prevProps에만 존재하는 속성 제거
   for (const key in prevProps) {
     if (!(key in currentProps)) {
-      if (isEvent(key) && typeof prevProps[key] === "function") {
+      const prevVal = prevProps[key];
+
+      if (isEventAttr(key) && typeof prevVal === "function") {
         const eventType = key.slice(2).toLowerCase();
-        removeEvent(element, eventType, prevProps[key]);
+        removeEvent(element, eventType, prevVal);
         continue;
       }
 
@@ -24,9 +45,7 @@ export function updateProps(element: HTMLElement, prevProps: VElementProps, curr
         continue;
       }
 
-      if (typeof prevProps[key] === "boolean") {
-        // MEMO: any를 사용한 실용적인 이유: HTMLElement에 어떤 속성이 들어올지는 현재 단계에서 추측할 수 없으며 복잡한 타이핑을 하기보다는 과제 본질에 집중하기 위함
-        // boolean 속성의 경우 attribute의 value(string)와 DOM 프로퍼티의 value(boolean)의 타입이 다르기때문에 동기화 이슈가 생겨 둘다 업데이트해줌
+      if (typeof prevVal === "boolean") {
         (element as any)[key] = false;
         if (key !== "checked" && key !== "selected") {
           element.removeAttribute(key);
@@ -45,12 +64,13 @@ export function updateProps(element: HTMLElement, prevProps: VElementProps, curr
 
     if (prevVal === nextVal) continue;
 
-    if (isEvent(key) && typeof nextVal === "function") {
+    if (isEventAttr(key) && typeof nextVal === "function") {
       const eventType = key.slice(2).toLowerCase();
       if (typeof prevVal === "function") removeEvent(element, eventType, prevVal);
       addEvent(element, eventType, nextVal);
       continue;
     }
+
     if (key === "className" || key === "class") {
       if (nextVal === "") {
         element.className = "";
@@ -70,7 +90,12 @@ export function updateProps(element: HTMLElement, prevProps: VElementProps, curr
       continue;
     }
 
-    if (nextVal == null) element.removeAttribute(key);
-    else element.setAttribute(key, String(nextVal));
+    if (nextVal == null) {
+      element.removeAttribute(key);
+      continue;
+    }
+
+    // 그 외 일반 속성
+    element.setAttribute(key, String(nextVal));
   }
 }

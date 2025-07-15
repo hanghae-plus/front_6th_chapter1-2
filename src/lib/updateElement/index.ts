@@ -1,7 +1,7 @@
 import { createElement } from "../createElement";
 import type { VNode, VElement } from "../../types";
-import { updateProps } from "./updateProps";
 import { updateChildren } from "./updateChildren";
+import { updateProps } from "../updateProps";
 
 // Primitive가 아닌 VNode(VElement)인지 검증
 const isVElement = (value: VNode): value is VElement => typeof value === "object" && value !== null && "type" in value;
