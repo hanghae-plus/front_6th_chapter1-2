@@ -1,13 +1,11 @@
+import { isNotRenderable } from "../utils/typeCheck";
+
 export function createVNode(type, props, ...children) {
   return {
     type,
     props,
     children: flattenRenderableChildren(children),
   };
-}
-
-function isNotRenderable(child) {
-  return child == null || child === false;
 }
 
 function flattenRenderableChildren(children) {
