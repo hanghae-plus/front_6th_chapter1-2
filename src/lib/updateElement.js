@@ -7,31 +7,46 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const target = parentElement.childNodes[index];
 
   // oldNode만 있거나 newNode만 있는 경우
-  if (!newNode && oldNode) parentElement.removeChild(target);
-  if (newNode && oldNode) parentElement.appendChild(createElement(newNode));
+  if (!newNode && oldNode) return parentElement.removeChild(target);
+  if (newNode && !oldNode) return parentElement.appendChild(createElement(newNode));
 
-  // 모두 text인 경우
+  // text인 경우
   if (
     (typeof newNode === "string" || typeof newNode === "number") &&
     (typeof oldNode === "string" || typeof oldNode === "number")
   ) {
     if (newNode === oldNode) return;
+    return parentElement.replaceChild(createElement(newNode), target);
+  }
 
+  // 둘 중 하나라도 object가 아닌 경우
+  if (typeof newNode !== "object" || typeof oldNode !== "object") {
     return parentElement.replaceChild(createElement(newNode), target);
   }
 
   // oldNode와 newNode의 type이 다른 경우
-  if (newNode.type !== oldNode.type) {
+  if (newNode.type !== oldNode.type || typeof newNode !== typeof oldNode) {
     return parentElement.replaceChild(createElement(newNode), target);
   }
 
   // oldNode와 newNode의 태그가 같은 경우
   updateAttributes(target, newNode.props ?? {}, oldNode.props ?? {});
 
-  // 모든 자식 태그를 순회
-  const maxLength = Math.max(newNode.chiledren.length, oldNode.children.length);
-  for (let i = 0; i < maxLength; i++) {
-    updateElement(target, newNode.children[i], oldNode.children[i], i);
+  const newChildren = newNode.children ?? [];
+  const oldChildren = oldNode.children ?? [];
+
+  for (let i = 0; i < Math.min(newChildren.length, oldChildren.length); i++) {
+    updateElement(target, newChildren[i], oldChildren[i], i);
+  }
+
+  // newChildren 더 많으면 추가
+  for (let i = oldChildren.length; i < newChildren.length; i++) {
+    updateElement(target, newChildren[i], null, i);
+  }
+
+  // oldChildren 더 많으면 삭제
+  for (let i = newChildren.length; i < oldChildren.length; i++) {
+    updateElement(target, null, oldChildren[i], i);
   }
 }
 
