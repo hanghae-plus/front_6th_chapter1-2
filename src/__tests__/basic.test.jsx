@@ -201,7 +201,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe.only("normalizeVNode", () => {
+  describe("normalizeVNode", () => {
     it.each([
       [null, ""],
       [undefined, ""],
@@ -273,7 +273,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe("createElement", () => {
+  describe.only("createElement", () => {
     let container;
 
     beforeEach(() => {
