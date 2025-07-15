@@ -1,4 +1,5 @@
 export function createElement(vNode) {
+  console.log(vNode);
   const isFalsyVNodeValue = (value) => value == null || typeof value === "boolean";
   const isPrimitive = (value) => typeof value === "string" || typeof value === "number";
 
@@ -19,8 +20,7 @@ export function createElement(vNode) {
 
   // 💡 함수형 컴포넌트 처리
   if (typeof vNode.type === "function") {
-    const componentVNode = vNode.type(vNode.props || {});
-    return createElement(componentVNode); // 재귀 호출
+    throw new Error("함수형 컴포넌트는 createElement로 처리할 수 없습니다. 렌더링 함수에서 호출해야 합니다.");
   }
 
   // 객체(vNode)가 들어오면 실제 DOM 요소 생성
@@ -34,6 +34,8 @@ export function createElement(vNode) {
       $el.appendChild(createElement(child));
     });
   }
+
+  console.log(" $el", $el);
 
   return $el;
 }
