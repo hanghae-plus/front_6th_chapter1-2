@@ -1,6 +1,7 @@
 import { createElement } from "./createElement";
 import { setupEventListeners } from "./eventManager";
 import { normalizeVNode } from "./normalizeVNode";
+import { updateElement } from "./updateElement";
 
 /*
   목적: 가상 DOM 노드를 실제 DOM으로 렌더링하고 이벤트를 등록
@@ -12,6 +13,9 @@ import { normalizeVNode } from "./normalizeVNode";
   4. 이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 함
 */
 
+// 이전 vNode를 저장하기 위한 WeakMap
+const previousVNodeMap = new WeakMap();
+
 /**
  * @description 컴포넌트를 렌더링한다.
  * @param {object} vNode { type, props, children }
@@ -22,12 +26,23 @@ export function renderElement(vNode, container) {
   // 이후에는 updateElement로 기존 DOM을 업데이트한다.
   // 렌더링이 완료되면 container에 이벤트를 등록한다.
 
-  const element = createElement(normalizeVNode(vNode));
-  container.innerHTML = "";
+  const normalizedVNode = normalizeVNode(vNode);
+  const previousVNode = previousVNodeMap.get(container);
 
-  // ! innerHTML을 사용하면 기존 DOM 요소가 파괴되고 새로운 요소가 생성되어 elementEventsMap의 참조가 무효화
-  // ! container.innerHTML = ""
+  // 1. 초기 렌더링 : createElement 사용
+  if (!previousVNode || container.children.length === 0) {
+    const element = createElement(normalizedVNode);
+    container.innerHTML = "";
+    container.appendChild(element);
+  }
 
-  container.appendChild(element);
+  // 2. 재렌더링 updateElement 사용하여 DOM 재사용
+  else {
+    updateElement(container, normalizedVNode, previousVNode, 0);
+  }
+
+  // 현재 vNode를 저장
+  previousVNodeMap.set(container, normalizedVNode);
+
   setupEventListeners(container);
 }
