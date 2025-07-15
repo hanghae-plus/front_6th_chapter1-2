@@ -1,23 +1,28 @@
 const notBubblingEvents = new Set(["focus", "blur"]);
 
 let events = {};
+let abortController = new AbortController();
 
 export function setupEventListeners(root) {
   for (const eventType in events) {
     if (notBubblingEvents.has(eventType)) {
       events[eventType].forEach(({ element, handler }) => {
-        element.addEventListener(eventType, handler);
+        element.addEventListener(eventType, handler, abortController);
       });
       continue;
     }
 
-    root.addEventListener(eventType, (e) => {
-      events[eventType].forEach(({ element, handler }) => {
-        if (element.contains(e.target)) {
-          handler(e);
-        }
-      });
-    });
+    root.addEventListener(
+      eventType,
+      (e) => {
+        events[eventType].forEach(({ element, handler }) => {
+          if (element.contains(e.target)) {
+            handler(e);
+          }
+        });
+      },
+      abortController,
+    );
   }
 }
 
@@ -33,4 +38,10 @@ export function removeEvent(element, eventType, handler) {
       events[eventType].delete(item);
     }
   });
+}
+
+export function cleanupEventListeners() {
+  events = {};
+  abortController.abort();
+  abortController = new AbortController();
 }
