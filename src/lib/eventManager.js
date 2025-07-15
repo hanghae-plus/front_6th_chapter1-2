@@ -23,7 +23,7 @@ export function setupEventListeners(root) {
       }
 
       for (const { element, handler } of events) {
-        if (element === findParent(e.target, element)) {
+        if (findParent(e.target, element) != null) {
           handler(e);
           break;
         }
