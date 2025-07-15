@@ -15,7 +15,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
     document.body.removeChild(container);
   });
 
-  describe("renderElement > ", () => {
+  describe.only("renderElement > ", () => {
     it("초기 렌더링이 올바르게 수행되어야 한다", () => {
       const vNode = <div id="test">Hello</div>;
       renderElement(vNode, container);

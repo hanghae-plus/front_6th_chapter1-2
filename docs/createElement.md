@@ -32,6 +32,10 @@ createElement 함수는 가상 DOM(Virtual DOM, VDom) 객체(vNode)를 실제 �
 
 - props를 DOM 요소에 속성/이벤트로 바인딩
 - 예: className, id, data-\*, onClick 등
+- **boolean prop 처리:**
+  - checked, selected: property만 true/false로 설정, attribute는 제거
+  - disabled: property와 attribute 모두 true/false로 설정
+  - readOnly: property는 readOnly, attribute는 readonly로 설정
 
 ### 4) 자식(children) 처리
 
