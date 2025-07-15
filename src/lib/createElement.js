@@ -47,7 +47,9 @@ function updateAttributes($el, props) {
         $el.removeAttribute("class");
       }
       continue;
-    } else if (key.startsWith("on")) {
+    }
+
+    if (key.startsWith("on")) {
       addEvent($el, key.slice(2).toLowerCase(), value);
     } else if (BOOLEAN_PROPS.includes(key)) {
       if (key === "readOnly" || key === "disabled") {
@@ -59,11 +61,7 @@ function updateAttributes($el, props) {
         if (value) $el.setAttribute(key, "");
         else $el.removeAttribute(key);
       } else {
-        if (key === "selected") {
-          $el.selected = !!value;
-        } else if (key === "checked") {
-          $el.checked = !!value;
-        }
+        $el[key] = !!value;
         $el.removeAttribute(key);
       }
     } else {

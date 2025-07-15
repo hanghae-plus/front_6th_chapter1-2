@@ -1,7 +1,19 @@
+function findParent(element, target) {
+  if (element == null) {
+    return null;
+  }
+
+  if (element === target) {
+    return element;
+  }
+
+  return findParent(element.parentElement, target);
+}
+
 export const eventMap = new Map();
 
 export function setupEventListeners(root) {
-  const eventTypes = ["click", "mouseover", "focus", "keydown"];
+  const eventTypes = ["click", "mouseover", "focus", "keydown", "change"];
 
   for (const eventType of eventTypes) {
     root.addEventListener(eventType, (e) => {
@@ -11,7 +23,7 @@ export function setupEventListeners(root) {
       }
 
       for (const { element, handler } of events) {
-        if (element === e.target) {
+        if (element === findParent(e.target, element)) {
           handler(e);
           break;
         }

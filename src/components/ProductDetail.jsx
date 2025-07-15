@@ -247,6 +247,8 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                       alt={relatedProduct.title}
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      data-link
+                      href={`/product/${relatedProduct.productId}`}
                     />
                   </div>
                   <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2">{relatedProduct.title}</h3>

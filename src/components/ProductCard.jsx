@@ -35,6 +35,8 @@ export function ProductCard({ productId, title, image, lprice, brand, onClick })
           alt={title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
           loading="lazy"
+          data-link
+          href={`/product/${productId}`}
         />
       </div>
 
