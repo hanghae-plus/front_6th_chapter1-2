@@ -23,17 +23,26 @@ export function createElement(vNode) {
     throw new Error("vNode is not an object");
   }
 
-  // const $el = document.createElement(vNode.type);
+  const $el = document.createElement(vNode.type);
 
-  // // console.log($children);
-  // if (vNode.children) {
-  //   vNode.children.forEach((child) => {
-  //     const childElement = createElement(child);
-  //     $el.append(childElement);
-  //   });
-  // }
+  if (vNode.props) {
+    for (let i in vNode.props) {
+      if (i === "className") {
+        $el.className = vNode.props[i];
+      } else {
+        $el.setAttribute(i, vNode.props[i]);
+      }
+    }
+  }
+  // console.log($children);
+  if (vNode.children) {
+    vNode.children.forEach((child) => {
+      const childElement = createElement(child);
+      $el.append(childElement);
+    });
+  }
 
-  // return $el;
+  return $el;
 }
 
 // function updateAttributes($el, props) {}
