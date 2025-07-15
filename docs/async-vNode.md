@@ -1,4 +1,4 @@
-# Asynchronous 컴포넌트는 어떻게 처리해야할까?
+# Asynchronous 컴포넌트는 어떻게 처리해야 할까?
 
 현재 `normalizeVNode`에서 함수 컴포넌트를 처리할때 아래와 같은 코드로 처리가 되고있습니다.
 
@@ -32,9 +32,11 @@ const result = vNode.type(props); // 🚨 async component인 경우 Promise 반�
 return normalizeVNode(result);    // ❌ 이 시점엔 아직 결과값이 없음
 ```
 
-## 왜 문제인가
+## 🚨 왜 문제인가
 
-JSX 구조 자체는 함수 컴포넌트가 vNode를 반환한다는 Synchronous한 전제를 가지고있는데, Asynchronous Function은 이 전제를 깨트리고 비동기로 vNode를 반환하므로 await 하지 않는 이상 렌더링 루틴이 깨지게됩니다.
+JSX의 기본 구조는 함수 컴포넌트가 동기적으로(vNode를 즉시 반환) 렌더링된다는 전제를 가지고 있다. 그러나 함수 컴포넌트가 async function 이 되어 Promise를 반환하게 되면 이 전제가 깨지게 된다.
+
+이처럼 비동기 vNode는 평가 시 Promise를 반환할 수 있으므로, 상위 렌더링 컨텍스트가 이를 어떻게 처리하느냐에 따라 렌더링 루틴이 유지될 수도, 깨질 수도 있다.
 
 비동기 vNode는 평가시 Promise를 반환할수 있으므로 부모에 Suspense 컴포넌트가 존재하는지 따라 처리방식이 달라져야합니다.
 
@@ -47,7 +49,9 @@ JSX 구조 자체는 함수 컴포넌트가 vNode를 반환한다는 Synchronous
   - Promise가 완료될 때까지 `await`로 기다린 뒤 계속 렌더링을 진행해야 한다.
   - 이 방식은 전체 트리 렌더링을 블로킹하기 때문에 최후의 수단으로 고려해야 한다.
 
-## normalizeVNode 수정
+## normalizeVNode 수정 
+
+비동기 컴포넌트를 처리하기 위해서는 normalizeVNode 자체도 async function이 되어야 하며, 내부 평가 흐름에서도 Promise 여부를 감지하고 적절한 처리를 해야 한다.
 
 ```js
 
@@ -57,32 +61,37 @@ class ThenableError extends Error {}
  * 함수 컴포넌트 처리
  * 함수 컴포넌트는 자식 노드를 포함하는 객체를 반환하므로 재귀적으로 처리
  */
-if (typeof vNode.type === "function") {
+async function normalizeVNode(vNode) {
+    // ...
+    if (typeof vNode.type === "function") {
     const props = { ...vNode.props };
     if (vNode.children?.length > 0) {
-        props.children = vNode.children.map((child) => normalizeVNode(child));
+      props.children = await Promise.all(vNode.children.map((child) => normalizeVNode(child)));
     }
 
     try {
-        const evaluated = evaluateVNode(vNode)
-        const result = vNode.type(props)
+      const result = vNode.type(props);
 
-        if(isThenable(result)) {
-            if (isInsideSuspenseContext()) {
-                throw new ThenableError("Async components must be wrapped with createAsyncComponent");
-            } else {
-                return await evaluated // 직렬 렌더링
-            }
+      if (isThenable(result)) { // 해당 결과가 Promise인지 확인하는 유틸 함수
+        if (isInsideSuspenseContext()) { // 현재 트리 상위에 Suspense가 있는지 여부를 판단
+          throw result; // Suspense fallback으로 전환
+        } else {
+          const awaited = await result;
+          return await normalizeVNode(awaited); // 직렬 렌더링
         }
+      }
 
-        return createVNode(vNode.type, vNode.props, vNode.children)
+      return await normalizeVNode(result);
     } catch (error) {
-        if(error instanceof ThenableError) {
-            return createVNode(vNode.fallback)
-        }
-        throw error
+      if (error instanceof ThenableError) {
+        // Suspense가 없고, fallback이 정의된 경우
+        return createVNode(vNode.fallback);
+      }
+      throw error;
     }
+    // ...
 }
+
 ```
 
 
