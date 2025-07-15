@@ -1,5 +1,5 @@
-import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
+import { addEvent, removeEvent } from "./eventManager";
 
 function updateAttributes(target, originNewProps, originOldProps) {
   const newProps = originNewProps || {};
@@ -53,7 +53,7 @@ function updateAttributes(target, originNewProps, originOldProps) {
     }
 
     if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
-      target.setAttribute(key, value);
+      target[key] = value;
       if (!value) {
         target.removeAttribute(key);
       }
@@ -65,45 +65,50 @@ function updateAttributes(target, originNewProps, originOldProps) {
 }
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
+  // 제거된 경우
   if (!newNode && oldNode) {
     parentElement.removeChild(parentElement.childNodes[index]);
     return;
   }
 
+  // 추가된 경우
   if (newNode && !oldNode) {
     const newElement = createElement(newNode);
     parentElement.appendChild(newElement);
     return;
   }
 
+  // 기존 노드와 새로운 노드 모두 문자열일 때
   if (
     newNode &&
     oldNode &&
     newNode.type === "string" &&
     newNode.type === oldNode.type
   ) {
+    // children이 변경된 경우 textContent를 변경한다.
     if (newNode.props.children !== oldNode.props.children) {
       parentElement.childNodes[index].textContent = newNode;
       return;
     }
   }
 
+  // 타입이 변경된 경우 교체한다.
   if (newNode && oldNode && newNode.type !== oldNode.type) {
     const newElement = createElement(newNode);
     parentElement.replaceChild(newElement, parentElement.childNodes[index]);
     return;
   }
 
+  // 타입이 같을 때 속성을 업데이트한다.
   if (newNode && oldNode && newNode.type === oldNode.type) {
-    const newElement = createElement(newNode);
     const oldElement = parentElement.childNodes[index];
     updateAttributes(oldElement, newNode.props, oldNode.props);
 
-    oldElement.replaceWith(newElement);
-
-    newNode.children.forEach((child, i) => {
-      updateElement(oldElement, child, oldNode.children[i], i);
-    });
+    if (newNode.children) {
+      newNode.children.forEach((child, i) => {
+        updateElement(oldElement, child, oldNode.children[i], i);
+      });
+    }
     return;
   }
 }
