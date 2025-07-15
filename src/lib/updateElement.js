@@ -7,7 +7,12 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const target = parentElement.childNodes[index];
 
   // oldNode만 있거나 newNode만 있는 경우
-  if (!newNode && oldNode) return parentElement.removeChild(target);
+  if (!newNode && oldNode) {
+    if (parentElement.childNodes[index]) {
+      parentElement.removeChild(parentElement.childNodes[index]);
+    }
+    return;
+  }
   if (newNode && !oldNode) return parentElement.appendChild(createElement(newNode));
 
   // text인 경우
@@ -41,12 +46,13 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   // newChildren 더 많으면 추가
   for (let i = oldChildren.length; i < newChildren.length; i++) {
-    updateElement(target, newChildren[i], null, i);
+    target.appendChild(createElement(newChildren[i]));
   }
 
-  // oldChildren 더 많으면 삭제
-  for (let i = newChildren.length; i < oldChildren.length; i++) {
-    updateElement(target, null, oldChildren[i], i);
+  // oldChildren 더 많으면 역순으로 삭제
+  for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+    const child = target.childNodes[i];
+    if (child) target.removeChild(child);
   }
 }
 
@@ -59,7 +65,19 @@ function updateAttributes(target, originNewProps, originOldProps) {
     if (attr === "className") {
       target.setAttribute("class", value);
     } else if (typeof value === "boolean") {
-      value ? target.setAttribute(attr, "") : target.removeAttribute(attr);
+      if (attr in target) {
+        // target에 attr가 존재하는지 확인
+        target[attr] = value; // 있으면 직접 업데이트
+        if (!value) {
+          // attr가 존재하는데 값이 false
+          // 해당 attr 삭제
+          target.removeAttribute(attr);
+        }
+      } else {
+        // attr가 존재하지 않음
+        // true이면 빈 문자열로 추가, false이면 제거
+        value ? target.setAttribute(attr, "") : target.removeAttribute(attr);
+      }
     } else if (attr.startsWith("on")) {
       const eventType = attr.slice(2).toLowerCase();
       const oldHandler = originOldProps[attr];
