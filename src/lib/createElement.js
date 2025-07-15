@@ -37,13 +37,35 @@ export function createElement(vNode) {
   return $el;
 }
 
+const BOOLEAN_PROPS = ["checked", "disabled", "selected", "readOnly"];
 function updateAttributes($el, props) {
   for (const [key, value] of Object.entries(props)) {
     if (key === "className") {
-      $el.setAttribute("class", value);
+      if (value) {
+        $el.setAttribute("class", value);
+      } else {
+        $el.removeAttribute("class");
+      }
       continue;
     } else if (key.startsWith("on")) {
       addEvent($el, key.slice(2).toLowerCase(), value);
+    } else if (BOOLEAN_PROPS.includes(key)) {
+      if (key === "readOnly" || key === "disabled") {
+        if (key === "readOnly") {
+          $el.readOnly = !!value;
+        } else {
+          $el.disabled = !!value;
+        }
+        if (value) $el.setAttribute(key, "");
+        else $el.removeAttribute(key);
+      } else {
+        if (key === "selected") {
+          $el.selected = !!value;
+        } else if (key === "checked") {
+          $el.checked = !!value;
+        }
+        $el.removeAttribute(key);
+      }
     } else {
       $el.setAttribute(key, value);
     }

@@ -11,7 +11,7 @@ export function setupEventListeners(root) {
       }
 
       for (const { element, handler } of events) {
-        if (element === e.target.closest(element.tagName.toLowerCase())) {
+        if (element === e.target) {
           handler(e);
           break;
         }
@@ -32,15 +32,18 @@ export function addEvent(element, eventType, handler) {
 }
 
 export function removeEvent(element, eventType, handler) {
-  const events = eventMap.get(eventType);
+  let events = eventMap.get(eventType);
   if (events == null) {
     return;
   }
 
-  const filtered = events.filter((x) => !(x.element === element && x.handler === handler));
-  if (filtered.length === 0) {
+  events = events
+    .filter((x) => !(x.element === element && x.handler === handler))
+    .filter((x) => document.contains(x.element));
+
+  if (events.length === 0) {
     eventMap.delete(eventType);
   } else {
-    eventMap.set(eventType, filtered);
+    eventMap.set(eventType, events);
   }
 }
