@@ -34,7 +34,7 @@ export function createElement(vNode) {
       }
     }
   }
-  // console.log($children);
+
   if (vNode.children) {
     vNode.children.forEach((child) => {
       const childElement = createElement(child);

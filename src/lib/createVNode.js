@@ -1,5 +1,5 @@
 export function createVNode(type, props, ...children) {
-  const filteredChildren = children.flat(2).filter((item) => {
+  const filteredChildren = children.flat(Infinity).filter((item) => {
     if (item !== undefined && item !== null && item !== false) {
       return true;
     }
