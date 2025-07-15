@@ -19,7 +19,9 @@ function updateAttributes(target, newProps, oldProps) {
 
 			if (key === "className") {
 				target.removeAttribute("class");
-			} else {
+      } else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+        target[key] = false;
+      } else {
 				target.removeAttribute(key);
 			}
 		});
@@ -34,6 +36,8 @@ function updateAttributes(target, newProps, oldProps) {
 
 			if (key === "className") {
 				target.setAttribute("class", value);
+      } else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+        target[key] = value;
 			} else {
 				target.setAttribute(key, value);
 			}
