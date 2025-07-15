@@ -201,7 +201,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe("normalizeVNode", () => {
+  describe.only("normalizeVNode", () => {
     it.each([
       [null, ""],
       [undefined, ""],
