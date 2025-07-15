@@ -1,3 +1,11 @@
+/**
+ * 동작 원리
+ * jsxFactory로 transpile된 컴포넌트 파일은 normalize를 거쳐서
+ * 1. inintialRender 시 그대로 붙여짐
+ * 2. Rerender 시 이전 VNode와 비교하여 변경된 부분만 업데이트
+ * init 또는 rerender가 완료되면 이전 VDOM 트리는 현재 VDOM 트리로 대체됨
+ */
+
 import { setupEventListeners } from "./eventManager";
 import { normalizeVNode } from "./normalizeVNode";
 import { updateElement } from "./updateElement";

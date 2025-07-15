@@ -1,5 +1,19 @@
-export type EventHandler = (event: Event) => void;
+/**
+ * 동작 원리
+ * addEvent: 트리에 등록되어있는 이벤트들을 WeakMap 기반으로 수집
+ * removeEvent: updateElement에서 호출됨. 이벤트 핸들러가 제거되어야 할때 호출
+ * attachEvent: setupEventListeners에서 호출됨. 타입별 (버블링이 일어나는)이벤트를 루트에 부착
+ * setupEventListeners: 루트 엘리먼트가 변경될 때 호출되어
+ */
 
+type EventHandler = (event: Event) => void;
+
+/**
+ * MEMO: 왜 이런 파악하기 어려운 중첩된 구조를 짜게 되었는지
+ * elementHandlerMap: 각각의 엘리먼트는 여러개의 이벤트를 가질 수 있고 또 각각의 이벤트 타입을 가진 핸들러는 여러개임
+ * elementHandlerMap에 이번에 등록할 이벤트의 타입이 없다면 추가를,
+ * eventType에 이번에 등록할 핸들러가 없다면 추가를 해줌
+ */
 // `elementHandlerMap` – 특정 요소가 가지고 있는 이벤트 {target, {eventType, handler}} 저장
 const elementHandlerMap = new WeakMap<EventTarget, Map<string, Set<EventHandler>>>();
 // 전역에서 위임된 모든 이벤트 타입을 중복없이 저장
@@ -10,10 +24,6 @@ let rootElement: HTMLElement | null = null;
 const rootListenerMap = new Map<string, EventListener>();
 
 export function addEvent(element: HTMLElement, eventType: string, handler: EventHandler): void {
-  // 까먹을까봐 MEMO: 왜 이런 중첩되어 파악하기 어려운 구조를 짜게 되었는지
-  // elementHandlerMap: 각각의 엘리먼트는 여러개의 이벤트를 가질 수 있고 또 각각의 이벤트 타입을 가진 핸들러는 여러개임
-  // elementHandlerMap에 이번에 등록할 이벤트의 타입이 없다면 추가를,
-  // eventType에 이번에 등록할 핸들러가 없다면 추가를 해줌
   globalEventTypes.add(eventType);
   // 전역에 현재 이벤트 타입을 기록(Set 사용으로 중복 자동 제거)
   let typeMap = elementHandlerMap.get(element);
@@ -30,7 +40,7 @@ export function addEvent(element: HTMLElement, eventType: string, handler: Event
   handlers.add(handler);
 
   // 루트가 이미 설정돼 있다면 즉시 위임 리스너를 설치
-  if (rootElement) attachListener(eventType);
+  if (rootElement) attachEvent(eventType);
 }
 
 export function removeEvent(element: HTMLElement, eventType: string, handler: EventHandler): void {
@@ -59,10 +69,10 @@ export function setupEventListeners(root: HTMLElement): void {
   rootElement = root;
 
   // 현재까지 등록된 모든 이벤트 타입을 새 루트에 바인딩
-  globalEventTypes.forEach((type) => attachListener(type));
+  globalEventTypes.forEach((type) => attachEvent(type));
 }
 
-function attachListener(eventType: string): void {
+function attachEvent(eventType: string): void {
   if (!rootElement) return;
   if (rootListenerMap.has(eventType)) return;
 
