@@ -1,39 +1,46 @@
-// 전역 이벤트 저장소
+// WeakMap<요소, 핸들러> 저장
 const eventStore = new Map();
+// remove 용 핸들러 저장
+const globalHandlers = new Map();
 
-// 렌더링 후 전역 이벤트 등록
+// 이벤트 위임 등록
 export function setupEventListeners(root) {
-  for (const eventType in eventStore) {
-    if (eventStore.has(eventType)) continue;
+  // 기존 핸들러 제거
+  for (const [eventType, handleEvent] of globalHandlers.entries()) {
+    root.removeEventListener(eventType, handleEvent);
+  }
+  globalHandlers.clear();
 
+  for (const [eventType, handlerMap] of eventStore.entries()) {
     const handleEvent = (event) => {
-      // WeakMap 객체
-      const handlerMap = eventStore[event.type];
-      // 이벤트 발생 요소
       const target = event.target;
-
-      if (!handlerMap || !handlerMap.has(target)) return;
+      if (!handlerMap.has(target)) return;
 
       const handler = handlerMap.get(target);
-      handler(event);
+      if (handler) handler(event);
     };
-
     root.addEventListener(eventType, handleEvent);
-    eventStore.set(eventType, handleEvent);
+    globalHandlers.set(eventType, handleEvent);
   }
 }
 
-// 이벤트 위임 - 이벤트 저장 및 등록
+// 이벤트 위임 방식으로 등록
 export function addEvent(element, eventType, handler) {
-  if (!element || typeof handler != "function") return;
+  if (!element || typeof handler !== "function") return;
 
-  eventStore[eventType] = eventStore[eventType] || new WeakMap();
-  eventStore[eventType].set(element, handler);
+  if (!eventStore.has(eventType)) {
+    eventStore.set(eventType, new WeakMap());
+  }
+
+  eventStore.get(eventType).set(element, handler);
 }
 
-// 전역 상태의 이벤트 삭제
+// 이벤트 제거
 export function removeEvent(element, eventType, handler) {
-  if (eventStore[eventType].get(element) === handler) {
-    eventStore[eventType].delete(element);
+  const handlers = eventStore.get(eventType);
+  if (!handlers) return;
+
+  if (handlers.get(element) === handler) {
+    handlers.delete(element);
   }
 }

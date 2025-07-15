@@ -17,7 +17,7 @@ export function renderElement(vNode, container) {
     const element = createElement(normalizedVNode);
     container.appendChild(element);
   } else {
-    updateElement(container, normalizedVNode, prevVNode);
+    updateElement(container, normalizedVNode, currentNode);
   }
 
   prevVNode.set(container, normalizedVNode);
