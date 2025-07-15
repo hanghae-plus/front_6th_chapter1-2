@@ -40,7 +40,7 @@ export function removeAttribute(target, key, value) {
   }
 
   if (key === "className") {
-    target.className = "";
+    target.removeAttribute("class");
     return;
   }
 
