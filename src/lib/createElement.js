@@ -35,6 +35,8 @@ export function createElement(vNode) {
   for (const [key, value] of Object.entries(props)) {
     if (key === "className") {
       el.setAttribute("class", value);
+    } else if (["checked", "disabled", "selected"].includes(key)) {
+      el[key] = value;
     } else if (key.startsWith("on")) {
       addEvent(el, key.slice(2).toLowerCase(), value);
     } else {
