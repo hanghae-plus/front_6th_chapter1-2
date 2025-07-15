@@ -1,13 +1,12 @@
 import { createElement } from "../createElement";
-import type { Primitive, VNode } from "../../types";
+import type { VNode, VElement } from "../../types";
 import { updateProps } from "./updateProps";
 import { updateChildren } from "./updateChildren";
 
-// Primitive가 아닌 VNode인지 검증
-const isVNode = (value: Primitive | VNode): value is VNode =>
-  typeof value === "object" && value !== null && "type" in value;
+// Primitive가 아닌 VNode(VElement)인지 검증
+const isVElement = (value: VNode): value is VElement => typeof value === "object" && value !== null && "type" in value;
 
-export function updateElement(node: ChildNode, prevVNode: Primitive | VNode, currentVNode: Primitive | VNode): Node {
+export function updateElement(node: ChildNode, prevVNode: VNode, currentVNode: VNode): Node {
   const isPrimitiveAtPrev = typeof prevVNode === "string" || typeof prevVNode === "number";
   const isPrimitiveAtCurrent = typeof currentVNode === "string" || typeof currentVNode === "number";
 
@@ -24,7 +23,7 @@ export function updateElement(node: ChildNode, prevVNode: Primitive | VNode, cur
     return newNode;
   }
 
-  if (!isVNode(prevVNode) || !isVNode(currentVNode)) throw new Error("Prev와 Current는 VNode여야 합니다.");
+  if (!isVElement(prevVNode) || !isVElement(currentVNode)) throw new Error("Prev와 Current는 VElement여야 합니다.");
 
   // Element -> Element case1 (두 Element의 타입이 다르면 교체)
   const prevType = prevVNode.type;
@@ -37,12 +36,7 @@ export function updateElement(node: ChildNode, prevVNode: Primitive | VNode, cur
 
   // Element -> Element case2 (두 Element의 타입이 동일하다면 updateProps 실행)
   updateProps(node as HTMLElement, prevVNode.props, currentVNode.props);
-  updateChildren(
-    node,
-    prevVNode.children || ([] as (VNode | Primitive)[]),
-    currentVNode.children || ([] as (VNode | Primitive)[]),
-    updateElement,
-  );
+  updateChildren(node, prevVNode.children || ([] as VNode[]), currentVNode.children || ([] as VNode[]), updateElement);
 
   return node;
 }

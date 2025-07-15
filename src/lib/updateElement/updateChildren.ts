@@ -1,4 +1,4 @@
-import type { Primitive, VNode } from "../../types";
+import type { VNode } from "../../types";
 import { createElement } from "../createElement";
 
 // MEMO: children node의 업데이트는 index 기반으로 순차적으로 이루어짐
@@ -8,8 +8,8 @@ import { createElement } from "../createElement";
 
 export function updateChildren(
   parent: Node,
-  prevChildren: (VNode | Primitive)[],
-  currentChildren: (VNode | Primitive)[],
+  prevChildren: VNode[],
+  currentChildren: VNode[],
   updateNodeFn: Function,
 ): void {
   const commonLength = Math.min(prevChildren.length, currentChildren.length);

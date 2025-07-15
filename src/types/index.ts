@@ -1,14 +1,23 @@
-export interface VNode {
+// VElement: Primitive가 아닌 VNode
+export interface VElement {
   type: string | Function;
-  props: Record<string, any> | null;
+  props: VElementProps;
   children: any[];
 }
 
-// JSX에서 전달되는 child의 유형
-export type Child = VNode | string | number;
+export type VElementProps = Record<string, any> | null | undefined;
 
-// Primitive 값: 렌더링 가능한 기본 타입 또는 무시할 falsy 값
-export type Primitive = string | number | boolean | null | undefined;
+/**
+ * (Prefix) Raw: JSX에서 전달되어 'normalize'되지 않은 값
+ * - VNode: Element 또는 Primitive
+ * - Primitive: Element가 아닌 값
+ * - Child: 자녀 노드
+ */
 
-// normalizeVNode가 반환할 수 있는 타입
-export type NormalizedVNode = VNode | string;
+export type RawPrimitive = string | number | boolean | null | undefined;
+export type RawVNode = VElement | RawPrimitive;
+export type RawChild = VElement | string | number;
+
+export type Primitive = string;
+export type VNode = VElement | Primitive;
+export type Child = VElement | string;

@@ -1,8 +1,8 @@
 import { addEvent } from "./eventManager";
-import type { Primitive, VNode } from "../types";
+import type { VElementProps, VNode } from "../types";
 
 // 파라미터로 배열이 올 수도 있고, 단일 vNode가 올 수도 있음
-export function createElement(vNode: VNode | Primitive | (VNode | Primitive)[]): Node {
+export function createElement(vNode: VNode | VNode[]): Node {
   const isEmpty = vNode == null || typeof vNode === "boolean";
   if (isEmpty) return document.createTextNode("");
 
@@ -27,7 +27,7 @@ export function createElement(vNode: VNode | Primitive | (VNode | Primitive)[]):
   }
 }
 
-function updateAttributes(element: HTMLElement, props: Record<string, any> | null | undefined): void {
+function updateAttributes(element: HTMLElement, props: VElementProps): void {
   if (!props) return;
 
   Object.entries(props).forEach(([key, value]) => {

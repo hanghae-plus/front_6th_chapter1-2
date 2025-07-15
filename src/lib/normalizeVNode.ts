@@ -1,6 +1,6 @@
-import type { NormalizedVNode, Primitive, VNode } from "../types";
+import type { RawVNode, VNode } from "../types";
 
-export function normalizeVNode(vNode: VNode | Primitive): NormalizedVNode | undefined {
+export function normalizeVNode(vNode: RawVNode): VNode | undefined {
   // falsy는 createVNode에서 걸러지지만 테스트 사양에 맞추기 위해 isEmpty 중복처리
   const isEmpty = vNode == null || typeof vNode === "boolean";
   if (isEmpty) return "";

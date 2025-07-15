@@ -1,14 +1,11 @@
+import type { VElementProps } from "../../types";
 import { addEvent, removeEvent } from "../eventManager";
 
 // 이벤트 핸들러 프로퍼티 식별용 정규식 (onClick, onMouseOver 등)
 
 const isEvent = (key: string) => /^on[A-Z]/.test(key);
 
-export function updateProps(
-  element: HTMLElement,
-  prevProps: Record<string, any> | null | undefined,
-  currentProps: Record<string, any> | null | undefined,
-): void {
+export function updateProps(element: HTMLElement, prevProps: VElementProps, currentProps: VElementProps): void {
   prevProps = prevProps || {};
   currentProps = currentProps || {};
 
