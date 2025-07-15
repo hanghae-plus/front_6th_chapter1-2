@@ -152,4 +152,6 @@ const knownBooleanAttributeMap = new Map([
   // [JSX 속성 이름, DOM 속성 이름]
   // 실제론 더 많은 속성을 설정해야 함
   ["disabled", "disabled"],
+  ["selected", "selected"],
+  ["checked", "checked"],
 ]);
