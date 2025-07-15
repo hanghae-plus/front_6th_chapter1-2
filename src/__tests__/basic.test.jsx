@@ -435,7 +435,10 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       container.appendChild(button);
 
       addEvent(button, "click", clickHandler);
+      console.log(container);
       setupEventListeners(container);
+      console.log(container);
+
       button.click();
 
       expect(clickHandler).toHaveBeenCalledTimes(1);
@@ -468,7 +471,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe.only("renderElement", () => {
+  describe("renderElement", () => {
     let $container;
 
     beforeEach(async () => {
@@ -481,72 +484,72 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       $container = null;
     });
 
-    // it("render를 실행할 경우, vNode가 html로 변환되고 이벤트가 등록된다.", () => {
-    //   const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
-    //   const ListItem = ({ children, className, ...props }) => (
-    //     <li {...props} className={`list-item ${className ?? ""}`}>
-    //       {children}
-    //     </li>
-    //   );
+    it("render를 실행할 경우, vNode가 html로 변환되고 이벤트가 등록된다.", () => {
+      const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
+      const ListItem = ({ children, className, ...props }) => (
+        <li {...props} className={`list-item ${className ?? ""}`}>
+          {children}
+        </li>
+      );
 
-    //   const clickHandler = vi.fn();
-    //   const mouseOverHandler = vi.fn();
-    //   const focusHandler = vi.fn();
-    //   const keyDownHandler = vi.fn();
+      const clickHandler = vi.fn();
+      const mouseOverHandler = vi.fn();
+      const focusHandler = vi.fn();
+      const keyDownHandler = vi.fn();
 
-    //   const items = [
-    //     { id: 1, children: <button onClick={clickHandler} /> },
-    //     { id: 2, children: <div onMouseOver={mouseOverHandler} /> },
-    //     { id: 3, children: <input onFocus={focusHandler} /> },
-    //     { id: 4, children: <input onKeyDown={keyDownHandler} /> },
-    //   ];
+      const items = [
+        { id: 1, children: <button onClick={clickHandler} /> },
+        { id: 2, children: <div onMouseOver={mouseOverHandler} /> },
+        { id: 3, children: <input onFocus={focusHandler} /> },
+        { id: 4, children: <input onKeyDown={keyDownHandler} /> },
+      ];
 
-    //   const TestComponent = () => (
-    //     <UnorderedList>
-    //       {items.map((item, index) => (
-    //         <ListItem id={`item-${item.id}`} className={`list-item ${items.length - 1 === index ? "last-item" : ""}`}>
-    //           {item.children}
-    //         </ListItem>
-    //       ))}
-    //     </UnorderedList>
-    //   );
+      const TestComponent = () => (
+        <UnorderedList>
+          {items.map((item, index) => (
+            <ListItem id={`item-${item.id}`} className={`list-item ${items.length - 1 === index ? "last-item" : ""}`}>
+              {item.children}
+            </ListItem>
+          ))}
+        </UnorderedList>
+      );
 
-    //   renderElement(<TestComponent />, $container);
+      renderElement(<TestComponent />, $container);
 
-    //   expect($container.innerHTML).toEqual(
-    //     `<ul><li id="item-1" class="list-item list-item "><button></button></li><li id="item-2" class="list-item list-item "><div></div></li><li id="item-3" class="list-item list-item "><input></li><li id="item-4" class="list-item list-item last-item"><input></li></ul>`,
-    //   );
+      expect($container.innerHTML).toEqual(
+        `<ul><li id="item-1" class="list-item list-item "><button></button></li><li id="item-2" class="list-item list-item "><div></div></li><li id="item-3" class="list-item list-item "><input></li><li id="item-4" class="list-item list-item last-item"><input></li></ul>`,
+      );
 
-    //   $container.querySelector("#item-1").firstChild.click();
-    //   expect(clickHandler).toHaveBeenCalledTimes(1);
+      $container.querySelector("#item-1").firstChild.click();
+      expect(clickHandler).toHaveBeenCalledTimes(1);
 
-    //   const mouseEvent = new MouseEvent("mouseover", { bubbles: true });
-    //   $container.querySelector("#item-2").firstChild.dispatchEvent(mouseEvent);
-    //   expect(mouseOverHandler).toHaveBeenCalledTimes(1);
+      const mouseEvent = new MouseEvent("mouseover", { bubbles: true });
+      $container.querySelector("#item-2").firstChild.dispatchEvent(mouseEvent);
+      expect(mouseOverHandler).toHaveBeenCalledTimes(1);
 
-    //   const focusEvent = new FocusEvent("focus", { bubbles: true });
-    //   $container.querySelector("#item-3").firstChild.dispatchEvent(focusEvent);
-    //   expect(focusHandler).toHaveBeenCalledTimes(1);
+      const focusEvent = new FocusEvent("focus", { bubbles: true });
+      $container.querySelector("#item-3").firstChild.dispatchEvent(focusEvent);
+      expect(focusHandler).toHaveBeenCalledTimes(1);
 
-    //   const keyboardEvent = new KeyboardEvent("keydown", { bubbles: true });
-    //   $container.querySelector("#item-4").firstChild.dispatchEvent(keyboardEvent);
-    //   expect(keyDownHandler).toHaveBeenCalledTimes(1);
-    // });
+      const keyboardEvent = new KeyboardEvent("keydown", { bubbles: true });
+      $container.querySelector("#item-4").firstChild.dispatchEvent(keyboardEvent);
+      expect(keyDownHandler).toHaveBeenCalledTimes(1);
+    });
 
-    // it("이벤트가 위임 방식으로 등록되어야 한다", () => {
-    //   const clickHandler = vi.fn();
-    //   const vNode = (
-    //     <div>
-    //       <button onClick={clickHandler}>Click me</button>
-    //     </div>
-    //   );
-    //   renderElement(vNode, $container);
+    it("이벤트가 위임 방식으로 등록되어야 한다", () => {
+      const clickHandler = vi.fn();
+      const vNode = (
+        <div>
+          <button onClick={clickHandler}>Click me</button>
+        </div>
+      );
+      renderElement(vNode, $container);
 
-    //   const button = $container.querySelector("button");
-    //   button.click();
+      const button = $container.querySelector("button");
+      button.click();
 
-    //   expect(clickHandler).toHaveBeenCalledTimes(1);
-    // });
+      expect(clickHandler).toHaveBeenCalledTimes(1);
+    });
 
     it("동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다", () => {
       const clickHandler = vi.fn();
