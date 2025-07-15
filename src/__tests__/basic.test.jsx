@@ -417,7 +417,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe.only("eventManager", () => {
+  describe("eventManager", () => {
     let container;
 
     beforeEach(() => {
