@@ -7,6 +7,7 @@ const knownBooleanAttributeMap = new Map([
   ["disabled", "disabled"],
   ["selected", "selected"],
   ["checked", "checked"],
+  ["readOnly", "readonly"],
 ]);
 
 export function updateAttribute(target, key, value) {
@@ -26,7 +27,7 @@ export function updateAttribute(target, key, value) {
   }
 
   if (knownBooleanAttributeMap.has(key)) {
-    setKnownBooleanAttributes(target, knownBooleanAttributeMap.get(key), value);
+    target[key] = value;
     return;
   }
 
@@ -45,14 +46,6 @@ export function removeAttribute(target, key, value) {
   }
 
   target.removeAttribute(key);
-}
-
-function setKnownBooleanAttributes($el, key, value) {
-  if (value === true) {
-    $el.setAttribute(key, "");
-  } else {
-    $el.removeAttribute(key);
-  }
 }
 
 function normalizeEventName(name) {
