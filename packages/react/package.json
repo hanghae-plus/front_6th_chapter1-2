@@ -1,33 +1,37 @@
 {
-  "name": "front-6th-chapter1-2",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@hanghae-plus/react",
+  "version": "0.0.1",
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
   },
   "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./client": {
+      "types": "./src/client/index.ts",
+      "import": "./src/client/index.ts"
+    }
+  },
   "scripts": {
-    "dev": "pnpm -F @hanghae-plus/shopping dev",
-    "build": "pnpm run -r build",
+    "dev": "vite",
+    "build": "vite build",
     "lint:fix": "eslint --fix",
-    "prettier:write": "prettier --write ./packages/*/src",
+    "prettier:write": "prettier --write ./src",
     "preview": "vite preview",
-    "test": "pnpm -F @hanghae-plus/react test",
-    "test:basic": "pnpm -F @hanghae-plus/react test:basic",
-    "test:advanced": "pnpm -F @hanghae-plus/react test:advanced",
+    "test": "vitest",
+    "test:basic": "vitest basic",
+    "test:advanced": "vitest advanced",
+    "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "npx playwright show-report",
     "test:generate": "playwright codegen localhost:5173",
-    "prepare": "husky",
-    "gh-pages": "pnpm -F @hanghae-plus/shopping build && gh-pages -d ./packages/app/dist"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
+    "gh-pages": "pnpm run build && gh-pages -d dist"
   },
   "devDependencies": {
     "@babel/core": "latest",
@@ -44,13 +48,10 @@
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "gh-pages": "^6.3.0",
     "globals": "^15.13.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.2.11",
+    "jsdom": "latest",
     "prettier": "^3.4.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.36.0",
     "vite": "npm:rolldown-vite@latest",
     "vitest": "latest"
   }
