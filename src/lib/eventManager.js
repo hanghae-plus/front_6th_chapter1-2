@@ -11,13 +11,23 @@ export function setupEventListeners(root) {
   }
   globalHandlers.clear();
 
+  // 새 이벤트 리스너 등록
   for (const [eventType, handlerMap] of eventStore.entries()) {
     const handleEvent = (event) => {
-      const target = event.target;
-      if (!handlerMap.has(target)) return;
+      let target = event.target;
 
-      const handler = handlerMap.get(target);
-      if (handler) handler(event);
+      // 클릭된 요소와 이벤트가 연결된 요소가 다름
+      while (target && target !== event.currentTarget) {
+        if (handlerMap.has(target)) {
+          // 등록된 이벤트 함수
+          const handler = handlerMap.get(target);
+          // 실행시킨 후 종료
+          if (handler) handler(event);
+          break;
+        }
+        // 부모 요소로 올라가며 반복
+        target = target.parentElement;
+      }
     };
     root.addEventListener(eventType, handleEvent);
     globalHandlers.set(eventType, handleEvent);
