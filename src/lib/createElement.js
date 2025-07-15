@@ -94,33 +94,3 @@ function updateAttributes($el, props) {
     $el.setAttribute(key, value);
   });
 }
-
-/**
-Expected
-
-<ul>
-  <li id="item-1" class="list-item ">
-    - Item 1
-  </li>
-  <li id="item-2" class="list-item ">
-    - Item 2
-  </li>
-  <li id="item-3" class="list-item last-item">
-    - Item 3
-  </li>
-</ul>;
-
-Result
-
-<ul>
-  <li id="item-1" class="list-item " classname="list-item ">
-    - Item 1
-  </li>
-  <li id="item-2" class="list-item " classname="list-item ">
-    - Item 2
-  </li>
-  <li id="item-3" class="list-item last-item" classname="list-item last-item">
-    - Item 3
-  </li>
-</ul>;
-*/

@@ -32,7 +32,12 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
 
     it("중첩 구조를 올바르게 표현해야 한다", () => {
-      const vNode = createVNode("div", null, createVNode("span", null, "Hello"), createVNode("b", null, "world"));
+      const vNode = createVNode(
+        "div",
+        null,
+        createVNode("span", null, "Hello"),
+        createVNode("b", null, "world"),
+      );
       expect(vNode.type).toBe("div");
       expect(vNode.children.length).toBe(2);
       expect(vNode.children[0].type).toBe("span");
@@ -207,9 +212,12 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       [undefined, ""],
       [true, ""],
       [false, ""],
-    ])("null, undefined, boolean 값은 빈 문자열로 변환되어야 한다. (%s)", (input, expected) => {
-      expect(normalizeVNode(input)).toBe(expected);
-    });
+    ])(
+      "null, undefined, boolean 값은 빈 문자열로 변환되어야 한다. (%s)",
+      (input, expected) => {
+        expect(normalizeVNode(input)).toBe(expected);
+      },
+    );
 
     it.each([
       ["hello", "hello"],
@@ -221,7 +229,9 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
 
     it("컴포넌트를 정규화한다.", () => {
-      const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
+      const UnorderedList = ({ children, ...props }) => (
+        <ul {...props}>{children}</ul>
+      );
       const ListItem = ({ children, className, ...props }) => (
         <li {...props} className={`list-item ${className ?? ""}`}>
           - {children}
@@ -320,11 +330,15 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     describe("컴포넌트를 element로 만들기", () => {
       it("컴포넌트를 createElement로 처리하려고 하면 오류가 발생한다.", () => {
         const FuncComponent = ({ text }) => <div>{text}</div>;
-        expect(() => createElement(<FuncComponent text="Hello" />)).toThrowError();
+        expect(() =>
+          createElement(<FuncComponent text="Hello" />),
+        ).toThrowError();
       });
 
       it("컴포넌트를 정규화한 다음에 createElement로 생성할 수 있다.", () => {
-        const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
+        const UnorderedList = ({ children, ...props }) => (
+          <ul {...props}>{children}</ul>
+        );
         const ListItem = ({ children, className, ...props }) => (
           <li {...props} className={`list-item ${className ?? ""}`}>
             - {children}
@@ -340,7 +354,9 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           </UnorderedList>
         );
 
-        expect(createElement(normalizeVNode(<TestComponent />)).outerHTML).toEqual(
+        expect(
+          createElement(normalizeVNode(<TestComponent />)).outerHTML,
+        ).toEqual(
           `<ul><li id="item-1" class="list-item ">- Item 1</li><li id="item-2" class="list-item ">- Item 2</li><li id="item-3" class="list-item last-item">- Item 3</li></ul>`,
         );
       });
@@ -482,7 +498,9 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
 
     it("render를 실행할 경우, vNode가 html로 변환되고 이벤트가 등록된다.", () => {
-      const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
+      const UnorderedList = ({ children, ...props }) => (
+        <ul {...props}>{children}</ul>
+      );
       const ListItem = ({ children, className, ...props }) => (
         <li {...props} className={`list-item ${className ?? ""}`}>
           {children}
@@ -504,7 +522,10 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       const TestComponent = () => (
         <UnorderedList>
           {items.map((item, index) => (
-            <ListItem id={`item-${item.id}`} className={`list-item ${items.length - 1 === index ? "last-item" : ""}`}>
+            <ListItem
+              id={`item-${item.id}`}
+              className={`list-item ${items.length - 1 === index ? "last-item" : ""}`}
+            >
               {item.children}
             </ListItem>
           ))}
@@ -518,6 +539,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
 
       $container.querySelector("#item-1").firstChild.click();
+      console.log($container);
       expect(clickHandler).toHaveBeenCalledTimes(1);
 
       const mouseEvent = new MouseEvent("mouseover", { bubbles: true });
@@ -529,7 +551,9 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(focusHandler).toHaveBeenCalledTimes(1);
 
       const keyboardEvent = new KeyboardEvent("keydown", { bubbles: true });
-      $container.querySelector("#item-4").firstChild.dispatchEvent(keyboardEvent);
+      $container
+        .querySelector("#item-4")
+        .firstChild.dispatchEvent(keyboardEvent);
       expect(keyDownHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -549,6 +573,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
 
     it("동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다", () => {
+      console.log("initial!!!!!!!!!!!!!!");
       const clickHandler = vi.fn();
       const initialVNode = (
         <div>
@@ -557,6 +582,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
       renderElement(initialVNode, $container);
 
+      console.log("updated!!!!!!!!!!!!!!");
       const updatedVNode = (
         <div>
           <button onClick={clickHandler}>Initial Button</button>

@@ -1,13 +1,13 @@
 /** @jsx createVNode */
-import { createVNode, normalizeVNode } from "../lib";
 import { ProductList, SearchBar } from "../components";
-import { productStore } from "../stores";
+import { createVNode, renderElement } from "../lib";
 import { router, withLifecycle } from "../router";
 import {
+  loadMoreProducts,
   loadProducts,
   loadProductsAndCategories,
-  loadMoreProducts,
 } from "../services";
+import { productStore } from "../stores";
 import { isNearBottom } from "../utils";
 import { PageWrapper } from "./PageWrapper";
 
@@ -19,31 +19,55 @@ const headerLeft = (
   </h1>
 );
 
-// ! normalizeVNode 테스트
+// ! renderElement 테스트
+const $container = document.createElement("div");
+document.body.appendChild($container);
+
+const clickHandler = () => {
+  console.log("click");
+};
+const mouseOverHandler = () => {
+  console.log("mouseOver");
+};
+const focusHandler = () => {
+  console.log("focus");
+};
+const keyDownHandler = () => {
+  console.log("keyDown");
+};
+
+const items = [
+  { id: 1, children: <button onClick={clickHandler} /> },
+  { id: 2, children: <div onMouseOver={mouseOverHandler} /> },
+  { id: 3, children: <input onFocus={focusHandler} /> },
+  { id: 4, children: <input onKeyDown={keyDownHandler} /> },
+];
+
 const UnorderedList = ({ children, ...props }) => (
   <ul {...props}>{children}</ul>
 );
 const ListItem = ({ children, className, ...props }) => (
   <li {...props} className={`list-item ${className ?? ""}`}>
-    - {children}
+    {children}
   </li>
 );
 
 const TestComponent = () => (
   <UnorderedList>
-    <ListItem id="item-1">Item 1</ListItem>
-    <ListItem id="item-2">Item 2</ListItem>
-    <ListItem id="item-3" className="last-item">
-      Item 3
-    </ListItem>
+    {items.map((item, index) => (
+      <ListItem
+        id={`item-${item.id}`}
+        className={`list-item ${items.length - 1 === index ? "last-item" : ""}`}
+      >
+        {item.children}
+      </ListItem>
+    ))}
   </UnorderedList>
 );
 
-// * 컴포넌트를 실행하면 vNode로 출력된다.
-console.log("TestComponent:", <TestComponent />);
+renderElement(<TestComponent />, $container);
 
-const normalized = normalizeVNode(<TestComponent />);
-console.log("normalized: ", normalized);
+// ! renderElement 테스트
 
 // 무한 스크롤 이벤트 등록
 let scrollHandlerRegistered = false;

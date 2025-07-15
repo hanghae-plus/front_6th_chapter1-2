@@ -6,7 +6,16 @@
 
 /**
  * 요소별 이벤트 핸들러 저장
- * elementEventsMap[element] = { eventType: handler }
+ * elementEventsMap : Map(element, Map{ eventType: Set(handler) })
+ * {
+ *   element1: Map{
+ *     eventType1: Set(handler1, handler2),
+ *     eventType2: Set(handler3, handler4),
+ *   },
+ *   element2: {
+ *     eventType1: Set(handler5, handler6),
+ *   }
+ * }
  */
 export const elementEventsMap = new Map();
 
@@ -49,16 +58,21 @@ export function setupEventListeners(root) {
  * 이벤트 핸들러 메모리에 저장
  */
 export function addEvent(element, eventType, handler) {
+  console.log("addEvent");
   if (!elementEventsMap.has(element)) {
     elementEventsMap.set(element, {});
   }
 
   const eventsObject = elementEventsMap.get(element);
+
   if (!eventsObject[eventType]) {
-    eventsObject[eventType] = [];
+    eventsObject[eventType] = new Set();
   }
 
-  eventsObject[eventType].push(handler);
+  // Set은 자동으로 중복을 방지함
+  eventsObject[eventType].add(handler);
+  console.log("eventsObject: ", eventsObject);
+  console.log("eventsObject[eventType]: ", eventsObject[eventType]);
 }
 
 /**
@@ -68,10 +82,6 @@ export function removeEvent(element, eventType, handler) {
   const eventsObject = elementEventsMap.get(element);
 
   if (eventsObject && eventsObject[eventType]) {
-    const index = eventsObject[eventType].indexOf(handler);
-
-    if (index > -1) {
-      eventsObject[eventType].splice(index, 1);
-    }
+    eventsObject[eventType].delete(handler);
   }
 }

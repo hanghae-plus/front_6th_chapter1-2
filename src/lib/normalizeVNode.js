@@ -20,20 +20,23 @@ export function normalizeVNode(vNode) {
   if (typeof vNode === "object" && typeof vNode.type === "function") {
     const Component = vNode.type;
     const props = vNode.props ?? {};
-    const jsx = Component(props);
+    const componentVNode = Component(props);
 
-    const normalizedVNode = normalizeVNode(jsx);
+    if (!componentVNode) return;
+
+    const normalizedVNode = normalizeVNode(componentVNode);
 
     let children = [];
-    if (jsx.children.length <= 1) {
-      children = [...jsx.children, ...vNode.children];
+
+    if (componentVNode.children.length <= 1) {
+      children = [...componentVNode.children, ...vNode.children];
     } else {
-      children = jsx.children.map(normalizeVNode);
+      children = componentVNode.children.map(normalizeVNode);
     }
 
     const result = {
       type: normalizedVNode.type,
-      props: jsx.props || {},
+      props: componentVNode.props || {},
       children,
     };
 
