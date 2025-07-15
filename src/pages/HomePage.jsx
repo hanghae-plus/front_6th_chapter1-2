@@ -19,56 +19,6 @@ const headerLeft = (
   </h1>
 );
 
-// ! renderElement 테스트
-const $container = document.createElement("div");
-document.body.appendChild($container);
-
-const clickHandler = () => {
-  console.log("click");
-};
-const mouseOverHandler = () => {
-  console.log("mouseOver");
-};
-const focusHandler = () => {
-  console.log("focus");
-};
-const keyDownHandler = () => {
-  console.log("keyDown");
-};
-
-const items = [
-  { id: 1, children: <button onClick={clickHandler} /> },
-  { id: 2, children: <div onMouseOver={mouseOverHandler} /> },
-  { id: 3, children: <input onFocus={focusHandler} /> },
-  { id: 4, children: <input onKeyDown={keyDownHandler} /> },
-];
-
-const UnorderedList = ({ children, ...props }) => (
-  <ul {...props}>{children}</ul>
-);
-const ListItem = ({ children, className, ...props }) => (
-  <li {...props} className={`list-item ${className ?? ""}`}>
-    {children}
-  </li>
-);
-
-const TestComponent = () => (
-  <UnorderedList>
-    {items.map((item, index) => (
-      <ListItem
-        id={`item-${item.id}`}
-        className={`list-item ${items.length - 1 === index ? "last-item" : ""}`}
-      >
-        {item.children}
-      </ListItem>
-    ))}
-  </UnorderedList>
-);
-
-renderElement(<TestComponent />, $container);
-
-// ! renderElement 테스트
-
 // 무한 스크롤 이벤트 등록
 let scrollHandlerRegistered = false;
 

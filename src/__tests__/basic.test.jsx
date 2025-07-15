@@ -539,7 +539,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
 
       $container.querySelector("#item-1").firstChild.click();
-      console.log($container);
+
       expect(clickHandler).toHaveBeenCalledTimes(1);
 
       const mouseEvent = new MouseEvent("mouseover", { bubbles: true });
@@ -573,7 +573,6 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
 
     it("동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다", () => {
-      console.log("initial!!!!!!!!!!!!!!");
       const clickHandler = vi.fn();
       const initialVNode = (
         <div>
@@ -582,7 +581,6 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
       renderElement(initialVNode, $container);
 
-      console.log("updated!!!!!!!!!!!!!!");
       const updatedVNode = (
         <div>
           <button onClick={clickHandler}>Initial Button</button>

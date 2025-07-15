@@ -70,7 +70,6 @@ export function setupEventListeners(root) {
  * 이벤트 핸들러 메모리에 저장
  */
 export function addEvent(element, eventType, handler) {
-  console.log("addEvent");
   if (!elementEventsMap.has(element)) {
     elementEventsMap.set(element, {});
   }
@@ -83,8 +82,6 @@ export function addEvent(element, eventType, handler) {
 
   // Set은 자동으로 중복을 방지함
   eventsObject[eventType].add(handler);
-  console.log("eventsObject: ", eventsObject);
-  console.log("eventsObject[eventType]: ", eventsObject[eventType]);
 }
 
 /**
