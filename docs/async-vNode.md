@@ -36,11 +36,16 @@ return normalizeVNode(result);    // ❌ 이 시점엔 아직 결과값이 없�
 
 JSX 구조 자체는 함수 컴포넌트가 vNode를 반환한다는 Synchronous한 전제를 가지고있는데, Asynchronous Function은 이 전제를 깨트리고 비동기로 vNode를 반환하므로 await 하지 않는 이상 렌더링 루틴이 깨지게됩니다.
 
-## 어떻게 해결할 수 있는가?
+비동기 vNode는 평가시 Promise를 반환할수 있으므로 부모에 Suspense 컴포넌트가 존재하는지 따라 처리방식이 달라져야합니다.
 
-- `vNode.type(props)`가 thenable한지 체크를 한다.
-  - await 혹은 체이닝으로 처리한다.
-  - 처리하기 전까지는 fallback 처리로 렌더링 루틴을 깨트리지 않는다.
+- 부모가 `<Suspense>` 컴포넌트일 경우:
+  - 현재 vNode가 Promise를 반환하면 이를 `throw`하여 Suspense fallback UI를 렌더링하도록 한다.
+  - 이후 Promise가 resolve되면 정상적인 렌더 트리로 복귀한다.
+  - 이는 React의 Suspense 메커니즘과 동일하다.
+
+- 부모가 `<Suspense>`가 아닐 경우:
+  - Promise가 완료될 때까지 `await`로 기다린 뒤 계속 렌더링을 진행해야 한다.
+  - 이 방식은 전체 트리 렌더링을 블로킹하기 때문에 최후의 수단으로 고려해야 한다.
 
 ## normalizeVNode 수정
 
@@ -59,12 +64,18 @@ if (typeof vNode.type === "function") {
     }
 
     try {
+        const evaluated = evaluateVNode(vNode)
         const result = vNode.type(props)
 
         if(isThenable(result)) {
-            throw new ThenableError("Async components must be wrapped with createAsyncComponent");
+            if (isInsideSuspenseContext()) {
+                throw new ThenableError("Async components must be wrapped with createAsyncComponent");
+            } else {
+                return await evaluated // 직렬 렌더링
+            }
         }
 
+        return createVNode(vNode.type, vNode.props, vNode.children)
     } catch (error) {
         if(error instanceof ThenableError) {
             return createVNode(vNode.fallback)
