@@ -4,14 +4,17 @@ const eventMap = new WeakMap(); // 이벤트 핸들러 저장을 위해 WeakMap 
 export function setupEventListeners(root) {
   eventTypes.forEach((eventType) => {
     root.addEventListener(eventType, (e) => {
-      const target = e.target;
+      let target = e.target;
+      while (target && target !== root) {
+        if (eventMap.has(target)) {
+          const handlers = eventMap.get(target);
+          if (handlers[eventType]) {
+            handlers[eventType](e);
+            break;
+          }
+        }
 
-      if (!eventMap.has(target)) return;
-
-      const handlers = eventMap.get(target);
-
-      if (handlers[eventType]) {
-        handlers[eventType](e);
+        target = target.parentNode;
       }
     });
   });
