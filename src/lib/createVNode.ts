@@ -17,8 +17,6 @@ const flatten = (arr: RawChild[]): RawChild[] => {
 
 export function createVNode(type: string | Function, props: VElementProps, ...children: RawChild[]): VElement {
   const flatChildren = flatten(children) as RawChild[];
-  console.log(flatChildren);
-
   return {
     type,
     props: props || null,
