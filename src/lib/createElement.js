@@ -25,15 +25,7 @@ export function createElement(vNode) {
 
   const $el = document.createElement(vNode.type);
 
-  if (vNode.props) {
-    for (let i in vNode.props) {
-      if (i === "className") {
-        $el.className = vNode.props[i];
-      } else {
-        $el.setAttribute(i, vNode.props[i]);
-      }
-    }
-  }
+  updateAttributes($el, vNode.props);
 
   if (vNode.children) {
     vNode.children.forEach((child) => {
@@ -45,4 +37,14 @@ export function createElement(vNode) {
   return $el;
 }
 
-// function updateAttributes($el, props) {}
+function updateAttributes($el, props) {
+  if (props) {
+    for (let i in props) {
+      if (i === "className") {
+        $el.setAttribute("class", props[i]);
+      } else {
+        $el.setAttribute(i, props[i]);
+      }
+    }
+  }
+}
