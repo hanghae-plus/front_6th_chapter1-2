@@ -1,20 +1,20 @@
 import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
+  // falsy한 값을 텍스트노드로 처리
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
     return document.createTextNode("");
   }
 
+  // 문자열이나 숫자를 텍스트노드로 처리
   if (typeof vNode === "string" || typeof vNode === "number") {
-    return document.createTextNode(vNode.toString());
+    return document.createTextNode(vNode);
   }
 
   if (Array.isArray(vNode)) {
-    const frament = document.createDocumentFragment();
-    vNode.forEach((child) => {
-      frament.appendChild(createElement(child));
-    });
-    return frament;
+    const fragment = document.createDocumentFragment();
+    vNode.forEach((child) => fragment.appendChild(createElement(child)));
+    return fragment;
   }
 
   if (typeof vNode === "object" && vNode.type) {
@@ -35,33 +35,18 @@ export function createElement(vNode) {
 }
 
 function updateAttributes($el, props) {
-  for (const [key, value] of Object.entries(props)) {
-    // on으로 시작하면 함수이니 addEvent로 분기
-    if (key.startsWith("on")) {
-      const eventType = key.substring(2).toLowerCase();
+  for (const [attr, value] of Object.entries(props)) {
+    if (attr.startsWith("on")) {
+      const eventType = attr.substring(2).toLowerCase();
       addEvent($el, eventType, value);
-    } else if (key === "className") {
-      $el.setAttribute("class", value);
-    }
-    // 특수한 속성 처리
-    else if (key === "checked" || key === "disabled" || key === "readOnly" || key === "selected") {
-      // boolean 속성 처리
-      if (value) {
-        $el[key] = true;
-        if (key === "disabled") {
-          $el.setAttribute(key, "");
-        }
-      } else {
-        $el[key] = false;
-        if (key === "disabled") {
-          $el.removeAttribute(key);
-        }
-      }
-    } else if (key.startsWith("data-")) {
-      $el.dataset[key.substring(5)] = value;
+    } else if (attr === "className") {
+      value ? $el.setAttribute("class", value) : $el.removeAttribute("class");
+    } else if (attr === "style" && typeof value === "object") {
+      $el.setAttribute("style", value);
+    } else if (["checked", "disabled", "readOnly", "selected"].includes(attr)) {
+      $el[attr] = Boolean(value);
     } else {
-      // 일반적인 HTML 속성들 (id, class, style 등) 처리
-      $el.setAttribute(key, value);
+      $el.setAttribute(attr, value);
     }
   }
 }
