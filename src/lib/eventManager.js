@@ -5,6 +5,8 @@ const createEventManager = () => {
 
   return {
     setupEventListeners(root) {
+      if (rootElement === root) return;
+
       rootElement = root;
 
       registeredEvents.forEach((eventType) => {
