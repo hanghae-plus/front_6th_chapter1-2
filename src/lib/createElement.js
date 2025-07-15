@@ -1,3 +1,5 @@
+import { addEvent } from "./eventManager";
+
 export function createElement(vNode) {
   // 함수형 컴포넌트는 처리할 수 없음
   if (typeof vNode === "function") {
@@ -33,6 +35,8 @@ export function createElement(vNode) {
   for (const [key, value] of Object.entries(props)) {
     if (key === "className") {
       el.setAttribute("class", value);
+    } else if (key.startsWith("on")) {
+      addEvent(el, key.slice(2).toLowerCase(), value);
     } else {
       el.setAttribute(key, value);
     }
