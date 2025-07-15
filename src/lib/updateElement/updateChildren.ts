@@ -28,7 +28,7 @@ export function updateChildren(
     }
   }
 
-  // 3) 추가된 new 자식 Append
+  // 추가된 new 자식 추가
   if (currentChildren.length > prevChildren.length) {
     for (let i = prevChildren.length; i < currentChildren.length; i++) {
       const newChildEl = createElement(currentChildren[i]);
