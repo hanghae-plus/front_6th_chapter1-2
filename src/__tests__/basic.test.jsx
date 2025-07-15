@@ -273,7 +273,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe.only("createElement", () => {
+  describe("createElement", () => {
     let container;
 
     beforeEach(() => {
@@ -417,7 +417,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
   });
 
-  describe("eventManager", () => {
+  describe.only("eventManager", () => {
     let container;
 
     beforeEach(() => {
