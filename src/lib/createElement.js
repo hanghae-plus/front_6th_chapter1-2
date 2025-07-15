@@ -1,5 +1,34 @@
 import { addEvent } from "./eventManager";
 
+// 브라우저 표준 이벤트 목록
+const knownDomEvents = new Set([
+  "click",
+  "dblclick",
+  "mousedown",
+  "mouseup",
+  "mouseover",
+  "mouseout",
+  "mousemove",
+  "mouseenter",
+  "mouseleave",
+  "keydown",
+  "keyup",
+  "keypress",
+  "focus",
+  "blur",
+  "change",
+  "input",
+  "submit",
+  "contextmenu",
+  "wheel",
+  "scroll",
+  "resize",
+  "touchstart",
+  "touchend",
+  "touchmove",
+  "touchcancel",
+]);
+
 export function createElement(vNode) {
   console.log("createElement vNode : ", vNode);
   if (vNode === undefined || vNode === null || typeof vNode === "boolean") {
@@ -14,7 +43,6 @@ export function createElement(vNode) {
     const fragment = document.createDocumentFragment();
     vNode.forEach((node) => {
       const element = document.createElement(node.type);
-      // TODO: 여기 children이나 props 처리는 필요없나?? 확인해보기
       if (element instanceof Node) fragment.appendChild(element);
     });
     return fragment;
@@ -24,21 +52,25 @@ export function createElement(vNode) {
     if (typeof vNode.type === "function") {
       throw new Error("컴포넌트로 엘리먼트를 생성할 수 없음");
     }
+
+    // DOM 요소 생성
     const element = document.createElement(vNode.type);
 
     // props 처리
     if (vNode.props) {
       Object.entries(vNode.props).forEach(([key, value]) => {
-        if (key.startsWith("on") && typeof value === "function") {
-          // 이벤트 핸들러
-          addEvent(element, key.slice(2).toLowerCase(), value);
-        } else if (key === "className") {
+        // className는 class로 변경
+        if (key === "className") {
           element.setAttribute("class", value);
-        } else if (key.startsWith("data-")) {
-          element.setAttribute(key, value);
-        } else if (typeof value === "boolean") {
-          if (value) element.setAttribute(key, "");
+        }
+        // 이벤트 핸들러는 이벤트 위임 방식으로 등록
+        else if (key.startsWith("on") && typeof value === "function") {
+          const eventType = key.slice(2).toLowerCase();
+          if (knownDomEvents.has(eventType)) {
+            addEvent(element, eventType, value);
+          }
         } else {
+          // 나머지는 그대로 설정
           element.setAttribute(key, value);
         }
       });
@@ -46,8 +78,9 @@ export function createElement(vNode) {
 
     // children 처리
     vNode.children?.forEach((child) => {
-      const childEl = createElement(child);
-      if (childEl) element.appendChild(childEl);
+      // 재귀적으로 돌아가도록 createElement를 자식에도 실행
+      const childElement = createElement(child);
+      if (childElement) element.appendChild(childElement);
     });
 
     return element;
