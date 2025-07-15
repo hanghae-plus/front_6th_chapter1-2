@@ -35,8 +35,15 @@ export function setupEventListeners(root) {
 
   // 각 이벤트 타입별로 한 번만 리스너 등록
   allEventTypes.forEach((eventType) => {
-    root.addEventListener(eventType, (event) => {
-      let target = event.target; // 이벤트가 실제로 발생한 타겟
+    // 이미 등록된 핸들러인지 확인
+    const existingListener = root._eventListeners?.[eventType];
+    if (existingListener) {
+      return;
+    }
+
+    // 핸들러 등록
+    const eventListener = (event) => {
+      let target = event.target;
 
       while (target && target !== root) {
         // 이벤트가 발생한 요소의 이벤트 핸들러들
@@ -46,11 +53,16 @@ export function setupEventListeners(root) {
           eventObject[eventType].forEach((handler) => handler(event));
         }
 
-        // 상위 요소로 이동하면서 핸들러 실행 (이벤트 버블링 구현)
-        // ? 이걸 안 해주면 왜 버블링이 발생하지 않나?
         target = target.parentElement;
       }
-    });
+    };
+
+    // 핸들러 저장 및 등록
+    if (!root._eventListeners) {
+      root._eventListeners = {};
+    }
+    root._eventListeners[eventType] = eventListener;
+    root.addEventListener(eventType, eventListener);
   });
 }
 
