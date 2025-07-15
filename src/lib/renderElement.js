@@ -36,11 +36,8 @@ export function renderElement(vNode, container) {
     container.innerHTML = "";
     container.appendChild(element);
   } else {
-    // 이후 렌더링: 첫 번째 자식 요소를 updateElement로 업데이트
-    const firstChild = container.firstChild;
-    if (firstChild) {
-      updateElement(container, normalizedVNode, previousVNode, 0);
-    }
+    // 이후 렌더링: 모든 자식 요소를 updateElement로 업데이트
+    updateElement(container, normalizedVNode, previousVNode, 0);
   }
 
   // 현재 vNode를 저장

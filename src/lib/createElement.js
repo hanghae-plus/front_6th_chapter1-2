@@ -91,6 +91,11 @@ function updateAttributes($el, props) {
       return;
     }
 
+    // vNode 객체는 HTML 속성으로 설정하지 않음
+    if (value && typeof value === "object" && (value.type || value.children)) {
+      return;
+    }
+
     $el.setAttribute(key, value);
   });
 }

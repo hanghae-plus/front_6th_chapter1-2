@@ -14,6 +14,15 @@ function updateAttributes(target, originNewProps, originOldProps) {
     }
 
     if (!(key in newProps)) {
+      // vNode 객체였던 경우 속성 제거 스킵
+      if (
+        oldProps[key] &&
+        typeof oldProps[key] === "object" &&
+        (oldProps[key].type || oldProps[key].children)
+      ) {
+        return;
+      }
+
       if (key === "className") {
         target.removeAttribute("class");
       } else if (key === "style") {
@@ -60,6 +69,11 @@ function updateAttributes(target, originNewProps, originOldProps) {
       return;
     }
 
+    // vNode 객체는 HTML 속성으로 설정하지 않음
+    if (value && typeof value === "object" && (value.type || value.children)) {
+      return;
+    }
+
     target.setAttribute(key, value);
   });
 }
@@ -67,7 +81,9 @@ function updateAttributes(target, originNewProps, originOldProps) {
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   // 제거된 경우
   if (!newNode && oldNode) {
-    parentElement.removeChild(parentElement.childNodes[index]);
+    if (parentElement.childNodes[index]) {
+      parentElement.removeChild(parentElement.childNodes[index]);
+    }
     return;
   }
 
@@ -78,37 +94,52 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     return;
   }
 
-  // 기존 노드와 새로운 노드 모두 문자열일 때
-  if (
-    newNode &&
-    oldNode &&
-    newNode.type === "string" &&
-    newNode.type === oldNode.type
-  ) {
-    // children이 변경된 경우 textContent를 변경한다.
-    if (newNode.props.children !== oldNode.props.children) {
+  // 둘 다 텍스트/문자열인 경우
+  if (typeof newNode === "string" || typeof newNode === "number") {
+    if (typeof oldNode === "string" || typeof oldNode === "number") {
+      if (newNode !== oldNode) {
+        parentElement.childNodes[index].textContent = newNode;
+      }
+    } else {
       parentElement.childNodes[index].textContent = newNode;
-      return;
     }
+    return;
   }
 
   // 타입이 변경된 경우 교체한다.
-  if (newNode && oldNode && newNode.type !== oldNode.type) {
+  if (newNode.type !== oldNode.type) {
     const newElement = createElement(newNode);
-    parentElement.replaceChild(newElement, parentElement.childNodes[index]);
+    const childNode = parentElement.childNodes[index];
+
+    if (childNode) {
+      parentElement.replaceChild(newElement, childNode);
+    } else {
+      parentElement.appendChild(newElement);
+    }
     return;
   }
 
-  // 타입이 같을 때 속성을 업데이트한다.
-  if (newNode && oldNode && newNode.type === oldNode.type) {
-    const oldElement = parentElement.childNodes[index];
-    updateAttributes(oldElement, newNode.props, oldNode.props);
+  // 타입이 같을 때 속성과 자식을 업데이트한다.
+  const currentElement = parentElement.childNodes[index];
+  updateAttributes(currentElement, newNode.props, oldNode.props);
 
-    if (newNode.children) {
-      newNode.children.forEach((child, i) => {
-        updateElement(oldElement, child, oldNode.children[i], i);
-      });
-    }
-    return;
+  // 자식 업데이트
+  const newChildren = newNode.children || [];
+  const oldChildren = oldNode.children || [];
+
+  // 1단계: 공통 부분 재귀 업데이트 (기존 DOM 재사용)
+  const commonLength = Math.min(newChildren.length, oldChildren.length);
+  for (let i = 0; i < commonLength; i++) {
+    updateElement(currentElement, newChildren[i], oldChildren[i], i);
+  }
+
+  // 2단계: 새 자식이 더 많으면 추가
+  for (let i = commonLength; i < newChildren.length; i++) {
+    updateElement(currentElement, newChildren[i], null, i);
+  }
+
+  // 3단계: 기존 자식이 더 많으면 제거 (뒤에서부터)
+  for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+    updateElement(currentElement, null, oldChildren[i], i);
   }
 }

@@ -17,30 +17,25 @@ export function normalizeVNode(vNode) {
     return vNode.map(normalizeVNode).filter((child) => child !== "");
   }
 
+  // 컴포넌트인 경우
   if (typeof vNode === "object" && typeof vNode.type === "function") {
     const Component = vNode.type;
     const props = vNode.props ?? {};
-    const componentVNode = Component(props);
 
-    if (!componentVNode) return;
-
-    const normalizedVNode = normalizeVNode(componentVNode);
-
-    let children = [];
-
-    if (componentVNode.children.length <= 1) {
-      children = [...componentVNode.children, ...vNode.children];
-    } else {
-      children = componentVNode.children.map(normalizeVNode);
-    }
-
-    const result = {
-      type: normalizedVNode.type,
-      props: componentVNode.props || {},
-      children,
+    // children을 props에 포함하여 컴포넌트에 전달
+    const propsWithChildren = {
+      ...props,
+      children: vNode.children
+        .map(normalizeVNode)
+        .filter((child) => child !== ""),
     };
 
-    return result;
+    const componentVNode = Component(propsWithChildren);
+
+    if (!componentVNode) return "";
+
+    // 컴포넌트가 반환한 vNode를 재귀적으로 정규화
+    return normalizeVNode(componentVNode);
   }
 
   return {
