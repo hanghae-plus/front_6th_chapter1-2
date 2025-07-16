@@ -1,5 +1,12 @@
 import { addEvent } from "./eventManager";
 
+/**
+ * 실제 DOM 요소를 생성하는 함수
+ *
+ * @param {any} vNode 가상 노드
+ * @returns {HTMLElement | Text} 실제 DOM 요소
+ * @throws {Error} 함수형 컴포넌트는 createElement로 처리할 수 없습니다.
+ */
 export function createElement(vNode) {
   // 함수형 컴포넌트는 처리할 수 없음
   if (typeof vNode === "function") {
@@ -19,11 +26,7 @@ export function createElement(vNode) {
   // 3. vNode가 배열인 경우
   if (Array.isArray(vNode)) {
     const fragment = document.createDocumentFragment();
-
-    vNode.forEach((child) => {
-      const el = createElement(child);
-      if (el) fragment.appendChild(el);
-    });
+    appendChildren(fragment, vNode);
 
     return fragment;
   }
@@ -32,24 +35,59 @@ export function createElement(vNode) {
   const el = document.createElement(vNode.type);
   const props = vNode.props ?? {};
 
-  for (const [key, value] of Object.entries(props)) {
-    if (key === "className") {
-      el.setAttribute("class", value);
-    } else if (["checked", "disabled", "selected"].includes(key)) {
-      el[key] = value;
-    } else if (key.startsWith("on")) {
-      addEvent(el, key.slice(2).toLowerCase(), value);
-    } else {
-      el.setAttribute(key, value);
-    }
-  }
-
-  vNode.children?.forEach((child) => {
-    const childEl = createElement(child);
-    if (childEl) el.appendChild(childEl);
-  });
+  updateAttributes(el, props);
+  appendChildren(el, vNode.children);
 
   return el;
 }
 
-// function updateAttributes($el, props) {}
+/**
+ * 속성을 업데이트하는 함수
+ *
+ * @param {HTMLElement} $el 대상 요소
+ * @param {object} props 속성 객체
+ */
+const BOOLEAN_PROPS = ["checked", "disabled", "selected", "readOnly"];
+function updateAttributes($el, props) {
+  for (const [key, value] of Object.entries(props)) {
+    // 스타일 속성 처리
+    if (key === "className") {
+      if (value) {
+        $el.setAttribute("class", value);
+      } else {
+        $el.removeAttribute("class");
+      }
+      continue;
+    }
+
+    // 이벤트 속성 처리
+    if (key.startsWith("on")) {
+      if (typeof value === "function") {
+        addEvent($el, key.slice(2).toLowerCase(), value);
+      }
+      continue;
+    }
+
+    // Boolean 특수 속성 처리
+    if (BOOLEAN_PROPS.includes(key)) {
+      $el[key] = !!value;
+      continue;
+    }
+
+    // 기타 속성 처리
+    $el.setAttribute(key, value);
+  }
+}
+
+/**
+ * 자식 요소를 추가하는 함수
+ *
+ * @param {HTMLElement} $el 대상 요소
+ * @param {any[]} children 자식 요소 배열
+ */
+function appendChildren($el, children) {
+  children.forEach((node) => {
+    const childEl = createElement(node);
+    $el.appendChild(childEl);
+  });
+}
