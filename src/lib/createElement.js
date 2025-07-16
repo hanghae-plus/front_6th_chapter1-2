@@ -30,12 +30,10 @@ const knownDomEvents = new Set([
 ]);
 
 export function createElement(vNode) {
-  console.log("createElement vNode : ", vNode);
   if (vNode === undefined || vNode === null || typeof vNode === "boolean") {
     return document.createTextNode("");
   }
   if (typeof vNode === "string" || typeof vNode === "number") {
-    console.log("textNode : ", document.createTextNode(vNode.toString()));
     return document.createTextNode(vNode.toString());
   }
 
