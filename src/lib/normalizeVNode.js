@@ -1,7 +1,6 @@
 /** @typedef {import('./type').VNode} VNode */
 import { isThenable } from "../utils";
 import {
-  getCachedResult,
   setCachedResult,
   createCacheKey,
   triggerRerender,
@@ -15,9 +14,9 @@ import {
  *
  * @param {VNode} vNode - 표준화할 가상 DOM 노드
  * @param {boolean} insideSuspense - Suspense 컨텍스트 내부 여부
- * @returns {Promise<VNode>|VNode} 표준화된 가상 DOM 노드
+ * @returns {VNode} 표준화된 가상 DOM 노드
  */
-export async function normalizeVNode(vNode, insideSuspense = false) {
+export function normalizeVNode(vNode, insideSuspense = false) {
   // null, undefined, boolean 처리
   if (vNode == null || vNode === undefined || vNode === true || vNode === false) {
     return "";
@@ -54,11 +53,11 @@ export async function normalizeVNode(vNode, insideSuspense = false) {
         normalizedChildren = [];
         // 각 자식을 순차적으로 처리하여 Promise가 throw되면 즉시 catch
         for (const child of children) {
-          const normalized = await normalizeVNode(child, true); // Suspense 컨텍스트 내부
+          const normalized = normalizeVNode(child, true); // Suspense 컨텍스트 내부
           normalizedChildren.push(normalized);
         }
       } else {
-        normalizedChildren = [await normalizeVNode(children, true)]; // Suspense 컨텍스트 내부
+        normalizedChildren = [normalizeVNode(children, true)]; // Suspense 컨텍스트 내부
       }
 
       // 정상적으로 렌더링 완료
@@ -78,7 +77,7 @@ export async function normalizeVNode(vNode, insideSuspense = false) {
         return {
           type: "div",
           props: { "data-suspense": "pending" },
-          children: [await normalizeVNode(fallback, false)], // fallback은 Suspense 외부에서 처리
+          children: [normalizeVNode(fallback, false)], // fallback은 Suspense 외부에서 처리
         };
       }
 
@@ -94,20 +93,10 @@ export async function normalizeVNode(vNode, insideSuspense = false) {
   if (typeof vNode.type === "function") {
     const props = { ...vNode.props };
     if (vNode.children?.length > 0) {
-      props.children = await Promise.all(
-        vNode.children.map(async (child) => await normalizeVNode(child, insideSuspense)),
-      );
+      props.children = vNode.children.map((child) => normalizeVNode(child, insideSuspense));
     }
 
-    // 캐시 키 생성
     const cacheKey = createCacheKey(vNode.type, props);
-
-    // 캐시된 결과가 있는지 확인
-    const cachedResult = getCachedResult(cacheKey);
-    if (cachedResult && !isThenable(cachedResult)) {
-      // 캐시된 결과가 있고 Promise가 아니라면 사용
-      return await normalizeVNode(cachedResult, insideSuspense);
-    }
 
     try {
       const result = vNode.type(props);
@@ -131,16 +120,16 @@ export async function normalizeVNode(vNode, insideSuspense = false) {
 
           throw result; // Suspense가 캐치하도록 throw
         } else {
-          // Suspense 컨텍스트 외부라면 기존처럼 await
-          const resolvedResult = await result;
-          setCachedResult(cacheKey, resolvedResult);
-          return await normalizeVNode(resolvedResult, insideSuspense);
+          // Suspense 컨텍스트 외부에서는 async 컴포넌트를 지원하지 않음
+          // 개발자가 SuspenseWrapper를 사용하도록 안내
+          console.warn("Async component detected outside Suspense context. Please wrap with SuspenseWrapper.");
+          return "";
         }
       }
 
       // 동기 컴포넌트 결과 처리
       setCachedResult(cacheKey, result);
-      return await normalizeVNode(result, insideSuspense);
+      return normalizeVNode(result, insideSuspense);
     } catch (error) {
       // Promise throw는 Suspense에서 처리하므로 다시 throw
       if (isThenable(error)) {
@@ -155,11 +144,11 @@ export async function normalizeVNode(vNode, insideSuspense = false) {
    * children 정규화 및 falsy 값 필터링
    */
   const normalizedChildren = Array.isArray(vNode.children)
-    ? (await Promise.all(vNode.children.map(async (child) => await normalizeVNode(child, insideSuspense)))).filter(
-        (child) => child !== "" && child != null,
-      )
+    ? vNode.children
+        .map((child) => normalizeVNode(child, insideSuspense))
+        .filter((child) => child !== "" && child != null)
     : vNode.children
-      ? [await normalizeVNode(vNode.children, insideSuspense)]
+      ? [normalizeVNode(vNode.children, insideSuspense)]
       : [];
 
   /**

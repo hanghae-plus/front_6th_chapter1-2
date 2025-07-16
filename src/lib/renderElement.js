@@ -11,11 +11,11 @@ import { updateElement } from "./updateElement";
  *
  * @param {VNode} vNode - 렌더링할 가상 DOM 노드
  * @param {HTMLElement} $targetEl - 렌더링될 컨테이너 엘리먼트
- * @returns {Promise<HTMLElement>} 렌더링된 DOM 엘리먼트
+ * @returns {HTMLElement} 렌더링된 DOM 엘리먼트
  */
-export async function renderElement(vNode, $targetEl) {
+export function renderElement(vNode, $targetEl) {
   // vNode 정규화
-  const normalizedVNode = await normalizeVNode(vNode);
+  const normalizedVNode = normalizeVNode(vNode);
 
   // 이전 렌더링 결과 가져오기
   const oldVNode = $targetEl._vNode;
