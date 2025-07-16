@@ -69,6 +69,8 @@ export function createElement(vNode) {
           if (knownDomEvents.has(eventType)) {
             addEvent(element, eventType, value);
           }
+        } else if (typeof value === "boolean") {
+          element[key] = value;
         } else {
           // 나머지는 그대로 설정
           element.setAttribute(key, value);
