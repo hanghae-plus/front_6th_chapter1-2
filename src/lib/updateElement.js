@@ -1,4 +1,4 @@
- import { addEvent, removeEvent } from "./eventManager";
+import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
 function updateAttributes(target, newProps, oldProps) {
@@ -51,6 +51,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (!newNode && oldNode) {
     // oldNode만 존재하는 경우, 해당 노드를 DOM에서 제거
     const child = parentElement.childNodes[index];
+
     if (child) {
       parentElement.removeChild(child);
     }
@@ -69,10 +70,10 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   // TODO: 내용이 다르면 텍스트 노드 업데이트
   if (typeof newNode == "string" || typeof oldNode == "string") {
     if (oldNode !== newNode) {
-			const newTextNode = document.createTextNode(newNode);
+      const newTextNode = document.createTextNode(newNode);
 			if (parentElement.childNodes[index]) {
 				parentElement.replaceChild(newTextNode, parentElement.childNodes[index]);
-			} else {
+      } else {
 				parentElement.appendChild(newTextNode);
 			}
     }
@@ -86,7 +87,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 			parentElement.replaceChild(createElement(newNode), parentElement.childNodes[index]);
     } else {
 			parentElement.appencChild(createElement(newNode));
-    }
+    } 
     return;
   }
 
@@ -110,10 +111,10 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     // 5-3. 불필요한 자식 노드 제거
     // TODO: oldNode의 자식 수가 더 많은 경우, 남은 자식 노드들을 제거
     if (oldNodeChildren.length > newNodeChildren.length) {
-			for (let i = newNodeChildren.length; i < oldNodeChildren.length; i++) {
-				if (childNodes.childNodes && childNodes.childNodes[i]) {
-					childNodes.removeChild(childNodes.childNodes[i]);
-				}
+      for (let i = oldNodeChildren.length - 1; i >= newNodeChildren.length; i--) {
+        if (childNodes.childNodes && childNodes.childNodes[i]) {
+          childNodes.removeChild(childNodes.childNodes[i]);
+        }
 			}
     }
   }
