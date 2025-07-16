@@ -9,3 +9,4 @@ export * from "./ProductCard";
 export * from "./ProductList";
 export * from "./ProductDetail";
 export * from "./PublicImage";
+export * from "./SuspenseWrapper";
