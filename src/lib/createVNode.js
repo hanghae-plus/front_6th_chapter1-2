@@ -14,7 +14,9 @@
  * @returns {VNode}
  */
 export function createVNode(type, props = null, ...children) {
-  const normalizedChildren = children.flat(Infinity).filter((child) => child != null && child !== false);
+  const normalizedChildren = children
+    .flat(Infinity)
+    .filter((child) => child !== null && child !== undefined && child !== false);
 
   return {
     type,
