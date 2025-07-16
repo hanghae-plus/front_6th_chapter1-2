@@ -1,5 +1,7 @@
 import { addEvent } from "./eventManager";
 
+const specialProperties = ["checked", "selected", "disabled", "readOnly"];
+
 export function createElement(vNode) {
   if (vNode === undefined || vNode === null || typeof vNode === "boolean") return document.createTextNode("");
 
@@ -37,19 +39,15 @@ function updateAttributes($el, props) {
 
   const targetElement = $el;
 
-  Object.entries(props).forEach(([key, value]) => {
-    if (key.startsWith("on") && typeof value === "function") {
-      addEvent(targetElement, key.slice(2).toLowerCase(), value);
-    } else if (key === "className") {
+  Object.entries(props).forEach(([attribute, value]) => {
+    if (attribute.startsWith("on") && typeof value === "function") {
+      addEvent(targetElement, attribute.slice(2).toLowerCase(), value);
+    } else if (attribute === "className") {
       targetElement.className = value;
+    } else if (specialProperties.includes(attribute)) {
+      targetElement[attribute] = value;
     } else {
-      if (key === "className") {
-        targetElement.className = value;
-      } else if (key === "checked" || key === "selected" || key === "disabled" || key === "readOnly") {
-        targetElement[key] = value;
-      } else {
-        targetElement.setAttribute(key, value);
-      }
+      targetElement.setAttribute(attribute, value);
     }
   });
 

@@ -1,6 +1,8 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
+const specialProperties = ["checked", "selected", "disabled", "readOnly"];
+
 function updateAttributes(target, newProps, oldProps) {
   const attributes = new Set([...Object.keys(newProps || {}), ...Object.keys(oldProps || {})]);
 
@@ -10,7 +12,6 @@ function updateAttributes(target, newProps, oldProps) {
     if (newValue !== oldValue) {
       if (attribute.startsWith("on")) {
         const eventType = attribute.slice(2).toLowerCase();
-
         if (!newValue && oldValue) {
           removeEvent(target, eventType, oldValue);
         } else if (newValue && !oldValue) {
@@ -22,12 +23,8 @@ function updateAttributes(target, newProps, oldProps) {
       } else if (newValue == null) {
         if (attribute === "className") {
           target.className = "";
-        } else if (
-          attribute === "checked" ||
-          attribute === "selected" ||
-          attribute === "disabled" ||
-          attribute === "readOnly"
-        ) {
+          target.removeAttribute("class");
+        } else if (specialProperties.includes(attribute)) {
           target[attribute] = false;
         } else {
           target.removeAttribute(attribute);
@@ -35,12 +32,7 @@ function updateAttributes(target, newProps, oldProps) {
       } else {
         if (attribute === "className") {
           target.className = newValue;
-        } else if (
-          attribute === "checked" ||
-          attribute === "selected" ||
-          attribute === "disabled" ||
-          attribute === "readOnly"
-        ) {
+        } else if (specialProperties.includes(attribute)) {
           target[attribute] = newValue;
         } else {
           target.setAttribute(attribute, newValue);
@@ -52,9 +44,14 @@ function updateAttributes(target, newProps, oldProps) {
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (!newNode && oldNode) {
+    if (typeof oldNode === "string") {
+      const targetTextNode = parentElement.childNodes[index];
+      if (targetTextNode) parentElement.removeChild(targetTextNode);
+      return;
+    }
+
     const targetElement = parentElement.children[index];
-    console.log(targetElement);
-    parentElement.removeChild(targetElement);
+    if (targetElement) parentElement.removeChild(targetElement);
     return;
   }
   if (newNode && !oldNode) {
@@ -91,9 +88,20 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
   const maxLength = Math.max(newChildren.length, oldChildren.length);
+
   for (let childIndex = maxLength - 1; childIndex >= 0; childIndex--) {
     const newChildNode = newChildren[childIndex];
     const oldChildNode = oldChildren[childIndex];
-    updateElement(targetElement, newChildNode, oldChildNode, childIndex);
+
+    if (typeof newChildNode === "string" && typeof oldChildNode === "string") {
+      if (newChildNode !== oldChildNode) {
+        const targetTextNode = targetElement.childNodes[childIndex];
+        if (targetTextNode && targetTextNode.nodeType === Node.TEXT_NODE) {
+          targetTextNode.textContent = newChildNode;
+        }
+      }
+    } else {
+      updateElement(targetElement, newChildNode, oldChildNode, childIndex);
+    }
   }
 }
