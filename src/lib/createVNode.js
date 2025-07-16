@@ -1,4 +1,5 @@
 // VirtualDOM 생성
+// 자식 노드를 평탄화
 export function createVNode(type, props, ...children) {
   return {
     type,

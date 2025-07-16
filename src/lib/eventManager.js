@@ -1,6 +1,6 @@
-// WeakMap<요소, 핸들러> 저장
+// <요소, 핸들러> 저장 - 이벤트 타입별로 WeakMap 관리
 const eventStore = new Map();
-// remove 용 핸들러 저장
+// root에 연결된 이벤트 저장소
 const globalHandlers = new Map();
 
 // 이벤트 위임 등록
@@ -13,6 +13,7 @@ export function setupEventListeners(root) {
 
   // 새 이벤트 리스너 등록
   for (const [eventType, handlerMap] of eventStore.entries()) {
+    // 이벤트 발생 시 호출되는 핸들러
     const handleEvent = (event) => {
       let target = event.target;
 
@@ -30,6 +31,7 @@ export function setupEventListeners(root) {
       }
     };
 
+    // root에 이벤트 타입별로 공통 핸들러 등록
     root.addEventListener(eventType, handleEvent);
     globalHandlers.set(eventType, handleEvent);
   }
@@ -39,10 +41,12 @@ export function setupEventListeners(root) {
 export function addEvent(element, eventType, handler) {
   if (!element || typeof handler !== "function") return;
 
+  // eventStore에 이벤트 타입별 WeakMap이 없으면 새로 생성
   if (!eventStore.has(eventType)) {
     eventStore.set(eventType, new WeakMap());
   }
 
+  // 이벤트 타입 키에 <요소, 핸들러> 저장
   eventStore.get(eventType).set(element, handler);
 }
 
@@ -51,6 +55,7 @@ export function removeEvent(element, eventType, handler) {
   const handlers = eventStore.get(eventType);
   if (!handlers) return;
 
+  // 등록된 이벤트 제거
   if (handlers.get(element) === handler) {
     handlers.delete(element);
   }
