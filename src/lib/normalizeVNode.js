@@ -14,7 +14,7 @@ export function normalizeVNode(vNode) {
   }
 
   if (isFunction(vNode.type)) {
-    const props = { ...(vNode.props ?? {}), children: vNode.children };
+    const props = { ...(vNode.props ?? {}), children: normalizeChildren(vNode.children) };
     return normalizeVNode(vNode.type(props));
   }
 
