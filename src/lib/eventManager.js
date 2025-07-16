@@ -1,18 +1,17 @@
 const createEventManager = () => {
   const eventStore = new Map();
   const registeredEvents = new Set();
-  let rootElement = null;
+  const prevContainers = new WeakSet();
 
   return {
     setupEventListeners(root) {
-      if (rootElement === root) return;
+      if (prevContainers.has(root)) return;
 
-      rootElement = root;
-
+      prevContainers.add(root);
       registeredEvents.forEach((eventType) => {
         root.addEventListener(eventType, (event) => {
           let currentTarget = event.target;
-          while (currentTarget && currentTarget !== rootElement) {
+          while (currentTarget && currentTarget !== root) {
             const elementEvents = eventStore.get(currentTarget);
             if (elementEvents && elementEvents.has(eventType)) {
               const handlers = elementEvents.get(eventType);
