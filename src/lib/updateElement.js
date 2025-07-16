@@ -45,8 +45,8 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 }
 
 function updateProps(target, newNode, oldNode) {
-  const { props: newProps = {} } = newNode;
-  const { props: oldProps = {} } = oldNode;
+  const newProps = newNode.props ?? {};
+  const oldProps = oldNode.props ?? {};
   const newPropsKeys = Object.keys(newProps);
   const oldPropsKeys = Object.keys(oldProps);
   const allKeys = new Set([...newPropsKeys, ...oldPropsKeys]);
