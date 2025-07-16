@@ -41,6 +41,11 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
 
     describe("JSX로 표현한 결과가 createVNode 함수 호출과 동일해야 한다", () => {
       const TestComponent = ({ message }) => <div>{message}</div>;
+      const TestAsyncComponent = async ({ message }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        return <div>{message}</div>;
+      };
       const ComplexComponent = ({ items, onClick }) => (
         <div className="container">
           {items.map((item) => (
@@ -135,6 +140,15 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           },
         },
         {
+          name: "Async 함수형 컴포넌트",
+          vNode: <TestAsyncComponent message="Hello World" />,
+          expected: {
+            type: TestAsyncComponent,
+            props: { message: "Hello World" },
+            children: [],
+          },
+        },
+        {
           name: "이벤트 핸들러가 있는 엘리먼트",
           vNode: <button onClick={() => {}}>Click</button>,
           expected: {
@@ -207,8 +221,8 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       [undefined, ""],
       [true, ""],
       [false, ""],
-    ])("null, undefined, boolean 값은 빈 문자열로 변환되어야 한다. (%s)", (input, expected) => {
-      expect(normalizeVNode(input)).toBe(expected);
+    ])("null, undefined, boolean 값은 빈 문자열로 변환되어야 한다. (%s)", async (input, expected) => {
+      expect(await normalizeVNode(input)).toBe(expected);
     });
 
     it.each([
@@ -216,11 +230,11 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       [123, "123"],
       [0, "0"],
       [-42, "-42"],
-    ])("문자열과 숫자는 문자열로 변환되어야 한다. (%s)", (input, expected) => {
-      expect(normalizeVNode(input)).toBe(expected);
+    ])("문자열과 숫자는 문자열로 변환되어야 한다. (%s)", async (input, expected) => {
+      expect(await normalizeVNode(input)).toBe(expected);
     });
 
-    it("컴포넌트를 정규화한다.", () => {
+    it("컴포넌트를 정규화한다.", async () => {
       const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
       const ListItem = ({ children, className, ...props }) => (
         <li {...props} className={`list-item ${className ?? ""}`}>
@@ -237,7 +251,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
         </UnorderedList>
       );
 
-      const normalized = normalizeVNode(<TestComponent />);
+      const normalized = await normalizeVNode(<TestComponent />);
 
       expect(normalized).toEqual(
         <ul {...{}}>
@@ -254,8 +268,46 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
     });
 
-    it("Falsy 값 (null, undefined, false)은 자식 노드에서 제거되어야 한다.", () => {
-      const normalized = normalizeVNode(
+    it("async 컴포넌트를 정규화한다.", async () => {
+      const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
+      const ListItem = ({ children, className, ...props }) => (
+        <li {...props} className={`list-item ${className ?? ""}`}>
+          - {children}
+        </li>
+      );
+      const TestAsyncComponent = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        return (
+          <UnorderedList>
+            <ListItem id="item-1">Item 1</ListItem>
+            <ListItem id="item-2">Item 2</ListItem>
+            <ListItem id="item-3" className="last-item">
+              Item 3
+            </ListItem>
+          </UnorderedList>
+        );
+      };
+
+      const normalized = await normalizeVNode(<TestAsyncComponent />);
+
+      expect(normalized).toEqual(
+        <ul {...{}}>
+          <li id="item-1" className="list-item ">
+            {"- "}Item 1
+          </li>
+          <li id="item-2" className="list-item ">
+            {"- "}Item 2
+          </li>
+          <li id="item-3" className="list-item last-item">
+            {"- "}Item 3
+          </li>
+        </ul>,
+      );
+    });
+
+    it("Falsy 값 (null, undefined, false)은 자식 노드에서 제거되어야 한다.", async () => {
+      const normalized = await normalizeVNode(
         <div>
           유효한 값{null}
           {undefined}
@@ -323,7 +375,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
         expect(() => createElement(<FuncComponent text="Hello" />)).toThrowError();
       });
 
-      it("컴포넌트를 정규화한 다음에 createElement로 생성할 수 있다.", () => {
+      it("컴포넌트를 정규화한 다음에 createElement로 생성할 수 있다.", async () => {
         const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
         const ListItem = ({ children, className, ...props }) => (
           <li {...props} className={`list-item ${className ?? ""}`}>
@@ -340,7 +392,8 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           </UnorderedList>
         );
 
-        expect(createElement(normalizeVNode(<TestComponent />)).outerHTML).toEqual(
+        const normalized = await normalizeVNode(<TestComponent />);
+        expect(createElement(normalized).outerHTML).toEqual(
           `<ul><li id="item-1" class="list-item ">- Item 1</li><li id="item-2" class="list-item ">- Item 2</li><li id="item-3" class="list-item last-item">- Item 3</li></ul>`,
         );
       });
@@ -481,7 +534,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       $container = null;
     });
 
-    it("render를 실행할 경우, vNode가 html로 변환되고 이벤트가 등록된다.", () => {
+    it("render를 실행할 경우, vNode가 html로 변환되고 이벤트가 등록된다.", async () => {
       const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
       const ListItem = ({ children, className, ...props }) => (
         <li {...props} className={`list-item ${className ?? ""}`}>
@@ -511,7 +564,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
         </UnorderedList>
       );
 
-      renderElement(<TestComponent />, $container);
+      await renderElement(<TestComponent />, $container);
 
       expect($container.innerHTML).toEqual(
         `<ul><li id="item-1" class="list-item list-item "><button></button></li><li id="item-2" class="list-item list-item "><div></div></li><li id="item-3" class="list-item list-item "><input></li><li id="item-4" class="list-item list-item last-item"><input></li></ul>`,
@@ -533,14 +586,14 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(keyDownHandler).toHaveBeenCalledTimes(1);
     });
 
-    it("이벤트가 위임 방식으로 등록되어야 한다", () => {
+    it("이벤트가 위임 방식으로 등록되어야 한다", async () => {
       const clickHandler = vi.fn();
       const vNode = (
         <div>
           <button onClick={clickHandler}>Click me</button>
         </div>
       );
-      renderElement(vNode, $container);
+      await renderElement(vNode, $container);
 
       const button = $container.querySelector("button");
       button.click();
@@ -548,14 +601,14 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(clickHandler).toHaveBeenCalledTimes(1);
     });
 
-    it("동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다", () => {
+    it("동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다", async () => {
       const clickHandler = vi.fn();
       const initialVNode = (
         <div>
           <button onClick={clickHandler}>Initial Button</button>
         </div>
       );
-      renderElement(initialVNode, $container);
+      await renderElement(initialVNode, $container);
 
       const updatedVNode = (
         <div>
@@ -563,7 +616,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           <button onClick={clickHandler}>New Button</button>
         </div>
       );
-      renderElement(updatedVNode, $container);
+      await renderElement(updatedVNode, $container);
 
       const newButton = $container.querySelectorAll("button")[1];
       newButton.click();
@@ -571,21 +624,21 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(clickHandler).toHaveBeenCalledTimes(1);
     });
 
-    it("이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다", () => {
+    it("이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다", async () => {
       const clickHandler = vi.fn();
       const initialVNode = (
         <div>
           <button onClick={clickHandler}>Button</button>
         </div>
       );
-      renderElement(initialVNode, $container);
+      await renderElement(initialVNode, $container);
 
       const updatedVNode = (
         <div>
           <button>Button Without Handler</button>
         </div>
       );
-      renderElement(updatedVNode, $container);
+      await renderElement(updatedVNode, $container);
 
       const button = $container.querySelector("button");
       button.click();
