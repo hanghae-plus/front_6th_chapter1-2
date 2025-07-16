@@ -58,7 +58,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     return;
   }
 
-  // 3. 타입(태그/텍스트)이 다르면 교체
+  // 3. 타입이 다르면 교체
   if (
     typeof newNode !== typeof oldNode ||
     (typeof newNode === "string" && newNode !== oldNode) ||
@@ -84,8 +84,23 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const oldChildren = oldNode.children || [];
   const max = Math.max(newChildren.length, oldChildren.length);
 
+  // 7. oldChildren이 더 많으면 초과된 노드 제거
+  if (oldChildren.length > newChildren.length) {
+    for (let i = newChildren.length; i < oldChildren.length; i++) {
+      const childDom = existingDom.childNodes[i];
+      if (childDom) {
+        existingDom.removeChild(childDom);
+      }
+    }
+  }
+
   for (let i = 0; i < max; i++) {
     updateElement(existingDom, newChildren[i], oldChildren[i], i);
+  }
+
+  // 초과된 자식 DOM 제거
+  while (existingDom.childNodes.length > newChildren.length) {
+    existingDom.removeChild(existingDom.lastChild);
   }
 }
 
