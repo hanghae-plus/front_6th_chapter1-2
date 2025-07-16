@@ -1,7 +1,54 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
-function updateAttributes(target, originNewProps, originOldProps) {}
+function updateAttributes(target, newProps, oldProps) {
+  const attributes = new Set([...Object.keys(newProps || {}), ...Object.keys(oldProps || {})]);
+
+  attributes.forEach((attribute) => {
+    const newValue = newProps?.[attribute];
+    const oldValue = oldProps?.[attribute];
+    if (newValue !== oldValue) {
+      if (attribute.startsWith("on")) {
+        const eventType = attribute.slice(2).toLowerCase();
+
+        if (!newValue && oldValue) {
+          removeEvent(target, eventType, oldValue);
+        } else if (newValue && !oldValue) {
+          addEvent(target, eventType, newValue);
+        } else if (newValue && oldValue && newValue !== oldValue) {
+          removeEvent(target, eventType, oldValue);
+          addEvent(target, eventType, newValue);
+        }
+      } else if (newValue == null) {
+        if (attribute === "className") {
+          target.className = "";
+        } else if (
+          attribute === "checked" ||
+          attribute === "selected" ||
+          attribute === "disabled" ||
+          attribute === "readOnly"
+        ) {
+          target[attribute] = false;
+        } else {
+          target.removeAttribute(attribute);
+        }
+      } else {
+        if (attribute === "className") {
+          target.className = newValue;
+        } else if (
+          attribute === "checked" ||
+          attribute === "selected" ||
+          attribute === "disabled" ||
+          attribute === "readOnly"
+        ) {
+          target[attribute] = newValue;
+        } else {
+          target.setAttribute(attribute, newValue);
+        }
+      }
+    }
+  });
+}
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (!newNode && oldNode) {
@@ -36,16 +83,17 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     parentElement.replaceChild(newChildElement, targetChildElement);
     return;
   }
+  const targetElement = parentElement.children[index];
 
-  const childElement = parentElement.children[index];
+  updateAttributes(targetElement, newNode.props, oldNode.props);
 
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
   const maxLength = Math.max(newChildren.length, oldChildren.length);
 
-  for (let index = 0; index < maxLength; index++) {
-    const newChildNode = newChildren[index];
-    const oldChildNode = oldChildren[index];
-    updateElement(childElement, newChildNode, oldChildNode, index);
+  for (let childIndex = 0; childIndex < maxLength; childIndex++) {
+    const newChildNode = newChildren[childIndex];
+    const oldChildNode = oldChildren[childIndex];
+    updateElement(targetElement, newChildNode, oldChildNode, childIndex);
   }
 }

@@ -43,7 +43,13 @@ function updateAttributes($el, props) {
     } else if (key === "className") {
       targetElement.className = value;
     } else {
-      targetElement.setAttribute(key, value);
+      if (key === "className") {
+        targetElement.className = value;
+      } else if (key === "checked" || key === "selected" || key === "disabled" || key === "readOnly") {
+        targetElement[key] = value;
+      } else {
+        targetElement.setAttribute(key, value);
+      }
     }
   });
 
