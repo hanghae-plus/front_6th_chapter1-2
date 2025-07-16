@@ -221,6 +221,19 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     });
 
     it("컴포넌트를 정규화한다.", () => {
+      // const Component = () => <div onClick={() => console.log("click")}>컴포넌트 내용</div>;
+      // const fn = (node) => {
+      //   if (typeof node.type === "function") {
+      //     return node.type({ ...node.props, children: node.children });
+      //   }
+
+      //   return node;
+      // };
+
+      // console.log(<Component />, "<Component />!!!");
+      // console.log(fn(<Component />), "fn(<Component />)!!!!");
+
+      // // return;
       const UnorderedList = ({ children, ...props }) => <ul {...props}>{children}</ul>;
       const ListItem = ({ children, className, ...props }) => (
         <li {...props} className={`list-item ${className ?? ""}`}>

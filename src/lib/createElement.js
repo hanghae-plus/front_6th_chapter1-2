@@ -1,4 +1,4 @@
-// import { addEvent } from "./eventManager";
+import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
@@ -20,6 +20,7 @@ export function createElement(vNode) {
     return fragment;
   }
 
+  // 함수형 컴포넌트일 때
   if (typeof vNode === "object" && typeof vNode.type === "string") {
     const tag = document.createElement(vNode.type);
     updateAttributes(tag, vNode.props);
@@ -49,8 +50,10 @@ function updateAttributes($el, props) {
   for (const [key, value] of Object.entries(props)) {
     if (key === "children") continue;
 
-    if (key.startsWith("on")) {
+    if (key.startsWith("on") && typeof value === "function") {
       // 이벤트 처리
+      const eventType = key.slice(2).toLowerCase();
+      addEvent($el, eventType, value);
     }
 
     if (key === "style") {
