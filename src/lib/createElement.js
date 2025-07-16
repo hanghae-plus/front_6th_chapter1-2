@@ -68,13 +68,8 @@ function updateAttributes($el, props) {
       continue;
     }
 
-    // Boolean 특수 속성 처리
     if (BOOLEAN_PROPS.includes(key)) {
-      if (key === "readOnly") {
-        $el.setAttribute("readonly", !!value);
-      } else {
-        $el.setAttribute(key, !!value);
-      }
+      $el[key] = Boolean(value);
       continue;
     }
 

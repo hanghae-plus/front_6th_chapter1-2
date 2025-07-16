@@ -24,7 +24,6 @@ export function normalizeVNode(vNode) {
   return {
     ...vNode,
     // 자식 요소를 재귀적으로 표준화한 이후 필터링 처리
-    // nullish와 boolean은 createVNode에서 제거되므로 처리하지 않음
-    children: vNode.children.map(normalizeVNode),
+    children: vNode.children.map(normalizeVNode).filter(Boolean),
   };
 }
