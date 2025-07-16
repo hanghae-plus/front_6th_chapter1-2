@@ -53,6 +53,7 @@ function updateAttributes(target, newProps, oldProps) {
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (!newNode && oldNode) {
     const targetElement = parentElement.children[index];
+    console.log(targetElement);
     parentElement.removeChild(targetElement);
     return;
   }
@@ -90,8 +91,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
   const maxLength = Math.max(newChildren.length, oldChildren.length);
-
-  for (let childIndex = 0; childIndex < maxLength; childIndex++) {
+  for (let childIndex = maxLength - 1; childIndex >= 0; childIndex--) {
     const newChildNode = newChildren[childIndex];
     const oldChildNode = oldChildren[childIndex];
     updateElement(targetElement, newChildNode, oldChildNode, childIndex);
