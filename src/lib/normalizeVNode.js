@@ -41,15 +41,10 @@ export function normalizeVNode(vNode) {
     ]
   }
   */
-  if (typeof vNode.type === "string") {
-    let normalizedChildren = [];
-    normalizedChildren = vNode.children.map(normalizeVNode);
 
-    return {
-      type: vNode.type,
-      props: vNode.props || null,
-      children: normalizedChildren,
-    };
-  }
-  return vNode;
+  return {
+    type: vNode.type,
+    props: vNode.props || null,
+    children: vNode.children.map(normalizeVNode).filter(Boolean),
+  };
 }
