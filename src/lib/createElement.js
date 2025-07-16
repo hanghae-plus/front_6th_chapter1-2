@@ -1,9 +1,6 @@
 // import { addEvent } from "./eventManager";
 
-//
-
 export function createElement(vNode) {
-  // console.log(vNode, "vNode..")
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
     return document.createTextNode("");
   }
@@ -39,6 +36,10 @@ export function createElement(vNode) {
     return tag;
   }
 
+  if (typeof vNode === "object" && typeof vNode.type === "function") {
+    throw new Error("컴포넌트를 createElement로 처리할 수 없습니다");
+  }
+
   throw new Error("컴포넌트를 createElement로 처리할 수 없습니다");
 }
 
@@ -58,6 +59,21 @@ function updateAttributes($el, props) {
 
     if (key === "className") {
       $el.setAttribute("class", value);
+    }
+
+    if (key === "id") {
+      $el.setAttribute("id", value);
+    }
+
+    if (typeof value === "boolean") {
+      if (value) {
+        $el.setAttribute(key, "");
+        $el[key] = true;
+      } else {
+        $el.removeAttribute(key);
+        $el[key] = false;
+      }
+      continue;
     }
 
     if (key.startsWith("data-")) {
