@@ -50,17 +50,17 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
       return;
     }
 
-    const targetElement = parentElement.children[index];
+    const targetElement = parentElement.childNodes[index];
     if (targetElement) parentElement.removeChild(targetElement);
     return;
   }
   if (newNode && !oldNode) {
     const newElement = createElement(newNode);
-    if (index >= parentElement.children.length) {
+    if (index >= parentElement.childNodes.length) {
       parentElement.appendChild(newElement);
     } else {
-      const referenceElement = parentElement.children[index];
-      parentElement.inserBefore(newElement, referenceElement);
+      const referenceElement = parentElement.childNodes[index];
+      parentElement.insertBefore(newElement, referenceElement);
     }
     return;
   }
@@ -76,12 +76,12 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   }
 
   if (newNode.type !== oldNode.type) {
-    const targetChildElement = parentElement.children[index];
+    const targetChildElement = parentElement.childNodes[index];
     const newChildElement = createElement(newNode);
     parentElement.replaceChild(newChildElement, targetChildElement);
     return;
   }
-  const targetElement = parentElement.children[index];
+  const targetElement = parentElement.childNodes[index];
 
   updateAttributes(targetElement, newNode.props, oldNode.props);
 
