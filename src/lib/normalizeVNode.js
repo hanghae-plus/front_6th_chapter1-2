@@ -5,11 +5,7 @@ export function normalizeVNode(vNode) {
     return "";
   }
 
-  if (isString(vNode)) {
-    return vNode;
-  }
-
-  if (isNumber(vNode)) {
+  if (isString(vNode) || isNumber(vNode)) {
     return vNode.toString();
   }
 
