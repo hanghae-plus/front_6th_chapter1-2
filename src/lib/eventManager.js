@@ -1,47 +1,43 @@
-const notBubblingEvents = new Set(["focus", "blur"]);
-
-let events = {};
-let abortController = new AbortController();
+const notBubblingEvents = new Set(
+  // 버블링이 발생하지 않는 이벤트 필요하다면 추가
+  ["focus", "blur"],
+);
+let eventsRecord = {};
 
 export function setupEventListeners(root) {
-  for (const eventType in events) {
+  for (const eventType in eventsRecord) {
     if (notBubblingEvents.has(eventType)) {
-      events[eventType].forEach(({ element, handler }) => {
-        element.addEventListener(eventType, handler, abortController);
+      // 버블링 이벤트가 아닌 경우, 요소에 이벤트 핸들러를 등록한다.
+      eventsRecord[eventType].forEach((handler, element) => {
+        element.addEventListener(eventType, handler);
       });
       continue;
     }
 
-    root.addEventListener(
-      eventType,
-      (e) => {
-        events[eventType].forEach(({ element, handler }) => {
-          if (element.contains(e.target)) {
-            handler(e);
-          }
-        });
-      },
-      abortController,
-    );
+    root.addEventListener(eventType, (e) => {
+      eventsRecord[eventType].forEach((handler, element) => {
+        if (element.contains(e.target)) {
+          handler(e);
+        }
+      });
+    });
   }
 }
 
 export function addEvent(element, eventType, handler) {
-  events[eventType] ??= new Set();
-  events[eventType].add({ element, handler });
+  // eventType 별로 요소-핸들러 쌍을 관리하기 위해 Map을 사용
+  eventsRecord[eventType] ??= new Map();
+
+  /**
+   * element에 마지막으로 받은 핸들러를 저장.
+   * 하나의 요소에서 동일한 타입의 이벤트를 여러개 등록할 수 없기 때문에 항상 덮어 쓴다.
+   */
+  eventsRecord[eventType].set(element, handler);
 }
 
-export function removeEvent(element, eventType, handler) {
-  events[eventType]?.forEach((item) => {
-    const hasElementHandler = item.element === element && item.handler === handler;
-    if (hasElementHandler) {
-      events[eventType].delete(item);
-    }
-  });
-}
-
-export function cleanupEventListeners() {
-  events = {};
-  abortController.abort();
-  abortController = new AbortController();
+export function removeEvent(element, eventType) {
+  eventsRecord[eventType].delete(element);
+  if (!eventsRecord[eventType].size) {
+    eventsRecord[eventType] = null;
+  }
 }
