@@ -10,17 +10,14 @@ export function createElement(vNode) {
   }
 
   if (typeof vNode === "string" || typeof vNode === "number") {
-    return document.createTextNode(String(vNode));
+    return document.createTextNode(vNode.toString());
   }
 
   if (Array.isArray(vNode)) {
-    const fragment = new DocumentFragment();
+    const fragment = document.createDocumentFragment();
 
     vNode.forEach((node) => {
-      const element = document.createElement(node.type);
-      element.textContent = node.children;
-
-      fragment.appendChild(element);
+      fragment.appendChild(createElement(node));
     });
 
     return fragment;
@@ -35,7 +32,7 @@ export function createElement(vNode) {
   const element = document.createElement(vNode.type);
   const { props, children } = vNode;
 
-  updateAttributes(element, props);
+  updateAttributes(element, props ?? {});
   children.forEach((child) => element.appendChild(createElement(child)));
 
   return element;
@@ -56,7 +53,6 @@ function updateAttributes($el, props) {
     if (key.startsWith("on") && typeof value === "function") {
       const eventType = key.slice(2).toLowerCase();
       addEvent($el, eventType, value);
-
       return;
     }
 
@@ -68,7 +64,6 @@ function updateAttributes($el, props) {
         $el.removeAttribute("class");
       }
       $el.removeAttribute("classname");
-
       return;
     }
 
@@ -76,7 +71,6 @@ function updateAttributes($el, props) {
     if (key === "style") {
       // 기존 스타일은 유지하면서 새로운 스타일만 추가/덮어쓰기
       Object.assign($el.style, value);
-
       return;
     }
 

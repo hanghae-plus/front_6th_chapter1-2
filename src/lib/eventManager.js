@@ -5,9 +5,8 @@
  */
 
 /**
- * 요소별 이벤트 핸들러 저장
- * elementEventsMap : Map(element, Map{ eventType: Set(handler) })
- * {
+ * 이벤트 맵
+ * Map{
  *   element1: Map{
  *     eventType1: Set(handler1, handler2),
  *     eventType2: Set(handler3, handler4),
@@ -17,80 +16,74 @@
  *   }
  * }
  */
-export const elementEventsMap = new Map();
+const eventMap = new WeakMap();
+const delegatedEventTypes = new Set();
+let root = null;
 
 /**
  * 루트에 이벤트 위임 설정
  * 메모리에 저장된 모든 이벤트 타입들을 수집하고 한 번에 루트에 등록
  */
-export function setupEventListeners(root) {
-  // 등록된 모든 이벤트 타입들을 수집
-  const allEventTypes = new Set();
+export function setupEventListeners(container) {
+  root = container;
 
-  elementEventsMap.forEach((eventObject) => {
-    Object.keys(eventObject).forEach((eventType) => {
-      allEventTypes.add(eventType);
-    });
-  });
-
-  // 각 이벤트 타입별로 한 번만 리스너 등록
-  allEventTypes.forEach((eventType) => {
-    // 이미 등록된 핸들러인지 확인
-    const existingListener = root._eventListeners?.[eventType];
-    if (existingListener) {
-      return;
-    }
-
-    // 핸들러 등록
-    const eventListener = (event) => {
-      let target = event.target;
-
-      while (target && target !== root) {
-        // 이벤트가 발생한 요소의 이벤트 핸들러들
-        const eventObject = elementEventsMap.get(target);
-
-        if (eventObject && eventObject[eventType]) {
-          eventObject[eventType].forEach((handler) => handler(event));
-        }
-
-        target = target.parentElement;
-      }
-    };
-
-    // 핸들러 저장 및 등록
-    if (!root._eventListeners) {
-      root._eventListeners = {};
-    }
-    root._eventListeners[eventType] = eventListener;
-    root.addEventListener(eventType, eventListener);
+  delegatedEventTypes.forEach((eventType) => {
+    container.removeEventListener(eventType, handleDelegatedEvent);
+    container.addEventListener(eventType, handleDelegatedEvent);
   });
 }
+
+const handleDelegatedEvent = (event) => {
+  let target = event.target;
+
+  while (target && target !== root) {
+    const eventsOfElement = eventMap.get(target);
+
+    // ! eventType이 아닌 event.type으로 비교하는 이유는
+    // 이벤트 위임 방식으로 구현하면 이벤트 타입이 무엇인지 알 수 없기 때문에
+    // event.type으로 비교하는 것이 올바른 방법이다.
+    if (eventsOfElement && eventsOfElement.has(event.type)) {
+      eventsOfElement.get(event.type).forEach((handler) => handler(event));
+    }
+
+    target = target.parentElement;
+  }
+};
 
 /**
  * 이벤트 핸들러 메모리에 저장
  */
 export function addEvent(element, eventType, handler) {
-  if (!elementEventsMap.has(element)) {
-    elementEventsMap.set(element, {});
+  if (!eventMap.has(element)) {
+    eventMap.set(element, new Map());
   }
 
-  const eventsObject = elementEventsMap.get(element);
+  const eventsOfElements = eventMap.get(element);
 
-  if (!eventsObject[eventType]) {
-    eventsObject[eventType] = new Set();
+  if (!eventsOfElements.has(eventType)) {
+    eventsOfElements.set(eventType, new Set());
   }
 
-  // Set은 자동으로 중복을 방지함
-  eventsObject[eventType].add(handler);
+  eventsOfElements.get(eventType).add(handler);
+
+  if (!delegatedEventTypes.has(eventType)) {
+    delegatedEventTypes.add(eventType);
+
+    if (root) {
+      root.removeEventListener(eventType, handleDelegatedEvent);
+      root.addEventListener(eventType, handleDelegatedEvent);
+    }
+  }
 }
 
 /**
  * 이벤트 핸들러 메모리에서 제거
  */
 export function removeEvent(element, eventType, handler) {
-  const eventsObject = elementEventsMap.get(element);
+  const eventsOfElements = eventMap.get(element);
+  if (!eventsOfElements) return;
 
-  if (eventsObject && eventsObject[eventType]) {
-    eventsObject[eventType].delete(handler);
+  if (eventsOfElements.get(eventType)) {
+    eventsOfElements.get(eventType).delete(handler);
   }
 }

@@ -44,4 +44,5 @@ export function renderElement(vNode, container) {
   previousVNodeMap.set(container, normalizedVNode);
 
   setupEventListeners(container);
+  previousVNodeMap.set(container, normalizedVNode);
 }

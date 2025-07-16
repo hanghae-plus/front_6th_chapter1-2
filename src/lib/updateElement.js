@@ -39,6 +39,10 @@ function updateAttributes(target, originNewProps, originOldProps) {
 
     if (key.startsWith("on") && typeof value === "function") {
       const eventType = key.slice(2).toLowerCase();
+      // 같은 함수 참조인 경우 아무것도 하지 않음
+      if (oldProps[key] === value) {
+        return;
+      }
       if (oldProps[key]) {
         removeEvent(target, eventType, oldProps[key]);
       }
