@@ -51,7 +51,19 @@ export function addEvent(element, eventType, handler) {
 export function removeEvent(element, eventType, handler) {
   const elementEvents = eventMap.get(element);
   if (!elementEvents) return;
+
   const handlers = elementEvents.get(eventType);
   if (!handlers) return;
+
   handlers.delete(handler);
+
+  // 핸들러 모두 제거되었으면 eventType 제거
+  if (handlers.size === 0) {
+    elementEvents.delete(eventType);
+  }
+
+  // 해당 엘리먼트의 모든 이벤트가 제거되었으면 WeakMap에서 제거
+  if (elementEvents.size === 0) {
+    eventMap.delete(element);
+  }
 }
