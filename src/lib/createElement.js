@@ -3,6 +3,7 @@
 //
 
 export function createElement(vNode) {
+  // console.log(vNode, "vNode..")
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
     return document.createTextNode("");
   }
@@ -12,12 +13,8 @@ export function createElement(vNode) {
   }
 
   if (Array.isArray(vNode)) {
-    /**
-     * createDocumentFragment
-     */
     const fragment = document.createDocumentFragment();
     vNode.forEach((child) => {
-      // fragment.appendChild(createElement(child))
       const el = createElement(child);
       if (el instanceof Node) {
         fragment.appendChild(el);
@@ -27,8 +24,44 @@ export function createElement(vNode) {
   }
 
   if (typeof vNode === "object" && typeof vNode.type === "string") {
-    // const tag = createElement(vNode.type);
+    const tag = document.createElement(vNode.type);
+    updateAttributes(tag, vNode.props);
+
+    if (Array.isArray(vNode.children)) {
+      vNode.children.forEach((child) => {
+        const el = createElement(child);
+        if (el instanceof Node) {
+          tag.appendChild(el);
+        }
+      });
+    }
+
+    return tag;
   }
+
+  throw new Error("컴포넌트를 createElement로 처리할 수 없습니다");
 }
 
-// function updateAttributes($el, props) {}
+function updateAttributes($el, props) {
+  if (!props) return;
+
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "children") continue;
+
+    if (key.startsWith("on")) {
+      // 이벤트 처리
+    }
+
+    if (key === "style") {
+      Object.assign($el.style, value);
+    }
+
+    if (key === "className") {
+      $el.setAttribute("class", value);
+    }
+
+    if (key.startsWith("data-")) {
+      $el.setAttribute(key, value);
+    }
+  }
+}
