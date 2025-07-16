@@ -2,8 +2,6 @@
 const eventStore = new Map();
 
 export function setupEventListeners(root) {
-  console.log(eventStore);
-
   for (const event in eventStore) {
     root.addEventListener(event, (e) => {
       // console.log(event);
@@ -15,7 +13,7 @@ export function setupEventListeners(root) {
 }
 
 export function addEvent(element, eventType, handler) {
-  if (!eventStore[eventType]) eventStore[eventType] = new Set();
+  if (!eventStore.has(eventType)) eventStore[eventType] = new Set();
   eventStore[eventType].add({ element, handler });
 }
 
