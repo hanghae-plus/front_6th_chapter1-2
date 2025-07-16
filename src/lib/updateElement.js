@@ -28,20 +28,8 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   }
 
   updateProps(currentDomNode, newNode, oldNode);
-
-  let i = 0;
-  let maxChildrenLength = Math.max(newNode.children.length, oldNode.children.length);
-  while (i < maxChildrenLength) {
-    const newChild = newNode.children[i];
-    const oldChild = oldNode.children[i];
-    if (!newChild && oldChild) {
-      updateElement(currentDomNode, null, oldChild, i);
-      maxChildrenLength -= 1;
-    } else {
-      updateElement(currentDomNode, newChild, oldChild, i);
-      i += 1;
-    }
-  }
+  removeChildren(currentDomNode, newNode, oldNode);
+  updateChildren(currentDomNode, newNode, oldNode);
 }
 
 function updateProps(target, newNode, oldNode) {
@@ -60,5 +48,27 @@ function updateProps(target, newNode, oldNode) {
     if (newProps[key] !== oldProps[key]) {
       updateAttribute(target, key, newProps[key]);
     }
+  }
+}
+
+function removeChildren(parent, newNode, oldNode) {
+  const newChildrenLength = newNode.children.length;
+  const oldChildrenLength = oldNode.children.length;
+
+  if (newChildrenLength >= oldChildrenLength) {
+    return;
+  }
+
+  const count = oldChildrenLength - newChildrenLength;
+  for (let i = 0; i < count; i++) {
+    parent.removeChild(parent.childNodes[newChildrenLength]);
+  }
+}
+
+function updateChildren(parent, newNode, oldNode) {
+  for (let i = 0; i < newNode.children.length; i++) {
+    const newChild = newNode.children[i];
+    const oldChild = oldNode.children[i];
+    updateElement(parent, newChild, oldChild, i);
   }
 }
