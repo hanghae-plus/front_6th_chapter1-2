@@ -7,10 +7,13 @@ import { updateElement } from "./updateElement";
 // 이후에는 updateElement로 기존 DOM을 업데이트한다.
 // 렌더링이 완료되면 container에 이벤트를 등록한다.
 
+// 이전 vNode를 저장
 const prevVNode = new WeakMap();
 
 export function renderElement(vNode, container) {
+  // 이전 vNode
   const currentNode = prevVNode.get(container);
+  // 새로운 vNode
   const normalizedVNode = normalizeVNode(vNode);
 
   if (!currentNode) {

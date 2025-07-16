@@ -15,7 +15,7 @@ export function normalizeVNode(vNode) {
     const children = vNode.children ?? [];
     const normalizedChildren = children
       .map(normalizeVNode)
-      .filter((child) => child !== "" && child !== null && child !== undefined && typeof children !== "boolean");
+      .filter((child) => child !== "" && child !== null && child !== undefined && typeof child !== "boolean");
 
     vNode = {
       ...vNode,

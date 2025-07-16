@@ -29,6 +29,7 @@ export function setupEventListeners(root) {
         target = target.parentElement;
       }
     };
+
     root.addEventListener(eventType, handleEvent);
     globalHandlers.set(eventType, handleEvent);
   }
