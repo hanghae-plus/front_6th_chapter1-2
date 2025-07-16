@@ -23,12 +23,6 @@ export function createElement(vNode) {
     return fragment;
   }
 
-  if (typeof vNode === "object" && typeof vNode.type === "function") {
-    throw new Error(
-      "컴포넌트는 createElement로 처리할 수 없습니다. 정규화 후 createElement를 사용해주세요.",
-    );
-  }
-
   const element = document.createElement(vNode.type);
   const { props, children } = vNode;
 
@@ -68,7 +62,7 @@ function updateAttributes($el, props) {
     }
 
     // style인 경우
-    if (key === "style") {
+    if (key === "style" && typeof value === "object") {
       // 기존 스타일은 유지하면서 새로운 스타일만 추가/덮어쓰기
       Object.assign($el.style, value);
       return;
@@ -77,16 +71,6 @@ function updateAttributes($el, props) {
     // checked, disabled, selected, readOnly인 경우
     if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
       $el[key] = value;
-
-      if (!value) {
-        $el.removeAttribute(key);
-      }
-
-      return;
-    }
-
-    // vNode 객체는 HTML 속성으로 설정하지 않음
-    if (value && typeof value === "object" && (value.type || value.children)) {
       return;
     }
 

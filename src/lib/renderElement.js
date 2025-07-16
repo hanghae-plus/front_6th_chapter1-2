@@ -30,18 +30,14 @@ export function renderElement(vNode, container) {
   const previousVNode = previousVNodeMap.get(container);
 
   // 1. 초기 렌더링 : createElement 사용
-  if (!previousVNode || container.children.length === 0) {
+  if (!previousVNode) {
     // 첫 번째 렌더링: createElement 사용
     const element = createElement(normalizedVNode);
-    container.innerHTML = "";
     container.appendChild(element);
   } else {
     // 이후 렌더링: 모든 자식 요소를 updateElement로 업데이트
     updateElement(container, normalizedVNode, previousVNode, 0);
   }
-
-  // 현재 vNode를 저장
-  previousVNodeMap.set(container, normalizedVNode);
 
   setupEventListeners(container);
   previousVNodeMap.set(container, normalizedVNode);

@@ -1,54 +1,43 @@
 import { createElement } from "./createElement.js";
 import { addEvent, removeEvent } from "./eventManager";
 
+/**
+ * DOM Element의 속성을 비교하여 업데이트
+ * @param {*} target DOM Element
+ * @param {*} originNewProps 새로운 속성
+ * @param {*} originOldProps 이전 속성
+ */
 function updateAttributes(target, originNewProps, originOldProps) {
   const newProps = originNewProps || {};
   const oldProps = originOldProps || {};
 
   // 이전 속성 제거
   Object.keys(oldProps).forEach((key) => {
-    if (key.startsWith("on") && typeof oldProps[key] === "function") {
+    if (key.startsWith("on")) {
       const eventType = key.slice(2).toLowerCase();
       removeEvent(target, eventType, oldProps[key]);
-      return;
     }
 
-    if (!(key in newProps)) {
-      // vNode 객체였던 경우 속성 제거 스킵
-      if (
-        oldProps[key] &&
-        typeof oldProps[key] === "object" &&
-        (oldProps[key].type || oldProps[key].children)
-      ) {
-        return;
-      }
-
+    // 새로운 속성이 없으면 제거
+    if (!newProps || !(key in newProps)) {
       if (key === "className") {
         target.removeAttribute("class");
-      } else if (key === "style") {
-        target.style = "";
+      } else if (
+        ["style", "checked", "disabled", "selected", "readOnly"].includes(key)
+      ) {
+        target[key] = false;
+        target.removeAttribute(key);
       } else {
         target.removeAttribute(key);
       }
     }
   });
 
+  if (!newProps) return;
+
   // 새로운 속성 추가/업데이트
   Object.entries(newProps).forEach(([key, value]) => {
-    if (oldProps[key] === value) return;
-
-    if (key.startsWith("on") && typeof value === "function") {
-      const eventType = key.slice(2).toLowerCase();
-      // 같은 함수 참조인 경우 아무것도 하지 않음
-      if (oldProps[key] === value) {
-        return;
-      }
-      if (oldProps[key]) {
-        removeEvent(target, eventType, oldProps[key]);
-      }
-      addEvent(target, eventType, value);
-      return;
-    }
+    if (key === "children") return;
 
     if (key === "className") {
       if (value) {
@@ -56,29 +45,32 @@ function updateAttributes(target, originNewProps, originOldProps) {
       } else {
         target.removeAttribute("class");
       }
-      target.removeAttribute("classname");
       return;
     }
 
     if (key === "style") {
-      Object.assign(target.style, value);
+      if (value) {
+        target.style = value;
+      } else {
+        target.removeAttribute("style");
+      }
+    }
+
+    if (key.startsWith("on")) {
+      const eventType = key.slice(2).toLowerCase();
+      addEvent(target, eventType, value);
       return;
     }
 
     if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
       target[key] = value;
-      if (!value) {
-        target.removeAttribute(key);
-      }
       return;
     }
 
-    // vNode 객체는 HTML 속성으로 설정하지 않음
-    if (value && typeof value === "object" && (value.type || value.children)) {
-      return;
+    // 속성이 변경되었을 때만 업데이트
+    if (value != null && (!oldProps || oldProps[key] !== value)) {
+      target.setAttribute(key, value.toString());
     }
-
-    target.setAttribute(key, value);
   });
 }
 
@@ -99,11 +91,9 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   }
 
   // 둘 다 텍스트/문자열인 경우
-  if (typeof newNode === "string" || typeof newNode === "number") {
-    if (typeof oldNode === "string" || typeof oldNode === "number") {
-      if (newNode !== oldNode) {
-        parentElement.childNodes[index].textContent = newNode;
-      }
+  if (typeof newNode === "string" || typeof oldNode === "number") {
+    if (newNode !== oldNode) {
+      parentElement.childNodes[index].textContent = newNode;
     } else {
       parentElement.childNodes[index].textContent = newNode;
     }
