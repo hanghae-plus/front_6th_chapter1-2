@@ -27,6 +27,23 @@ jobs:
       - run: |
           pnpm install
           pnpm run test:basic
+  suspense:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: |
+          pnpm install
+          pnpm run test:suspense
   advacned:
     runs-on: ubuntu-latest
     steps:
