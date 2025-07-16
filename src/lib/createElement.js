@@ -1,4 +1,4 @@
-// import { addEvent } from "./eventManager";
+import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
   if (vNode === undefined || vNode === null || typeof vNode === "boolean") {
@@ -25,7 +25,7 @@ export function createElement(vNode) {
 
   const $el = document.createElement(vNode.type);
 
-  updateAttributes($el, vNode.props);
+  setAttributes($el, vNode.props);
 
   if (vNode.children) {
     vNode.children.forEach((child) => {
@@ -37,10 +37,15 @@ export function createElement(vNode) {
   return $el;
 }
 
-function updateAttributes($el, props) {
+function setAttributes($el, props) {
   if (props) {
     for (let i in props) {
-      if (i === "className") {
+      if (i === "children") continue;
+
+      if (i.startsWith("on") && typeof props[i] === "function") {
+        const eventType = i.slice(2).toLowerCase();
+        addEvent($el, eventType, props[i]);
+      } else if (i === "className") {
         $el.setAttribute("class", props[i]);
       } else {
         $el.setAttribute(i, props[i]);

@@ -1,17 +1,25 @@
-// 이벤트 저장소
-// 이벤트 자체를 객체로 사용할 수 있으므로 Map으로 관리
+// eventRegistry : 이벤트 저장소 이벤트 자체를 객체로 사용할 수 있으므로 Map으로 관리
+// eventHandlerMap : 어떤 이벤트 핸들러가 저장되어있는지 확인용
 const eventRegistry = new Map();
+const eventHandlerMap = {};
 
 export function setupEventListeners(root) {
-  // root인 상위 엘리먼트에 이벤트리스너 등록
   for (const event in eventRegistry) {
-    root.addEventListener(event, (e) => {
+    // 등록되어있는 이벤트가 있다면 먼저 제거
+    if (eventRegistry[event]) {
+      root.removeEventListener(event, eventHandlerMap[event]);
+    }
+
+    // root인 상위 엘리먼트에 이벤트리스너 등록
+    const handler = (e) => {
       eventRegistry[event].forEach(({ element, handler }) => {
         if (element.contains(e.target)) {
           handler(e);
         }
       });
-    });
+    };
+    eventHandlerMap[event] = handler;
+    root.addEventListener(event, handler);
   }
 }
 
