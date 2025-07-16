@@ -2,6 +2,31 @@ import { addEvent } from "./eventManager";
 import { convert } from "../utils/converter";
 import { isNil } from "../utils/isNil";
 
+const BOOLEAN_ATTRIBUTES = [
+  "autoFocus",
+  "autoPlay",
+  "async",
+  "checked",
+  "controls",
+  "defer",
+  "disabled",
+  "hidden",
+  "loop",
+  "multiple",
+  "muted",
+  "open",
+  "readOnly",
+  "required",
+  "reversed",
+  "selected",
+  "autoComplete",
+  "capture",
+  "defaultChecked",
+  "defaultSelected",
+  "itemScope",
+  "noValidate",
+];
+
 export function createElement(vNode) {
   return basicCreateElement(vNode)
     .merge(() => componentCreateElement(vNode))
@@ -52,6 +77,8 @@ function updateAttributes($el, props) {
           throw new Error(`Event handler must be a function: ${key}`);
         }
         addEvent($el, key.substring(2).toLowerCase(), value);
+      } else if (BOOLEAN_ATTRIBUTES.includes(key)) {
+        $el[key] = Boolean(value);
       } else {
         $el.setAttribute(normalizeAttributeKey(key), value);
       }
