@@ -20,11 +20,7 @@ export function normalizeVNode(vNode) {
   }
 
   if (typeof vNode === "object" && vNode.type) {
-    const normalizedChildren = []
-      .concat(vNode.children || [])
-      .flat()
-      .map(normalizeVNode)
-      .filter((c) => c !== "");
+    const normalizedChildren = vNode.children.map(normalizeVNode).filter(Boolean);
 
     return {
       ...vNode,

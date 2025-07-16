@@ -19,10 +19,6 @@ export function renderElement(vNode, container) {
   }
   // 없으면 DOM 생성하고 container에 붙임
   else {
-    // 기존 자식들 제거
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
     const $el = createElement(normalizedVNode);
     container.appendChild($el);
   }
