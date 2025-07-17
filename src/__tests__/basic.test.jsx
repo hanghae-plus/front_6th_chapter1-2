@@ -10,6 +10,36 @@ import {
   setupEventListeners,
 } from "../lib";
 
+console.log(
+  normalizeVNode(
+    <div>
+      유효한 값{null}
+      {undefined}
+      {false}
+      {true}
+      <span>자식 노드</span>
+    </div>,
+  ),
+);
+
+// console.log(<div></div>);
+// console.log(        <div>
+//           유효한 값{null}
+//           {undefined}
+//           {false}
+//           {true}
+//           <span>자식 노드</span>
+//         </div>,)
+// console.log({ type: "div", props: null, children: [] });
+
+// console.log(<div>
+//           유효한 값{null}
+//           {undefined}
+//           {false}
+//           {true}
+//           <span>자식 노드</span>
+//         </div>,)
+
 describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
   describe("createVNode > ", () => {
     it("올바른 구조의 vNode를 생성해야 한다", () => {
