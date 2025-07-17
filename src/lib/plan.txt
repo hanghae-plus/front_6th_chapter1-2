@@ -1,0 +1,83 @@
+가상돔을 기반으로 렌더링하기
+ createVNode 함수를 이용하여 vNode를 만든다.
+ normalizeVNode 함수를 이용하여 vNode를 정규화한다.
+ createElement 함수를 이용하여 vNode를 실제 DOM으로 만든다.
+ 결과적으로, JSX를 실제 DOM으로 변환할 수 있도록 만들었다.
+
+
+
+1. vNode -> tag, 속성, 자식노드를 prop으로 받아야함
+    function createVNode(tag, props, children):
+        return {
+            tag, 
+            props: props || {}
+            children: Array.isArray(children) ?  children : [children]
+        }
+    
+    const VNode = createVNode('div', {}, [
+        'title',
+        createVNode('header', {}, [
+            createVNode('h1', {}, ['welcome'])
+        ]),
+        createVNode('main', {}, [
+            createVNode('section', {}, [
+                createVNode('h2', {}, ['home']),
+                createVNode('p', {class: 'page-content'}, ['content'])
+            ])
+        ])
+        ]);
+
+
+2. normalizeVNode   -> 모든 children이 무조건! 배열. 그 안에는 정리된 vnode혹은 문자열만 있도록하는 과정
+    - vNode는 중첩된 트리. DFS로 돌고 leaf에 도달하면 return. 
+                 div 
+            /    |     \
+        'title' header  main  
+                    |       |
+                    h1     section
+                    |       /\
+                'welcome'  h2    p.page-content
+                           |    |    
+                        'home'  'content' 
+
+    plan
+        - function normalizeVNode(vNode)
+            - if vNode is null -> return (base case)
+            - if vNode.children is undefined -> vNode.children = []
+            - if vNode.children is not an array -> vNode.children = [vNode.children]
+
+            - for each child in vNode.children
+                - if child is an object, (vNode인 경우) normalizeVNode(child) 재귀 호출
+                - if child is a string -> continue 그대로둠
+                - else -> 빈문자열 변환
+
+            - return vNode
+
+=> 뒤늦게 과제 요구사항을 봤는데(ㅠㅜㅠㅠㅠ), 
+과제에서는:
+주어진 가상 노드(vNode)를 표준화된 형태로 변환하는 역할을 합니다. 이 함수는 다양한 타입의 입력을 처리하여 
+일관된 형식의 가상 노드를 반환하여 DOM 조작이나 렌더링 과정에서 일관된 데이터 구조를 사용할 수 있도록 합니다.
+
+1. vNode가 null, undefined 또는 boolean 타입일 경우 빈 문자열을 반환합니다.
+2. vNode가 문자열 또는 숫자일 경우 문자열로 변환하여 반환합니다.
+3. vNode의 타입이 함수일 경우 해당 함수를 호출하여 반환된 결과를 재귀적으로 표준화합니다.
+4. 그 외의 경우, vNode의 자식 요소들을 재귀적으로 표준화하고, null 또는 undefined 값을 필터링하여 반환합니다.
+
+를 요구하고있음. 
+
+즉, 
+1. null, undefined, boolean → '' (빈 문자열)
+2. 문자열/숫자 → 문자열
+3. 함수형 컴포넌트 → 호출 → 반환 결과를 재귀 정규화
+4. 나머지(vNode) → children 도 재귀적으로 정규화 + null 필터링
+
+
+3. createElement 사용해서 vNode를 실제 DOM으로 만들기
+
+    지금까지의 흐름?
+    const vNode = createVNode(...) // 가상 트리 생성
+    const normalizedVNode = normalizedVNode(vNode) // 가상 트리 정리 (children 배열로 만들기)
+
+    다음 -> 
+    const dom = createElement(normalizedVNode) // 실제 브라우저용 DOM 요소 생성
+    document.body.appendChild(dom) // 화면에 붙이기
