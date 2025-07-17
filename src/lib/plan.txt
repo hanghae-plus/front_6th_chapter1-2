@@ -81,3 +81,48 @@
     다음 -> 
     const dom = createElement(normalizedVNode) // 실제 브라우저용 DOM 요소 생성
     document.body.appendChild(dom) // 화면에 붙이기
+
+과제 description
+1. vNode가 null, undefined, boolean 일 경우, 빈 텍스트 노드를 반환합니다.  -> 빈 텍스트 노드??
+2. vNode가 문자열이나 숫자면 텍스트 노드를 생성하여 반환합니다.
+3. vNode가 배열이면 DocumentFragment를 생성하고 각 자식에 대해 createElement를 재귀 호출하여 추가합니다.
+4. 위 경우가 아니면 실제 DOM 요소를 생성합니다:
+    - vNode.type에 해당하는 요소를 생성
+    - vNode.props의 속성들을 적용 (이벤트 리스너, className, 일반 속성 등 처리)
+    - vNode.children의 각 자식에 대해 createElement를 재귀 호출하여 추가
+
+여기서 실제 DOM 요소 생성이 뭘까,,, 
+const vNode = <div><span>Hello</span><b>World</b></div>;
+->
+{
+  type: "div",
+  props: {},
+  children: [
+    { type: "span", props: {}, children: ["Hello"] },
+    { type: "b", props: {}, children: ["World"] }
+  ]
+}
+-> 
+<div>
+  <span>Hello</span>
+  <b>World</b>
+</div>
+
+즉, 가상 노드구조를 보고 진짜 div, span... 을 붙이면서 DOM구조로 만드는것!
+
+[챗지피티 설명]
+    document.createElement("태그명")
+    이걸 "실제 DOM 요소 생성" 이라고 부르는 거야.
+
+- vNode.type을 보고 진짜 엘리먼트 만들고 (div, span, input 등)
+- vNode.props를 DOM 속성으로 붙이고 (className, disabled, data-xxx 등)
+- vNode.children은 재귀적으로 createElement 호출해서 붙이기
+
+- 텍스트 노드란? (챗지피티)
+    텍스트 노드(Text Node)란,
+    👉 HTML 문서에서 글자(텍스트)를 나타내는 DOM 노드야.
+
+    빈 텍스트 노드란,
+    👉 document.createTextNode("")처럼 내용이 없는 텍스트 노드를 말해.
+    즉, 화면에는 아무것도 표시되지 않는 글자 노드야.
+    보통 null, undefined, false, true 같은 걸 처리할 때 이걸 만들어줘.
