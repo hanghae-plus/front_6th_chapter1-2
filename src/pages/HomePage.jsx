@@ -1,12 +1,11 @@
 /** @jsx createVNode */
-import { createVNode } from "../lib";
 import { ProductList, SearchBar } from "../components";
-import { productStore } from "../stores";
+import { createVNode } from "../lib";
 import { router, withLifecycle } from "../router";
-import { loadProducts, loadProductsAndCategories, loadMoreProducts } from "../services";
+import { loadMoreProducts, loadProducts, loadProductsAndCategories } from "../services";
+import { productStore } from "../stores";
 import { isNearBottom } from "../utils";
 import { PageWrapper } from "./PageWrapper";
-
 const headerLeft = (
   <h1 className="text-xl font-bold text-gray-900">
     <a href="/" data-link="/">
@@ -15,11 +14,9 @@ const headerLeft = (
   </h1>
 );
 
-console.log(headerLeft);
-
 // 무한 스크롤 이벤트 등록
 let scrollHandlerRegistered = false;
-
+console.log(createVNode);
 const loadNextProducts = async () => {
   // 현재 라우트가 홈이 아니면 무한 스크롤 비활성화
   if (router.route?.path !== "/") {

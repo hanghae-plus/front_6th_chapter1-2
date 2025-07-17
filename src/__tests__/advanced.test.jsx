@@ -1,7 +1,7 @@
 /** @jsx createVNode */
 /** @jsxFrag Fragment */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createVNode, renderElement } from "../lib";
+import { renderElement } from "../lib";
 
 describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
   let container;
@@ -21,7 +21,6 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
       renderElement(vNode, container);
       expect(container.innerHTML).toBe('<div id="test">Hello</div>');
     });
-
     it("diff 알고리즘을 통해 변경된 부분만 업데이트해야 한다", () => {
       const initialVNode = (
         <div>
@@ -30,7 +29,6 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         </div>
       );
       renderElement(initialVNode, container);
-
       const originalH1 = container.querySelector("h1");
       const originalP = container.querySelector("p");
 

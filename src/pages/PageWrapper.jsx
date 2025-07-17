@@ -1,7 +1,8 @@
 /** @jsx createVNode */
-import { createVNode } from "../lib";
-import { cartStore, uiStore, UI_ACTIONS } from "../stores";
 import { CartModal, Footer, PublicImage, Toast } from "../components";
+import { createVNode } from "../lib";
+import { cartStore, UI_ACTIONS, uiStore } from "../stores";
+console.log(createVNode);
 
 // 장바구니 모달 열기 핸들러
 const close = () => {

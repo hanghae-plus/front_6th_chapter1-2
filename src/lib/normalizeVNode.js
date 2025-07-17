@@ -7,6 +7,7 @@ export function normalizeVNode(vNode) {
       children: vNode.children,
     };
     const renderedVNode = vNode.type(props);
+    console.log(vNode);
     return normalizeVNode(renderedVNode);
   }
   return {

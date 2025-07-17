@@ -17,6 +17,8 @@ export function createElement(vNode) {
   (vNode.children || []).forEach((child) => {
     $el.appendChild(createElement(child));
   });
+  console.log(vNode);
+  console.log($el);
   return $el;
 }
 
@@ -27,8 +29,6 @@ function updateAttributes($el, props) {
       $el.setAttribute("class", value);
     } else if (key.startsWith("data-")) {
       $el.setAttribute(key, value);
-    } else if (key in $el) {
-      $el[key] = value;
     } else if (key.startsWith("on")) {
       addEvent($el, key.slice(2).toLowerCase(), value);
     } else {

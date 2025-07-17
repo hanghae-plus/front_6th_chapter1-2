@@ -1,7 +1,8 @@
 /** @jsx createVNode */
+import { Logo, PublicImage } from "../components";
 import { createVNode } from "../lib";
 import { PageWrapper } from "./PageWrapper";
-import { Logo, PublicImage } from "../components";
+console.log(createVNode);
 
 export const NotFoundPage = () =>
   PageWrapper({

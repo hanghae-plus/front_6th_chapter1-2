@@ -1,10 +1,11 @@
 /** @jsx createVNode */
-import { createVNode } from "../lib";
-import { productStore } from "../stores";
-import { loadProductDetailForPage } from "../services";
-import { router, withLifecycle } from "../router";
-import { PageWrapper } from "./PageWrapper";
 import { ErrorContent, ProductDetail, PublicImage } from "../components";
+import { createVNode } from "../lib";
+import { router, withLifecycle } from "../router";
+import { loadProductDetailForPage } from "../services";
+import { productStore } from "../stores";
+import { PageWrapper } from "./PageWrapper";
+console.log(createVNode);
 
 /**
  * 상품 상세 페이지 컴포넌트
