@@ -204,6 +204,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
 
         expect(container.querySelector("#test-checkbox")).toBe(checkbox); // 같은 요소 재사용
         expect(checkbox.checked).toBe(true); // property로 직접 업데이트
+
         expect(checkbox.getAttribute("checked")).toBe(null); // DOM에는 없어야 함
         expect(container.outerHTML).toBe(`<div><input type="checkbox" id="test-checkbox"></div>`);
 

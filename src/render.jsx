@@ -15,10 +15,11 @@ router.addRoute(".*", NotFoundPage);
  */
 export const render = withBatch(() => {
   const rootElement = document.getElementById("root");
+
   if (!rootElement) return;
 
   const PageComponent = router.target;
-
+  console.log("초기 렌더링", PageComponent);
   // App 컴포넌트 렌더링
   renderElement(<PageComponent />, rootElement);
 });
@@ -31,5 +32,6 @@ export function initRender() {
   productStore.subscribe(render);
   cartStore.subscribe(render);
   uiStore.subscribe(render);
+
   router.subscribe(render);
 }

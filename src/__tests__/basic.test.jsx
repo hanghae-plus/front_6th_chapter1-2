@@ -236,9 +236,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           </ListItem>
         </UnorderedList>
       );
-
       const normalized = normalizeVNode(<TestComponent />);
-
       expect(normalized).toEqual(
         <ul {...{}}>
           <li id="item-1" className="list-item ">
@@ -292,6 +290,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       [true, ""],
     ])("%s는 빈 텍스트 노드로 변환된다.", (input, expected) => {
       const result = createElement(input);
+      console.log("result", result);
       expect(result.nodeType).toBe(Node.TEXT_NODE);
       expect(result.textContent).toBe(expected);
     });
@@ -320,6 +319,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     describe("컴포넌트를 element로 만들기", () => {
       it("컴포넌트를 createElement로 처리하려고 하면 오류가 발생한다.", () => {
         const FuncComponent = ({ text }) => <div>{text}</div>;
+
         expect(() => createElement(<FuncComponent text="Hello" />)).toThrowError();
       });
 
