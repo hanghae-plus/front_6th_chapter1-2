@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      front-6th-chapter1-2:
-        specifier: 'link:'
-        version: 'link:'
     devDependencies:
       '@babel/core':
         specifier: latest
