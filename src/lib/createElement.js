@@ -1,3 +1,4 @@
+import { toCamelCase } from "../utils";
 import { addEvent } from "./eventManager";
 
 /**
@@ -55,32 +56,32 @@ function updateAttributes($el, props) {
     // className → class 속성으로 변환
     if (key === "className") {
       value ? $el.setAttribute("class", value) : $el.removeAttribute("class");
-      return;
+      continue;
     }
 
     // onClick, onChange 등 이벤트 핸들러는 addEvent로 위임 등록
     if (key.startsWith("on") && typeof value === "function") {
       addEvent($el, key.slice(2).toLowerCase(), value);
-      return;
+      continue;
     }
 
-    // checked, disabled 등 Boolean 속성 처리
+    // checked, disabled, selected, readOnly 처리
     if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
       $el[key] = Boolean(value);
       value ? $el.setAttribute(key, "") : $el.removeAttribute(key);
-      return;
+      continue;
     }
 
     // style 객체는 style 속성에 병합
     if (key === "style") {
       Object.assign($el.style, value);
-      return;
+      continue;
     }
 
     // data-* 속성은 dataset에 할당
     if (key.startsWith("data-")) {
-      $el.dataset[key.slice(5)] = value;
-      return;
+      $el.dataset[toCamelCase(key.slice(5))] = value;
+      continue;
     }
 
     $el.setAttribute(key, value);
