@@ -22,7 +22,7 @@ function setProp($el, key, value) {
       $el[key] = false;
     }
   } else if (key === "value" && ($el.tagName === "INPUT" || $el.tagName === "TEXTAREA" || $el.tagName === "SELECT")) {
-    // input, textarea, select의 value는 property로 설정
+    // form 요소들의 value는 property로 설정
     $el.value = value;
   } else if (key.startsWith("on") && typeof value === "function") {
     const eventType = key.toLowerCase().substring(2);
@@ -54,31 +54,33 @@ function updateAttributes($el, oldProps = {}, newProps = {}) {
 }
 
 function updateChildren($parent, oldChildren = [], newChildren = []) {
-  // 안전한 기본값 설정
+  // 배열이 아닌 경우 빈 배열로 처리
   const safeOldChildren = Array.isArray(oldChildren) ? oldChildren : [];
   const safeNewChildren = Array.isArray(newChildren) ? newChildren : [];
 
   const oldLen = safeOldChildren.length;
   const newLen = safeNewChildren.length;
-  const currentDomChildren = Array.from($parent.childNodes); // Make a static copy
+  const currentDomChildren = Array.from($parent.childNodes); // NodeList를 배열로 변환 (실시간 변경 방지)
 
-  // Update existing children
+  // 기존 자식 요소들 업데이트
   for (let i = 0; i < Math.min(oldLen, newLen); i++) {
     updateElement(currentDomChildren[i], safeOldChildren[i], safeNewChildren[i]);
   }
 
-  // Add new children
+  // 새로운 자식 요소들 추가
   if (newLen > oldLen) {
     for (let i = oldLen; i < newLen; i++) {
-      $parent.appendChild(createElement(safeNewChildren[i]));
+      const childElement = createElement(safeNewChildren[i]);
+      if (childElement) {
+        $parent.appendChild(childElement);
+      }
     }
   }
-  // Remove excess old children
+  // 불필요한 자식 요소들 제거
   else if (oldLen > newLen) {
-    // Iterate backwards to avoid issues with live NodeList
+    // 뒤에서부터 제거 (인덱스 변경 문제 방지)
     for (let i = oldLen - 1; i >= newLen; i--) {
       if (currentDomChildren[i]) {
-        // Ensure the node exists before removing
         $parent.removeChild(currentDomChildren[i]);
       }
     }
@@ -86,8 +88,10 @@ function updateChildren($parent, oldChildren = [], newChildren = []) {
 }
 
 export function updateElement($el, oldVNode, newVNode) {
+  // 같은 참조면 업데이트 불필요
   if (oldVNode === newVNode) return;
 
+  // 텍스트 노드 처리
   if (typeof newVNode === "string" || typeof newVNode === "number") {
     if ($el.textContent !== String(newVNode)) {
       $el.textContent = String(newVNode);
@@ -95,6 +99,7 @@ export function updateElement($el, oldVNode, newVNode) {
     return;
   }
 
+  // 이전이 텍스트였는데 지금은 요소인 경우
   if (typeof oldVNode === "string" || typeof oldVNode === "number") {
     const newElement = createElement(newVNode);
     if (newElement) {
@@ -103,6 +108,7 @@ export function updateElement($el, oldVNode, newVNode) {
     return;
   }
 
+  // 요소 타입이 바뀐 경우 (div -> span 등)
   if (oldVNode.type !== newVNode.type) {
     const newElement = createElement(newVNode);
     if (newElement) {
@@ -111,6 +117,7 @@ export function updateElement($el, oldVNode, newVNode) {
     return;
   }
 
+  // 같은 타입이면 속성과 자식만 업데이트 (성능 최적화)
   updateAttributes($el, oldVNode?.props || {}, newVNode?.props || {});
   updateChildren($el, oldVNode?.children || [], newVNode?.children || []);
 }

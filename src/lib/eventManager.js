@@ -2,7 +2,7 @@
 const eventStore = new Map();
 
 export function setupEventListeners(root) {
-  // root 요소에 이벤트 위임 설정
+  // 루트 요소에 이벤트 위임 설정 (모든 하위 요소의 이벤트를 여기서 처리)
   root.addEventListener("click", handleEvent);
   root.addEventListener("change", handleEvent);
   root.addEventListener("input", handleEvent);
@@ -12,18 +12,18 @@ export function setupEventListeners(root) {
   root.addEventListener("mouseover", handleEvent);
   root.addEventListener("focus", handleEvent);
   root.addEventListener("blur", handleEvent);
-  // 필요한 다른 이벤트들도 추가
+  // 필요한 다른 이벤트들도 추가 가능
 }
 
 function handleEvent(event) {
-  const element = event.target;
-  const eventType = event.type;
+  const element = event.target; // 실제 클릭된 요소
+  const eventType = event.type; // 이벤트 타입 (click, change 등)
 
-  // 해당 요소의 이벤트 핸들러 찾기
+  // 해당 요소에 등록된 이벤트 핸들러들 찾기
   const handlers = eventStore.get(element);
   if (handlers && handlers[eventType]) {
     handlers[eventType].forEach((handler) => {
-      handler.call(element, event);
+      handler.call(element, event); // this를 element로 바인딩해서 호출
     });
   }
 }

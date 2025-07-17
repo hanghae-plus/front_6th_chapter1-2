@@ -64,7 +64,7 @@ export function ProductCard({ productId, title, image, lprice, brand, onClick })
 }
 
 /**
- * 상품 로딩 스켈레톤 컴포넌트
+ * 상품 로딩 스켈레톤 컴포넌트 (로딩 중에 보여줄 더미 UI)
  */
 export function ProductCardSkeleton() {
   return (

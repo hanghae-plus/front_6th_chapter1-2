@@ -70,12 +70,12 @@ export class Router {
     const paramNames = [];
     const regexPath = path
       .replace(/:\w+/g, (match) => {
-        paramNames.push(match.slice(1)); // ':id' -> 'id'
+        paramNames.push(match.slice(1)); // ':id' 형태에서 'id' 부분만 추출
         return "([^/]+)";
       })
       .replace(/\//g, "\\/");
 
-    const regex = new RegExp(`^${regexPath}$`); // baseUrl 제거
+    const regex = new RegExp(`^${regexPath}$`); // 정규식 패턴 생성
 
     console.log("Adding route:", path, "regex:", regex); // 디버깅용
 
@@ -89,7 +89,7 @@ export class Router {
   #findRoute(url = window.location.pathname) {
     const { pathname } = new URL(url, window.location.origin);
 
-    // baseUrl 제거하여 실제 경로만 추출
+    // baseUrl을 제거해서 실제 경로만 추출
     let actualPath = pathname;
     if (this.#baseUrl && pathname.startsWith(this.#baseUrl)) {
       actualPath = pathname.slice(this.#baseUrl.length);
@@ -102,7 +102,7 @@ export class Router {
       const match = actualPath.match(route.regex);
       if (match) {
         console.log("Route matched:", routePath); // 디버깅용
-        // 매치된 파라미터들을 객체로 변환
+        // 매치된 파라미터들을 객체로 변환 (예: /product/123 -> {id: "123"})
         const params = {};
         route.paramNames.forEach((name, index) => {
           params[name] = match[index + 1];
@@ -125,7 +125,7 @@ export class Router {
    */
   push(url) {
     try {
-      // 이미 baseUrl이 포함된 경로인지 확인
+      // URL 경로 정규화 (baseUrl 포함 여부에 따라 처리)
       let fullUrl;
       if (url.startsWith(this.#baseUrl)) {
         // 이미 baseUrl이 포함된 경우 그대로 사용

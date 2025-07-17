@@ -23,7 +23,7 @@ const goToDetailPage = async (productId) => {
  * 상품 목록 컴포넌트
  */
 export function ProductList({ products = [], loading = false, error = null, totalCount = 0, hasMore = true }) {
-  // 에러 상태
+  // 에러가 발생한 경우
   if (error) {
     return (
       <div className="text-center py-12">
@@ -43,7 +43,7 @@ export function ProductList({ products = [], loading = false, error = null, tota
     );
   }
 
-  // 빈 상태 (검색 결과 없음)
+  // 검색 결과가 없는 경우
   if (!loading && products.length === 0) {
     return (
       <div className="text-center py-12">
@@ -58,24 +58,25 @@ export function ProductList({ products = [], loading = false, error = null, tota
 
   return (
     <div>
-      {/* 상품 개수 정보 */}
+      {/* 상품 개수 표시 - 로딩 중이 아닐 때만 표시 */}
       {totalCount > 0 && (
         <div className="mb-4 text-sm text-gray-600">
           총 <span className="font-medium text-gray-900">{totalCount.toLocaleString()}개</span>의 상품
         </div>
       )}
 
-      {/* 상품 그리드 */}
+      {/* 상품 목록 그리드 */}
       <div className="grid grid-cols-2 gap-4 mb-6" id="products-grid">
-        {/* 로딩 스켈레톤 */}
+        {/* 실제 상품 카드들 */}
         {products.map((product) => (
           <ProductCard {...product} onClick={goToDetailPage} />
         ))}
 
+        {/* 로딩 중일 때 스켈레톤 표시 */}
         {loading && Array.from({ length: 6 }).map(() => <ProductCardSkeleton />)}
       </div>
 
-      {/* 무한 스크롤 로딩 */}
+      {/* 무한 스크롤 로딩 인디케이터 */}
       {loading && products.length > 0 && (
         <div className="text-center py-4">
           <div className="inline-flex items-center">
@@ -85,12 +86,12 @@ export function ProductList({ products = [], loading = false, error = null, tota
         </div>
       )}
 
-      {/* 더 이상 로드할 상품이 없음 */}
+      {/* 더 이상 로드할 상품이 없는 경우 */}
       {!hasMore && products.length > 0 && !loading && (
         <div className="text-center py-4 text-sm text-gray-500">모든 상품을 확인했습니다</div>
       )}
 
-      {/* 무한 스크롤 트리거 */}
+      {/* 무한 스크롤 감지용 요소 */}
       <div id="scroll-trigger" className="h-4"></div>
     </div>
   );

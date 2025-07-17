@@ -1,15 +1,15 @@
 import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
-  // null, undefined, boolean 처리
+  // null, undefined, boolean 값들은 빈 텍스트 노드로 변환
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
-    return document.createTextNode(""); // 빈 텍스트 노드로 변환
+    return document.createTextNode("");
   }
-  // 문자열, 숫자 처리
+  // 문자열이나 숫자는 텍스트 노드로 변환
   if (typeof vNode === "string" || typeof vNode === "number") {
     return document.createTextNode(String(vNode));
   }
-  // 배열 처리
+  // 배열은 DocumentFragment로 처리 (여러 자식 요소를 한번에 추가할 때 효율적)
   if (Array.isArray(vNode)) {
     const fragment = document.createDocumentFragment();
     vNode.forEach((child) => {
@@ -18,15 +18,15 @@ export function createElement(vNode) {
     });
     return fragment;
   }
-  // 함수형 컴포넌트는 허용하지 않음(테스트 요구)
+  // 함수형 컴포넌트는 이미 정규화되어야 함
   if (typeof vNode.type === "function") {
     throw new Error("컴포넌트는 normalizeVNode로 먼저 정규화해야 합니다.");
   }
-  // 객체 타입 처리
+  // 실제 DOM 요소 생성
   const $el = document.createElement(vNode.type);
-  // props 적용
+  // 속성들 적용
   if (vNode.props) updateAttributes($el, vNode.props);
-  // children 처리
+  // 자식 요소들 처리
   if (vNode.children) {
     vNode.children.forEach((child) => {
       if (child !== null && child !== undefined && child !== false && child !== true) {
@@ -42,15 +42,17 @@ function updateAttributes($el, props) {
   Object.entries(props).forEach(([key, value]) => {
     if (key === "children") return;
     if (key.startsWith("on") && typeof value === "function") {
+      // 이벤트 핸들러는 이벤트 위임 시스템에 등록
       const eventType = key.toLowerCase().substring(2);
       addEvent($el, eventType, value);
     } else if (key === "className") {
       $el.className = value;
     } else if (key === "checked" || key === "disabled" || key === "selected" || key === "readOnly") {
-      $el.removeAttribute(key); // 먼저 attribute 제거
-      $el[key] = !!value; // 그 다음 property 설정
+      // boolean 속성들은 property로 설정 (attribute와 property가 다름)
+      $el.removeAttribute(key);
+      $el[key] = !!value;
     } else if (key === "value" && ($el.tagName === "INPUT" || $el.tagName === "TEXTAREA" || $el.tagName === "SELECT")) {
-      // input, textarea, select의 value는 property로 설정
+      // form 요소들의 value는 property로 설정해야 함
       $el.value = value;
     } else if (value !== null && value !== undefined) {
       $el.setAttribute(key, value);
