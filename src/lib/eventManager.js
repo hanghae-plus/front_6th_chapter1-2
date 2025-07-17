@@ -2,8 +2,6 @@
 const eventStore = new Map();
 const registeredRoots = new Set();
 
-// 개선할 수 있는 키워드 : WeakMap (메모리 최적화), 이벤트 버블링 & 이벤트 위임 (자바스크립트 이벤트 처리 방식)
-
 export function setupEventListeners(root) {
   const eventTypes = ["click", "mouseover", "focus", "keydown", "change"];
 
@@ -18,9 +16,8 @@ export function setupEventListeners(root) {
     const handler = (e) => {
       let target = e.target;
 
-      // 변경본 : 기존에 실행하던 root[`_${eventType}Handler`]는 "클릭" 된 타겟의 이벤트만 실행하기 때문에
-      // 현재는 root 에 이벤트가 있으므로 부모 요소를 타고 올라가면서 해당하는 이벤트를 찾아서 실행하는 방식으로 변경
-      while (target && target !== e.currentTarget.parentElement) {
+      // 이벤트 버블링을 통해 모든 상위 요소를 확인
+      while (target && target !== root) {
         const handlers = eventStore.get(target)?.[eventType] || [];
 
         handlers.forEach((handler) => {
