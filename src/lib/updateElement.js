@@ -96,12 +96,11 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     if (typeof newChildNode === "string" && typeof oldChildNode === "string") {
       if (newChildNode !== oldChildNode) {
         const targetTextNode = targetElement.childNodes[i];
-        if (targetTextNode && targetTextNode.nodeType === Node.TEXT_NODE) {
-          targetTextNode.textContent = newChildNode;
-        }
+        if (targetTextNode && targetTextNode.nodeType === Node.TEXT_NODE) targetTextNode.textContent = newChildNode;
       }
     } else {
-      updateElement(targetElement, newChildNode, oldChildNode, i);
+      if (targetElement && targetElement.nodeType === Node.ELEMENT_NODE)
+        updateElement(targetElement, newChildNode, oldChildNode, i);
     }
   }
 
