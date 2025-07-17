@@ -4,13 +4,22 @@ export function setupEventListeners(root) {
   const eventTypeList = ["click", "input", "change", "submit", "keydown", "keyup", "mouseover", "focus"];
   eventTypeList.forEach((eventType) => {
     root.addEventListener(eventType, (e) => {
-      const events = eventMap.get(e.target);
-      if (!events) return;
-      const handlers = events.get(eventType);
-      if (!handlers) return;
-      handlers.forEach((handler) => {
-        handler(e);
-      });
+      // 이벤트 버블링을 따라 올라가면서 핸들러 찾기
+      let currentTarget = e.target;
+
+      while (currentTarget && currentTarget !== root.parentNode) {
+        const events = eventMap.get(currentTarget);
+        if (events) {
+          const handlers = events.get(eventType);
+          if (handlers) {
+            handlers.forEach((handler) => {
+              handler(e);
+            });
+            // 핸들러를 찾았으면 더 이상 올라가지 않음
+          }
+        }
+        currentTarget = currentTarget.parentNode;
+      }
     });
   });
 }
