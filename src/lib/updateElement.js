@@ -10,12 +10,17 @@ function updateAttributes(target, originNewProps, originOldProps) {
     if (key.startsWith("on")) {
       const eventType = key.slice(2).toLowerCase();
       if (oldProps[key]) {
-        console.log("removeEvent", target, eventType, oldProps[key]);
         removeEvent(target, eventType, oldProps[key]);
       }
     } else if (!(key in newProps)) {
       if (key === "className") {
         target.className = "";
+        target.removeAttribute("class");
+      } else if (key === "checked" || key === "disabled" || key === "readOnly" || key === "selected") {
+        target[key] = false;
+        if (key === "disabled" || key === "readOnly") {
+          target.removeAttribute(key.toLowerCase());
+        }
       } else {
         target.removeAttribute(key);
       }
@@ -31,10 +36,24 @@ function updateAttributes(target, originNewProps, originOldProps) {
       if (oldProps[key]) {
         removeEvent(target, eventType, oldProps[key]);
       }
-
       addEvent(target, eventType, value);
     } else if (key === "className") {
-      target.className = value;
+      if (value) {
+        target.className = value;
+      } else {
+        target.className = "";
+        target.removeAttribute("class");
+      }
+    } else if (key === "checked" || key === "disabled" || key === "readOnly" || key === "selected") {
+      target[key] = !!value;
+      if (key === "disabled" || key === "readOnly") {
+        if (value) {
+          target.setAttribute(key.toLowerCase(), "");
+        } else {
+          target.removeAttribute(key.toLowerCase());
+        }
+      }
+      // checked, selected는 attribute를 조작하지 않음
     } else {
       if (value === false || value === null || value === undefined) {
         target.removeAttribute(key);
@@ -77,4 +96,13 @@ export function updateElement(parentElement, currentVNode, prevVNode, index = 0)
   Array.from({ length: maxLength }).forEach((_, i) => {
     updateElement(element, newChildren[i] || null, oldChildren[i] || null, i);
   });
+
+  // oldChildren이 더 많을 때 초과된 자식 제거 (역순)
+  if (oldChildren.length > newChildren.length) {
+    for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+      if (element.childNodes[i]) {
+        element.removeChild(element.childNodes[i]);
+      }
+    }
+  }
 }
