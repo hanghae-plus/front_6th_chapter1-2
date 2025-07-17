@@ -511,7 +511,11 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
         </UnorderedList>
       );
 
+      console.log("render를 실행할 경우, vNode가 html로 변환되고 이벤트가 등록된다.");
+
       renderElement(<TestComponent />, $container);
+
+      console.log("$container.innerHTML", $container.innerHTML);
 
       expect($container.innerHTML).toEqual(
         `<ul><li id="item-1" class="list-item list-item "><button></button></li><li id="item-2" class="list-item list-item "><div></div></li><li id="item-3" class="list-item list-item "><input></li><li id="item-4" class="list-item list-item last-item"><input></li></ul>`,
@@ -540,9 +544,13 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           <button onClick={clickHandler}>Click me</button>
         </div>
       );
+
+      console.log("이벤트가 위임 방식으로 등록되어야 한다");
       renderElement(vNode, $container);
 
       const button = $container.querySelector("button");
+
+      console.log("button", button);
       button.click();
 
       expect(clickHandler).toHaveBeenCalledTimes(1);
@@ -555,6 +563,8 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           <button onClick={clickHandler}>Initial Button</button>
         </div>
       );
+
+      console.log("동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다");
       renderElement(initialVNode, $container);
 
       const updatedVNode = (
@@ -578,6 +588,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           <button onClick={clickHandler}>Button</button>
         </div>
       );
+      console.log("이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다");
       renderElement(initialVNode, $container);
 
       const updatedVNode = (
