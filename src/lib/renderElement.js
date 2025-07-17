@@ -1,22 +1,26 @@
 import { setupEventListeners } from "./eventManager";
 import { createElement } from "./createElement";
 import { normalizeVNode } from "./normalizeVNode";
-// import { updateElement } from "./updateElement";
+import { updateElement } from "./updateElement";
 
 export function renderElement(vNode, container) {
   const normalizedVNode = normalizeVNode(vNode);
 
-  if (!container._vNode) {
-    const element = createElement(normalizedVNode);
+  // 최초 렌더링: prevVNode가 없으면 container 비우고 새로 생성
+  if (!container.__prevVNode) {
     container.innerHTML = "";
-    container.appendChild(element);
-    setupEventListeners(container);
+    const el = createElement(normalizedVNode);
+    container.appendChild(el);
   } else {
-    // TODO: updateElement 함수 구현
-    const element = createElement(normalizedVNode);
-    container.innerHTML = "";
-    container.appendChild(element);
+    // 업데이트: updateElement로 diff & patch
+    updateElement(container, normalizedVNode, container.__prevVNode, 0);
   }
 
-  container._vNode = normalizedVNode;
+  container.__prevVNode = normalizedVNode;
+
+  // 이벤트 위임 리스너 등록 (최초 1회만)
+  if (!container.__eventSetup) {
+    setupEventListeners(container);
+    container.__eventSetup = true;
+  }
 }
