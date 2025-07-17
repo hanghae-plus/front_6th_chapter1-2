@@ -39,16 +39,27 @@ export function createElement(vNode) {
 
 function setAttributes($el, props) {
   if (props) {
-    for (let i in props) {
-      if (i === "children") continue;
+    for (let attribute in props) {
+      if (attribute === "children") continue;
 
-      if (i.startsWith("on") && typeof props[i] === "function") {
-        const eventType = i.slice(2).toLowerCase();
-        addEvent($el, eventType, props[i]);
-      } else if (i === "className") {
-        $el.setAttribute("class", props[i]);
+      if (attribute.startsWith("on") && typeof props[attribute] === "function") {
+        const eventType = attribute.slice(2).toLowerCase();
+        addEvent($el, eventType, props[attribute]);
+      } else if (attribute === "className") {
+        $el.setAttribute("class", props[attribute]);
+      } else if (typeof props[attribute] === "boolean") {
+        console.log("attribute", attribute, props[attribute]);
+        // boolean property는 직접 설정
+        $el[attribute] = props[attribute];
+        // false인 경우 DOM attribute 제거
+        if (!props[attribute]) {
+          $el.removeAttribute(attribute);
+        } else {
+          $el.setAttribute(attribute);
+        }
+        console.log("attribute", attribute, $el[attribute]);
       } else {
-        $el.setAttribute(i, props[i]);
+        $el.setAttribute(attribute, props[attribute]);
       }
     }
   }
