@@ -1,6 +1,7 @@
 import { defineConfig as defineTestConfig, mergeConfig } from "vitest/config";
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import fs from "fs";
 
 const base = process.env.NODE_ENV === "production" ? "/front_6th_chapter1-2/" : "";
 
@@ -23,10 +24,18 @@ export default mergeConfig(
       rollupOptions: {
         input: {
           main: resolve(__dirname, "index.html"),
-          404: resolve(__dirname, "404.html"),
+          404: resolve(__dirname, "index.html"),
         },
       },
     },
+    plugins: [
+      {
+        name: "copy-index-to-404",
+        closeBundle() {
+          fs.copyFileSync(resolve(__dirname, "dist/index.html"), resolve(__dirname, "dist/404.html"));
+        },
+      },
+    ],
   }),
   defineTestConfig({
     test: {
