@@ -18,12 +18,27 @@ const enableMocking = () =>
   );
 
 /**
+ * 404 페이지에서 리다이렉트된 경우 처리
+ */
+function handleRedirect() {
+  const redirect = sessionStorage.redirect;
+  delete sessionStorage.redirect;
+  if (redirect && redirect !== location.href) {
+    history.replaceState(null, null, redirect);
+  }
+}
+
+/**
  * 애플리케이션 초기화
  */
 function main() {
   console.log("🚀 애플리케이션이 시작되었습니다.");
 
   console.log("✅ MSW 워커 시작 완료");
+
+  // 404 리다이렉트 처리
+  handleRedirect();
+  console.log("✅ 404 리다이렉트 처리 완료");
 
   loadCartFromStorage();
   console.log("✅ 장바구니 데이터 복원 완료");

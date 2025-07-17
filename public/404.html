@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>상품 쇼핑몰</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/front_6th_chapter1-2/src/styles.css" />
     <script>
       tailwind.config = {
         theme: {
@@ -18,9 +18,27 @@
         },
       };
     </script>
+    <script type="text/javascript">
+      // SPA 리다이렉트를 위한 스크립트
+      (function (l) {
+        if (l.search[1] === "/") {
+          var decoded = l.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      })(window.location);
+
+      // 404 페이지에서 메인 앱으로 리다이렉트
+      sessionStorage.redirect = location.href;
+    </script>
   </head>
   <body class="bg-gray-50">
     <div id="root"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/front_6th_chapter1-2/src/main.js"></script>
   </body>
 </html>
