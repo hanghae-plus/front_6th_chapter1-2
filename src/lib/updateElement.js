@@ -87,21 +87,37 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
-  const maxLength = Math.max(newChildren.length, oldChildren.length);
+  const commonLength = Math.min(newChildren.length, oldChildren.length);
 
-  for (let childIndex = maxLength - 1; childIndex >= 0; childIndex--) {
-    const newChildNode = newChildren[childIndex];
-    const oldChildNode = oldChildren[childIndex];
+  for (let i = 0; i < commonLength; i++) {
+    const newChildNode = newChildren[i];
+    const oldChildNode = oldChildren[i];
 
     if (typeof newChildNode === "string" && typeof oldChildNode === "string") {
       if (newChildNode !== oldChildNode) {
-        const targetTextNode = targetElement.childNodes[childIndex];
+        const targetTextNode = targetElement.childNodes[i];
         if (targetTextNode && targetTextNode.nodeType === Node.TEXT_NODE) {
           targetTextNode.textContent = newChildNode;
         }
       }
     } else {
-      updateElement(targetElement, newChildNode, oldChildNode, childIndex);
+      updateElement(targetElement, newChildNode, oldChildNode, i);
+    }
+  }
+
+  if (oldChildren.length > newChildren.length) {
+    for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+      const childNode = targetElement.childNodes[i];
+      if (childNode) {
+        targetElement.removeChild(childNode);
+      }
+    }
+  }
+
+  if (newChildren.length > oldChildren.length) {
+    for (let i = oldChildren.length; i < newChildren.length; i++) {
+      const newChildElement = createElement(newChildren[i]);
+      targetElement.appendChild(newChildElement);
     }
   }
 }
