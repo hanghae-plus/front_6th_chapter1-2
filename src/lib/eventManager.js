@@ -19,7 +19,6 @@ export function setupEventListeners(root) {
 }
 
 export function addEvent(element, eventType, handler) {
-  console.log("addEvent", element, eventType, handler);
   if (!eventStore.has(element)) {
     eventStore.set(element, {});
   }
