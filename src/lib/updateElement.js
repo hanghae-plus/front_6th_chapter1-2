@@ -114,7 +114,8 @@ function updateAttributes(target, originNewProps, originOldProps) {
           // 특별한 boolean 속성들 처리
           // Property만 설정하고 DOM 속성은 제거
           if (newValue === null) {
-            target[key] = false; // null이면 기본값으로
+            // null이면 기본값으로
+            target[key] = false;
           } else {
             target[key] = newValue;
           }
