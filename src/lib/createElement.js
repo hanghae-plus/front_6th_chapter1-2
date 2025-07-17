@@ -27,7 +27,7 @@ export function createElement(vNode) {
   const { props, children } = vNode;
 
   updateAttributes(element, props ?? {});
-  children.forEach((child) => element.appendChild(createElement(child)));
+  element.append(...children.map(createElement));
 
   return element;
 }
@@ -57,7 +57,6 @@ function updateAttributes($el, props) {
       } else {
         $el.removeAttribute("class");
       }
-      $el.removeAttribute("classname");
       return;
     }
 

@@ -31,7 +31,6 @@ export function renderElement(vNode, container) {
 
   // 1. 초기 렌더링 : createElement 사용
   if (!previousVNode) {
-    // 첫 번째 렌더링: createElement 사용
     const element = createElement(normalizedVNode);
     container.appendChild(element);
   } else {

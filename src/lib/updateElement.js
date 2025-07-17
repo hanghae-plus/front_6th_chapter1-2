@@ -41,7 +41,9 @@ function updateAttributes(target, originNewProps, originOldProps) {
 
     if (key === "className") {
       if (value) {
-        target.setAttribute("class", value);
+        if (target instanceof Element) {
+          target.setAttribute("class", value);
+        }
       } else {
         target.removeAttribute("class");
       }
@@ -93,9 +95,14 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   // 둘 다 텍스트/문자열인 경우
   if (typeof newNode === "string" || typeof oldNode === "number") {
     if (newNode !== oldNode) {
-      parentElement.childNodes[index].textContent = newNode;
-    } else {
-      parentElement.childNodes[index].textContent = newNode;
+      const newTextNode = document.createTextNode(newNode.toString());
+      const childNode = parentElement.childNodes[index];
+
+      if (childNode) {
+        parentElement.replaceChild(newTextNode, childNode);
+      } else {
+        parentElement.appendChild(newTextNode);
+      }
     }
     return;
   }
@@ -115,6 +122,8 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   // 타입이 같을 때 속성과 자식을 업데이트한다.
   const currentElement = parentElement.childNodes[index];
+  if (!currentElement) return;
+
   updateAttributes(currentElement, newNode.props, oldNode.props);
 
   // 자식 업데이트

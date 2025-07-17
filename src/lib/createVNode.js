@@ -8,7 +8,7 @@
 export function createVNode(type, props, ...children) {
   return {
     type,
-    props: props || null,
+    props,
     children: children
       .flat(Infinity)
       .filter(

@@ -44,6 +44,7 @@ const handleDelegatedEvent = (event) => {
     // event.type으로 비교하는 것이 올바른 방법이다.
     if (eventsOfElement && eventsOfElement.has(event.type)) {
       eventsOfElement.get(event.type).forEach((handler) => handler(event));
+      return;
     }
 
     target = target.parentElement;
