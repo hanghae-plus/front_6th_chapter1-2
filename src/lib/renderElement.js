@@ -17,7 +17,7 @@ export function renderElement(vNode, container) {
   }
 
   // 현재 vNode를 container에 저장 (다음 렌더링 시 비교용)
-  container._vNode = vNode;
+  container._vNode = normalizedVNode;
 
   // 렌더링이 완료되면 container에 이벤트를 등록한다
   setupEventListeners(container);
