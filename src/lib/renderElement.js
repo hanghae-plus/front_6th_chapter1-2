@@ -3,8 +3,24 @@ import { createElement } from "./createElement";
 import { normalizeVNode } from "./normalizeVNode";
 import { updateElement } from "./updateElement";
 
+// 이전 vNode를 저장하기 위한 WeakMap
+const containerVNodeMap = new WeakMap();
+
 export function renderElement(vNode, container) {
-  // 최초 렌더링시에는 createElement로 DOM을 생성하고
-  // 이후에는 updateElement로 기존 DOM을 업데이트한다.
-  // 렌더링이 완료되면 container에 이벤트를 등록한다.
+  const normalized = normalizeVNode(vNode);
+  const previousVNode = containerVNodeMap.get(container);
+
+  if (!previousVNode) {
+    // 최초 렌더링: createElement 사용
+    container.innerHTML = "";
+    const $el = createElement(normalized);
+    container.appendChild($el);
+    setupEventListeners(container);
+  } else {
+    // 리렌더링: updateElement 사용
+    updateElement(container, normalized, previousVNode, 0);
+  }
+
+  // 현재 vNode를 저장
+  containerVNodeMap.set(container, normalized);
 }
