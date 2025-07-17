@@ -36,7 +36,10 @@ function updateAttributes($el, props) {
       addEvent($el, eventType, value);
       continue;
     }
-
+    if (typeof value === "boolean") {
+      if (value) $el.setAttribute(normalizedKey, "");
+      continue;
+    }
     if (value !== undefined && value !== null) {
       $el.setAttribute(normalizedKey, value);
     }
