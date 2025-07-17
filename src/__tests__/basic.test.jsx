@@ -568,7 +568,8 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
           <button onClick={clickHandler}>Initial Button</button>
         </div>
       );
-      renderElement(initialVNode, $container);
+      const init = renderElement(initialVNode, $container);
+      console.log(init, "-----------------init");
 
       const updatedVNode = (
         <div>
@@ -577,8 +578,11 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
         </div>
       );
       renderElement(updatedVNode, $container);
+      const result = renderElement(updatedVNode, $container);
+      console.log(result, "result----------------");
 
       const newButton = $container.querySelectorAll("button")[1];
+      console.log(newButton, "newButton", $container, "container");
       newButton.click();
 
       expect(clickHandler).toHaveBeenCalledTimes(1);

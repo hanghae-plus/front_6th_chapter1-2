@@ -23,17 +23,26 @@ export function createElement(vNode) {
   // 함수형 컴포넌트일 때
   if (typeof vNode === "object" && typeof vNode.type === "string") {
     const tag = document.createElement(vNode.type);
-    updateAttributes(tag, vNode.props);
+    const props = vNode.props || {};
+    updateAttributes(tag, props);
+    const children = props.children || [];
+    const childrenArray = Array.isArray(children) ? children : [];
+    childrenArray.forEach((child) => {
+      const el = createElement(child);
+      if (el instanceof Node) {
+        tag.appendChild(el);
+      }
+    });
 
-    if (Array.isArray(vNode.children)) {
-      vNode.children.forEach((child) => {
-        const el = createElement(child);
-        if (el instanceof Node) {
-          tag.appendChild(el);
-        }
-      });
-    }
-
+    // if (Array.isArray(vNode.children)) {
+    //   vNode.children.forEach((child) => {
+    //     const el = createElement(child);
+    //     if (el instanceof Node) {
+    //       tag.appendChild(el);
+    //     }
+    //   });
+    // }
+    // console.log("여기니!!!", tag);
     return tag;
   }
 
