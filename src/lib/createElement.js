@@ -42,6 +42,7 @@ export function createElement(vNode) {
   return $el;
 }
 
+//배포
 function updateAttributes($el, props) {
   if (!props) return;
 
