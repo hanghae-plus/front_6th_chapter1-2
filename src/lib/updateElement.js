@@ -28,6 +28,7 @@ const BOOLEAN_ATTRIBUTES = [
   "noValidate",
 ];
 
+// 동기적 DOM Batcher
 class SyncDOMBatcher {
   constructor() {
     this.operations = [];
@@ -49,12 +50,19 @@ class SyncDOMBatcher {
         case "replaceChild":
           op.parent.replaceChild(op.newElement, op.oldElement);
           break;
+        case "replaceElement":
+          this.replaceWithEventPreservation(op.existingElement, op.newElement);
+          break;
         case "textContent":
           op.element.textContent = op.value;
           break;
       }
     });
     this.operations = [];
+  }
+
+  replaceWithEventPreservation(existingElement, newElement) {
+    existingElement.parentNode.replaceChild(newElement, existingElement);
   }
 }
 
@@ -176,12 +184,15 @@ function updateElementBatched(parentElement, newNode, oldNode, index = 0, batche
       updateElement(currentElement, newNode.children?.at(i), oldNode.children?.at(i), i, batcher);
     }
   } else {
-    const $el = createElement(newNode);
+    const existingElement = parentElement.childNodes[index];
+    const $newEl = createElement(newNode);
+
     batcher.schedule({
-      type: "replaceChild",
+      type: "replaceElement",
+      existingElement,
+      newElement: $newEl,
       parent: parentElement,
-      newElement: $el,
-      oldElement: parentElement.childNodes[index],
+      index,
     });
   }
 }

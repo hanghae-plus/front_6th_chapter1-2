@@ -9,9 +9,15 @@ export function setupEventListeners(root) {
 
   eventTypes.forEach((eventType) => {
     root.addEventListener(eventType, (e) => {
-      const handler = eventMap.get(e.target)?.[eventType];
-      if (handler) {
-        handler(e);
+      // 이벤트 버블링
+      let currentElement = e.target;
+      while (currentElement && currentElement !== root.parentElement) {
+        const handler = eventMap.get(currentElement)?.[eventType];
+        if (handler) {
+          handler(e);
+          return;
+        }
+        currentElement = currentElement.parentElement;
       }
     });
   });
