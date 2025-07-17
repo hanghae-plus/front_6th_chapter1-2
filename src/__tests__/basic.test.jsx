@@ -11,7 +11,6 @@ import {
 } from "../lib";
 
 describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
-  /*
   describe("createVNode > ", () => {
     it("올바른 구조의 vNode를 생성해야 한다", () => {
       const vNode = createVNode("div", { id: "test" }, "Hello");
@@ -417,7 +416,6 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(result.dataset.test).toBe("값");
     });
   });
-  */
 
   describe("eventManager", () => {
     let container;
@@ -469,7 +467,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(clickHandler).toHaveBeenCalledTimes(1);
     });
   });
-  /*
+
   describe("renderElement", () => {
     let $container;
 
@@ -595,5 +593,4 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(clickHandler).not.toHaveBeenCalled();
     });
   });
-*/
 });

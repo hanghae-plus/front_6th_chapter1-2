@@ -82,7 +82,7 @@
     const dom = createElement(normalizedVNode) // 실제 브라우저용 DOM 요소 생성
     document.body.appendChild(dom) // 화면에 붙이기
 
-과제 description
+createElement 요구사항
 1. vNode가 null, undefined, boolean 일 경우, 빈 텍스트 노드를 반환합니다.  -> 빈 텍스트 노드??
 2. vNode가 문자열이나 숫자면 텍스트 노드를 생성하여 반환합니다.
 3. vNode가 배열이면 DocumentFragment를 생성하고 각 자식에 대해 createElement를 재귀 호출하여 추가합니다.
@@ -175,3 +175,19 @@ eventManager.js에 보면 이렇게 함수 세개가 있다.
     export function removeEvent(element, eventType, handler) {
         맵에서 해당 핸들러 제거 (empty인경우 키, 벨류 .. 클린업하기)
     }
+
+-> 이부분 renderElement작업하면서 엣지케이스가 발견이 되었는데,
+setupEventListeners는 root에 이벤트를 한번만 등록하고, 중복 등록이 되는 경우를 방지해야한다. 
+registeredRoots 라는 set을 하나 만들어서 이미 등록된건 재등록 되지 않도록 관리해야한다. 
+
+5. renderElement
+renderElement는 앞에서 작성된 함수들을 조합하여 vNode를 container에 렌더링하는 작업을 수행하는 역할을 한다. 
+
+export function renderElement(vNode, container) {
+  // vNode를 정규화 한 다음에
+  // createElement로 노드를 만들고
+  // container에 삽입하고
+	  // 이벤트를 등록합니다.
+}
+
+조합하면 끝난다!!

@@ -1,36 +1,56 @@
-const eventMap = new Map();
+// 이벤트 위임을 위한 이벤트 저장소
+const eventStore = new Map();
+const registeredRoots = new Set();
 
 export function setupEventListeners(root) {
+  // 이미 등록된 root라면 기존 이벤트 리스너 제거
+  if (registeredRoots.has(root)) {
+    const eventTypes = ["click", "mouseover", "focus", "keydown"];
+    eventTypes.forEach((eventType) => {
+      root.removeEventListener(eventType, root[`_${eventType}Handler`]);
+    });
+  }
+
   const eventTypes = ["click", "mouseover", "focus", "keydown"];
 
-  eventTypes.forEach((type) => {
-    root.addEventListener(type, (e) => {
+  eventTypes.forEach((eventType) => {
+    const handler = (e) => {
       const target = e.target;
-      const listeners = eventMap.get(target);
-      if (listeners && Array.isArray(listeners[type])) {
-        listeners[type].forEach((fn) => fn(e));
-      }
-    });
+      const handlers = eventStore.get(target)?.[eventType] || [];
+
+      handlers.forEach((handler) => {
+        handler(e);
+      });
+    };
+
+    // 핸들러를 root 객체에 저장하여 나중에 제거할 수 있도록 함
+    root[`_${eventType}Handler`] = handler;
+    root.addEventListener(eventType, handler);
   });
+
+  registeredRoots.add(root);
 }
 
 export function addEvent(element, eventType, handler) {
-  if (!eventMap.has(element)) {
-    eventMap.set(element, {});
+  if (!eventStore.has(element)) {
+    eventStore.set(element, {});
   }
 
-  const listeners = eventMap.get(element);
-
-  if (!Array.isArray(listeners[eventType])) {
-    listeners[eventType] = [];
+  if (!eventStore.get(element)[eventType]) {
+    eventStore.get(element)[eventType] = [];
   }
 
-  listeners[eventType].push(handler);
+  eventStore.get(element)[eventType].push(handler);
 }
 
 export function removeEvent(element, eventType, handler) {
-  const listeners = eventMap.get(element);
-  if (!listeners || !Array.isArray(listeners[eventType])) return;
+  const elementEvents = eventStore.get(element);
+  if (!elementEvents || !elementEvents[eventType]) return;
 
-  listeners[eventType] = listeners[eventType].filter((fn) => fn !== handler);
+  const handlers = elementEvents[eventType];
+  const index = handlers.indexOf(handler);
+
+  if (index > -1) {
+    handlers.splice(index, 1);
+  }
 }
