@@ -15,6 +15,7 @@ export class Router {
     this.#baseUrl = baseUrl.replace(/\/$/, "");
 
     window.addEventListener("popstate", () => {
+      console.log("popstate event triggered");
       this.#route = this.#findRoute();
       this.#observer.notify();
     });
@@ -87,11 +88,18 @@ export class Router {
 
   #findRoute(url = window.location.pathname) {
     const { pathname } = new URL(url, window.location.origin);
-    console.log("Finding route for pathname:", pathname); // 디버깅용
+
+    // baseUrl 제거하여 실제 경로만 추출
+    let actualPath = pathname;
+    if (this.#baseUrl && pathname.startsWith(this.#baseUrl)) {
+      actualPath = pathname.slice(this.#baseUrl.length);
+    }
+
+    console.log("Finding route for pathname:", pathname, "actualPath:", actualPath); // 디버깅용
 
     for (const [routePath, route] of this.#routes) {
       console.log("Checking route:", routePath, "regex:", route.regex); // 디버깅용
-      const match = pathname.match(route.regex);
+      const match = actualPath.match(route.regex);
       if (match) {
         console.log("Route matched:", routePath); // 디버깅용
         // 매치된 파라미터들을 객체로 변환
@@ -107,7 +115,7 @@ export class Router {
         };
       }
     }
-    console.log("No route found for:", pathname); // 디버깅용
+    console.log("No route found for:", actualPath); // 디버깅용
     return null;
   }
 
@@ -117,8 +125,18 @@ export class Router {
    */
   push(url) {
     try {
-      // 절대 경로로 처리
-      const fullUrl = url.startsWith("/") ? url : "/" + url;
+      // 이미 baseUrl이 포함된 경로인지 확인
+      let fullUrl;
+      if (url.startsWith(this.#baseUrl)) {
+        // 이미 baseUrl이 포함된 경우 그대로 사용
+        fullUrl = url;
+      } else if (url.startsWith("/")) {
+        // 절대 경로인 경우 baseUrl 추가
+        fullUrl = this.#baseUrl + url;
+      } else {
+        // 상대 경로인 경우 baseUrl + "/" + url
+        fullUrl = this.#baseUrl + "/" + url;
+      }
 
       const prevUrl = window.location.pathname + window.location.search;
 
@@ -140,6 +158,33 @@ export class Router {
   start() {
     this.#route = this.#findRoute();
     this.#observer.notify();
+  }
+
+  /**
+   * 안전한 뒤로가기
+   */
+  safeBack() {
+    console.log("=== safeBack called ===");
+    console.log("Current pathname:", window.location.pathname);
+    console.log("Current href:", window.location.href);
+    console.log("Base URL:", this.#baseUrl);
+    console.log("History length:", window.history.length);
+    console.log("Current state:", window.history.state);
+
+    // 현재 경로가 홈이 아닌 경우에만 뒤로가기
+    const currentPath = window.location.pathname;
+    const homePath = this.#baseUrl + "/";
+
+    console.log("Current path:", currentPath);
+    console.log("Home path:", homePath);
+    console.log("Is current path home?", currentPath === homePath || currentPath === this.#baseUrl);
+
+    if (currentPath !== homePath && currentPath !== this.#baseUrl) {
+      console.log("Going back in history...");
+      window.history.back();
+    } else {
+      console.log("Already at home, staying here");
+    }
   }
 
   /**
