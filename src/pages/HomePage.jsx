@@ -1,9 +1,13 @@
 /** @jsx createVNode */
-import { createVNode } from "../lib";
 import { ProductList, SearchBar } from "../components";
-import { productStore } from "../stores";
+import { createVNode, renderElement } from "../lib";
 import { router, withLifecycle } from "../router";
-import { loadProducts, loadProductsAndCategories, loadMoreProducts } from "../services";
+import {
+  loadMoreProducts,
+  loadProducts,
+  loadProductsAndCategories,
+} from "../services";
+import { productStore } from "../stores";
 import { isNearBottom } from "../utils";
 import { PageWrapper } from "./PageWrapper";
 
@@ -14,8 +18,6 @@ const headerLeft = (
     </a>
   </h1>
 );
-
-console.log(headerLeft);
 
 // 무한 스크롤 이벤트 등록
 let scrollHandlerRegistered = false;
@@ -77,7 +79,13 @@ export const HomePage = withLifecycle(
     console.log("🏠 홈 페이지 로드");
 
     const productState = productStore.getState();
-    const { search: searchQuery, limit, sort, category1, category2 } = router.query;
+    const {
+      search: searchQuery,
+      limit,
+      sort,
+      category1,
+      category2,
+    } = router.query;
     const { products, loading, error, totalCount, categories } = productState;
     const category = { category1, category2 };
     const hasMore = products.length < totalCount;
@@ -85,11 +93,23 @@ export const HomePage = withLifecycle(
     return (
       <PageWrapper headerLeft={headerLeft}>
         {/* 검색 및 필터 */}
-        <SearchBar searchQuery={searchQuery} category={category} sort={sort} limit={limit} categories={categories} />
+        <SearchBar
+          searchQuery={searchQuery}
+          category={category}
+          sort={sort}
+          limit={limit}
+          categories={categories}
+        />
 
         {/* 상품 목록 */}
         <div className="mb-6">
-          <ProductList products={products} loading={loading} error={error} totalCount={totalCount} hasMore={hasMore} />
+          <ProductList
+            products={products}
+            loading={loading}
+            error={error}
+            totalCount={totalCount}
+            hasMore={hasMore}
+          />
         </div>
       </PageWrapper>
     );
