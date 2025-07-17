@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>상품 쇼핑몰</title>
+    <script type="text/javascript">
+      // GitHub Pages SPA 리다이렉트 핸들링
+      // 이 스크립트는 GitHub Pages에서 404 에러가 발생했을 때
+      // 해당 경로를 쿼리 파라미터로 저장하고 index.html로 리다이렉트합니다.
+      var pathSegmentsToKeep = 1; // GitHub Pages 레포지토리 경로 세그먼트 수
+
+      var l = window.location;
+      l.replace(
+        l.protocol +
+          '//' +
+          l.hostname +
+          (l.port ? ':' + l.port : '') +
+          l.pathname
+            .split('/')
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join('/') +
+          '/?/' +
+          l.pathname
+            .slice(1)
+            .split('/')
+            .slice(pathSegmentsToKeep)
+            .join('/')
+            .replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash,
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
