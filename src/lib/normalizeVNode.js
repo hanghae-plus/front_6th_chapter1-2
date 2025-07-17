@@ -42,15 +42,13 @@ export function normalizeVNode(vNode) {
     return result;
   }
 
-  return vNode;
+  return {
+    ...vNode,
+    children: normalizeVNode(vNode.children),
+  };
 }
 
 function cleanChildren(children) {
   const arr = Array.isArray(children) ? children : [children];
   return arr.map(normalizeVNode).filter((child) => child !== "");
-  // const childArray = Array.isArray(children)
-  //   ? children.map((child) => normalizeVNode(child)).filter((child) => child !== "")
-  //   : [children];
-
-  // return childArray;
 }

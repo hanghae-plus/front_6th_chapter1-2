@@ -1,19 +1,21 @@
 const eventStore = new Map();
 
+const handler = (elementMap) => (event) => {
+  for (const [element, handlers] of elementMap.entries()) {
+    // root에 이벤트 타입대로 다 걸어서
+    if (element === event.target || element.contains(event.target)) {
+      // 위임 체크를 해 주고
+      for (const handler of handlers) {
+        handler.call(element, event);
+      }
+    }
+  }
+};
+
 export function setupEventListeners(root) {
   for (const [eventType, elementMap] of eventStore.entries()) {
-    // eventType(key), elementMap(value)
-    root.addEventListener(eventType, (event) => {
-      for (const [element, handlers] of elementMap.entries()) {
-        // root에 이벤트 타입대로 다 걸어서
-        if (element === event.target || element.contains(event.target)) {
-          // 위임 체크를 해 주고
-          for (const handler of handlers) {
-            handler.call(element, event);
-          }
-        }
-      }
-    });
+    root.removeEventListener(eventType, handler(elementMap));
+    root.addEventListener(eventType, handler(elementMap));
   }
 }
 
@@ -30,6 +32,7 @@ export function addEvent(element, eventType, handler) {
   // 뽑아오려고 했는데 없으면 set
   if (!elementMap.has(element)) {
     // 핸들러의 중복 방지를 위해 set
+    // console.log(elementMap, "elementMap..");
     elementMap.set(element, new Set());
   }
 
