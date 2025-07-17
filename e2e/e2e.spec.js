@@ -55,7 +55,7 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("1. 애플리케이션 초기화 및 기본 기능", () => {
     test("페이지 접속 시 로딩 상태가 표시되고 상품 목록이 정상적으로 로드된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
+      console.log(page);
       // 로딩 상태 확인
       await expect(page.locator("text=카테고리 로딩 중...")).toBeVisible();
 
