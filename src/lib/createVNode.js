@@ -1,3 +1,11 @@
 export function createVNode(type, props, ...children) {
-  return {};
+  const flatChildren = children
+    .flat(Infinity)
+    .filter((child) => child !== null && child !== undefined && child !== false);
+
+  return {
+    type,
+    props,
+    children: flatChildren,
+  };
 }
