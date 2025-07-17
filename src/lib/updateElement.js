@@ -98,9 +98,8 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     const oldChildren = oldNode.children || [];
 
     // 자식 노드들을 바뀐 수만큼 업데이트
-    let i = 0;
     let maxChildrenLength = Math.max(newChildren.length, oldChildren.length);
-    while (i < maxChildrenLength) {
+    for (let i = 0; i < maxChildrenLength; ) {
       const newChild = newChildren[i];
       const oldChild = oldChildren[i];
       if (!newChild && oldChild) {
