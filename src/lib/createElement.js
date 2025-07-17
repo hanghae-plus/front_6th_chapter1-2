@@ -31,6 +31,15 @@ function updateAttributes($el, props) {
       $el.setAttribute(key, value);
     } else if (key.startsWith("on")) {
       addEvent($el, key.slice(2).toLowerCase(), value);
+    } else if (key === "selected" && $el.tagName === "OPTION") {
+      $el.selected = !!value;
+      return;
+    } else if (["checked", "disabled", "readOnly"].includes(key)) {
+      $el[key] = !!value;
+      if (value) {
+        $el.setAttribute(key, "");
+      }
+      return;
     } else {
       $el.setAttribute(key, value);
     }
