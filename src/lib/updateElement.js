@@ -82,7 +82,11 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (newNode != null && oldNode != null && newEl.nodeType === Node.TEXT_NODE && oldEl.nodeType === Node.TEXT_NODE) {
     if (newNode !== oldNode) {
       const newTextNode = document.createTextNode(String(newNode));
-      parentElement.replaceChild(newTextNode, target);
+      if (target) {
+        parentElement.replaceChild(newTextNode, target);
+      } else {
+        parentElement.appendChild(newTextNode);
+      }
     }
     return;
   }
@@ -97,7 +101,11 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
       }
     }
 
-    parentElement.replaceChild(newEl, target);
+    if (target) {
+      parentElement.replaceChild(newEl, target);
+    } else {
+      parentElement.appendChild(newEl);
+    }
     return;
   }
 
@@ -112,10 +120,16 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
     const oldChildren = oldNode.children ?? [];
     const newChildren = newNode.children ?? [];
-
-    const maxLen = Math.max(oldChildren.length, newChildren.length);
-    for (let i = maxLen - 1; i >= 0; i--) {
+    for (let i = 0; i < Math.max(newChildren.length, oldChildren.length); i++) {
       updateElement(target, newChildren[i], oldChildren[i], i);
+    }
+
+    if (oldChildren.length > newChildren.length) {
+      for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+        if (target.childNodes[i]) {
+          target.removeChild(target.childNodes[i]);
+        }
+      }
     }
   }
 
