@@ -15,7 +15,7 @@ export function normalizeVNode(vNode) {
       }),
     );
   } else {
-    vNode.children = vNode.children.filter((x) => x !== null && x !== undefined && typeof x !== "boolean");
+    vNode.children = vNode.children.flat(Infinity).map(normalizeVNode).filter(Boolean);
   }
 
   return vNode;

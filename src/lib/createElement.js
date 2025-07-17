@@ -34,6 +34,8 @@ function updateAttributes($el, props) {
     } else if (key.startsWith("on") && typeof value === "function") {
       const event = key.slice(2).toLowerCase(); // onClick -> click
       addEvent($el, event, value);
+    } else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+      $el[key] = Boolean(value);
     } else {
       $el.setAttribute(key, value);
     }
