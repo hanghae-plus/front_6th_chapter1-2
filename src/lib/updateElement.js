@@ -15,13 +15,19 @@ const setAttributes = (target, newProps, oldProps) => {
     if (attr.startsWith("on")) {
       const eventType = attr.slice(2).toLowerCase(); // onClick -> click
       if (oldAttrValue && typeof oldAttrValue === "function") removeEvent(target, eventType, oldAttrValue);
-      if (newAttrValue) addEvent(target, eventType, newAttrValue);
+      // 수정됨: 함수 타입 체크 추가
+      if (newAttrValue && typeof newAttrValue === "function") addEvent(target, eventType, newAttrValue);
       continue;
     }
 
     if (attr === "className") {
       console.log(attr, "attr.");
-      target.setAttribute("class", newAttrValue);
+      // 수정됨: falsy 값 처리 개선
+      if (newAttrValue) {
+        target.setAttribute("class", newAttrValue);
+      } else {
+        target.removeAttribute("class");
+      }
       continue;
     }
 
@@ -37,7 +43,12 @@ const setAttributes = (target, newProps, oldProps) => {
       continue;
     }
 
-    target.setAttribute(attr, newAttrValue);
+    // 수정됨: null 값 처리 개선
+    if (newAttrValue != null) {
+      target.setAttribute(attr, String(newAttrValue));
+    } else {
+      target.removeAttribute(attr);
+    }
   }
 };
 
@@ -70,6 +81,8 @@ const removeAttributes = (target, newProps, oldProps) => {
 
       if (booleanAttr.includes(attr)) {
         target[attr] = false;
+        // 수정됨: 불린 속성도 어트리뷰트 제거
+        target.removeAttribute(attr);
         continue;
       }
 
@@ -107,14 +120,20 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     } else {
       parentElement.appendChild($el);
     }
-    updateAttributes($el, newNode?.props, oldNode?.props);
+    // 수정됨: 중복 속성 설정 제거 (createElement에서 이미 처리됨)
+    // updateAttributes($el, newNode?.props, oldNode?.props);
     return;
   }
 
   if (typeof newNode === "string" || typeof newNode === "number") {
     if (newNode !== oldNode) {
       const $text = document.createTextNode(newNode);
-      parentElement.replaceChild($text, targetElement);
+      // 수정됨: 안전성 체크 추가
+      if (targetElement) {
+        parentElement.replaceChild($text, targetElement);
+      } else {
+        parentElement.appendChild($text);
+      }
     }
 
     return;
@@ -122,8 +141,14 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   if (newNode.type !== oldNode.type) {
     const $el = createElement(newNode);
-    parentElement.replaceChild($el, targetElement);
-    updateAttributes($el, newNode.props, oldNode.props);
+    // 수정됨: 안전성 체크 추가
+    if (targetElement) {
+      parentElement.replaceChild($el, targetElement);
+    } else {
+      parentElement.appendChild($el);
+    }
+    // 수정됨: 중복 속성 설정 제거 (createElement에서 이미 처리됨)
+    // updateAttributes($el, newNode.props, oldNode.props);
     return;
   }
 
@@ -132,8 +157,18 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const oldNodeChildren = Array.isArray(oldNode.children) ? oldNode.children : [];
   const max = Math.max(newNodeChildren.length, oldNodeChildren.length);
 
-  // 뒤에서부터 처리하여 인덱스 문제 방지
-  for (let i = max - 1; i >= 0; i--) {
+  // 수정됨: 순차 처리로 변경 (안전성 향상)
+  for (let i = 0; i < max; i++) {
     updateElement(targetElement, newNodeChildren[i], oldNodeChildren[i], i);
+  }
+
+  // 수정됨: 잉여 노드 제거 로직 추가 (중요!)
+  if (oldNodeChildren.length > newNodeChildren.length) {
+    for (let i = oldNodeChildren.length - 1; i >= newNodeChildren.length; i--) {
+      const extraChild = targetElement.childNodes[i];
+      if (extraChild) {
+        targetElement.removeChild(extraChild);
+      }
+    }
   }
 }
