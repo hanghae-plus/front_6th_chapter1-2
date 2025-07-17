@@ -1,10 +1,27 @@
-import { setupEventListeners } from "./eventManager";
-import { createElement } from "./createElement";
-import { normalizeVNode } from "./normalizeVNode";
-import { updateElement } from "./updateElement";
+import { createElement } from "./createElement.js";
+import { normalizeVNode } from "./normalizeVNode.js";
+import { setupEventListeners } from "./eventManager.js";
+import { updateElement } from "./updateElement.js";
 
 export function renderElement(vNode, container) {
-  // 최초 렌더링시에는 createElement로 DOM을 생성하고
-  // 이후에는 updateElement로 기존 DOM을 업데이트한다.
-  // 렌더링이 완료되면 container에 이벤트를 등록한다.
+  // vNode를 정규화
+  const normalizedVNode = normalizeVNode(vNode);
+
+  if (container._vNode) {
+    // 이전 가상 DOM과 비교하여 업데이트
+    updateElement(container, normalizedVNode, container._vNode);
+  } else {
+    // 최초 렌더링 시 DOM 생성
+    const element = createElement(normalizedVNode);
+    container.appendChild(element);
+  }
+
+  // 최신 vNode를 저장
+  container._vNode = normalizedVNode;
+
+  // 이벤트 리스너는 한 번만 설정
+  if (!container._eventListenersSetup) {
+    setupEventListeners(container);
+    container._eventListenersSetup = true;
+  }
 }
