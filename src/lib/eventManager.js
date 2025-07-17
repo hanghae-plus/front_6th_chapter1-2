@@ -1,7 +1,14 @@
 // el -> event type -> handlers
 const handlerMap = new Map();
 
+const attachedListeners = new Map();
+
 export function setupEventListeners(root) {
+  for (const [eventType, handler] of attachedListeners.entries()) {
+    root.removeEventListener(eventType, handler);
+  }
+  attachedListeners.clear();
+
   const activeEventTypes = new Set();
   for (const elementEventsMap of handlerMap.values()) {
     for (const eventType of elementEventsMap.keys()) {
@@ -13,7 +20,7 @@ export function setupEventListeners(root) {
     const delegatedHandler = function (event) {
       let targetElement = event.target;
 
-      while (targetElement !== root.parentNode) {
+      while (targetElement && targetElement !== root.parentNode) {
         if (handlerMap.has(targetElement)) {
           const elementEvents = handlerMap.get(targetElement);
 
@@ -28,8 +35,8 @@ export function setupEventListeners(root) {
         targetElement = targetElement.parentElement;
       }
     };
-
     root.addEventListener(eventType, delegatedHandler);
+    attachedListeners.set(eventType, delegatedHandler);
   }
 }
 
@@ -58,5 +65,8 @@ export function removeEvent(element, eventType, handler) {
 
   if (handlersSet.size === 0) {
     elementEvents.delete(eventType);
+  }
+  if (elementEvents.size === 0) {
+    handlerMap.delete(element);
   }
 }
