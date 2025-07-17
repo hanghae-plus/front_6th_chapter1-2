@@ -44,12 +44,6 @@ function updateAttributes(target, newProps, oldProps) {
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (!newNode && oldNode) {
-    if (typeof oldNode === "string") {
-      const targetTextNode = parentElement.childNodes[index];
-      if (targetTextNode) parentElement.removeChild(targetTextNode);
-      return;
-    }
-
     const targetElement = parentElement.childNodes[index];
     if (targetElement) parentElement.removeChild(targetElement);
     return;
@@ -82,6 +76,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     return;
   }
   const targetElement = parentElement.childNodes[index];
+  if (!targetElement) return;
 
   updateAttributes(targetElement, newNode.props, oldNode.props);
 
@@ -92,24 +87,13 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   for (let i = 0; i < commonLength; i++) {
     const newChildNode = newChildren[i];
     const oldChildNode = oldChildren[i];
-
-    if (typeof newChildNode === "string" && typeof oldChildNode === "string") {
-      if (newChildNode !== oldChildNode) {
-        const targetTextNode = targetElement.childNodes[i];
-        if (targetTextNode && targetTextNode.nodeType === Node.TEXT_NODE) targetTextNode.textContent = newChildNode;
-      }
-    } else {
-      if (targetElement && targetElement.nodeType === Node.ELEMENT_NODE)
-        updateElement(targetElement, newChildNode, oldChildNode, i);
-    }
+    updateElement(targetElement, newChildNode, oldChildNode, i);
   }
 
   if (oldChildren.length > newChildren.length) {
     for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
       const childNode = targetElement.childNodes[i];
-      if (childNode) {
-        targetElement.removeChild(childNode);
-      }
+      if (childNode) targetElement.removeChild(childNode);
     }
   }
 
