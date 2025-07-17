@@ -31,12 +31,8 @@ function updateAttributes($el, props) {
       addEvent($el, attribute.toLowerCase().substring(2), value);
     } else if (attribute === "className") {
       $el.setAttribute("class", value);
-    } else if (attribute.startsWith("data-")) {
-      $el.setAttribute(attribute, value);
-    } else if (typeof value === "boolean") {
-      if (value) {
-        $el.setAttribute(attribute, "");
-      }
+    } else if (["checked", "disabled", "selected", "readOnly"].includes(attribute)) {
+      $el[attribute] = Boolean(value);
     } else {
       $el.setAttribute(attribute, value);
     }
