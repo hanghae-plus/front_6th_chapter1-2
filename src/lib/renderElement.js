@@ -1,4 +1,5 @@
 import { createElement } from "./createElement";
+import { setupEventListeners } from "./eventManager";
 import { normalizeVNode } from "./normalizeVNode";
 import { updateElement } from "./updateElement";
 
@@ -17,12 +18,14 @@ export function renderElement(vNode, container) {
     container.innerHTML = "";
     const element = createElement(currentVNode);
     container.appendChild(element);
+
+    // 이벤트 위임 리스너를 최초 렌더링 시에 등록
+    setupEventListeners(container);
   } else {
     // removeEvent(prevVNode);
     // 업데이트: 변경된 부분만 업데이트
     updateElement(container, currentVNode, prevVNode);
   }
-
   // 현재 vNode 저장
   containerVNodeMap.set(container, currentVNode);
 }
