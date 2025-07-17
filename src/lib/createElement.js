@@ -1,3 +1,4 @@
+import { addEvent } from "./eventManager";
 export function createElement(vNode) {
   if (vNode == null || typeof vNode === "boolean") return document.createTextNode("");
 
@@ -21,7 +22,6 @@ export function createElement(vNode) {
 
 function updateAttributes($el, props) {
   if (!props) return;
-
   Object.entries(props).forEach(([key, value]) => {
     if (key === "className") {
       $el.setAttribute("class", value);
@@ -29,6 +29,8 @@ function updateAttributes($el, props) {
       $el.setAttribute(key, value);
     } else if (key in $el) {
       $el[key] = value;
+    } else if (key.startsWith("on")) {
+      addEvent($el, key.slice(2).toLowerCase(), value);
     } else {
       $el.setAttribute(key, value);
     }

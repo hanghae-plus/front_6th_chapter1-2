@@ -1,35 +1,34 @@
-//가비지 컬렉션 되면 자동제거
-const eventStore = new Map();
+const eventTypes = [];
+const elementMap = new Map();
+
+// 실제 이벤트 발생
+const handleEvent = (e) => {
+  const handlerMap = elementMap.get(e.target);
+  const handler = handlerMap?.get(e.type);
+  // 실행
+  if (handler) handler.call(e.target, e);
+};
 
 export function setupEventListeners(root) {
-  for (const [event, handlers] of eventStore.entries()) {
-    root.addEventListener(event, (e) => {
-      handlers.forEach(({ element, handler }) => {
-        if (element.contains(e.target)) handler(e);
-      });
-    });
-  }
+  eventTypes.forEach((eventType) => {
+    root.addEventListener(eventType, handleEvent);
+  });
 }
 
 export function addEvent(element, eventType, handler) {
-  if (!eventStore.has(eventType)) {
-    eventStore.set(eventType, new Set());
-  }
-  eventStore.get(eventType).add({ element, handler });
+  if (!eventTypes.includes(eventType)) eventTypes.push(eventType);
+  const handlerMap = elementMap.get(element) || new Map();
+  if (handlerMap.get(eventType) === handler) return;
+  handlerMap.set(eventType, handler);
+  elementMap.set(element, handlerMap);
 }
 
 export function removeEvent(element, eventType, handler) {
-  const handlers = eventStore.get(eventType);
-  if (!handlers) return;
+  const handlerMap = elementMap.get(element);
+  if (!handlerMap) return;
 
-  for (const item of handlers) {
-    if (item.element === element && item.handler === handler) {
-      handlers.delete(item);
-    }
-  }
+  if (handlerMap.get(eventType) === handler) handlerMap.delete(eventType);
 
-  //메모리 정리
-  if (handlers.size === 0) {
-    eventStore.delete(eventType);
-  }
+  if (handlerMap.size === 0) elementMap.delete(element);
+  else elementMap.set(element, handlerMap);
 }
