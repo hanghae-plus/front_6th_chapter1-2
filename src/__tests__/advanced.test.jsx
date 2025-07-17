@@ -155,7 +155,6 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
       expect(container.querySelector("h1").textContent).toBe("Parent Title");
       expect(container.querySelector("p").textContent).toBe("Updated Child Text");
     });
-    /*
     describe("특수한 속성 처리 > ", () => {
       it("className이 props에서 제거될 때 class 속성이 올바르게 제거되어야 한다", () => {
         // className이 있는 초기 요소
@@ -609,7 +608,5 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(tbody.children[0].children[0].textContent).toBe("Only Cell");
       });
     });
-
-    */
   });
 });
