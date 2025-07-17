@@ -1,3 +1,5 @@
+import { addEvent } from "./eventManager";
+
 export function createElement(vNode) {
   console.log(vNode);
   const isFalsyVNodeValue = (value) => value == null || typeof value === "boolean";
@@ -49,7 +51,7 @@ function updateAttributes($el, props) {
     } else if (/^on[A-Z]/.test(key) && typeof value === "function") {
       // 이벤트 핸들러는 addEventListener로 등록
       const eventType = key.slice(2).toLowerCase();
-      $el.addEventListener(eventType, value);
+      addEvent($el, eventType, value);
     } else if (typeof value === "boolean") {
       // 불리언 속성은 true일 때만 설정
       if (value) {
