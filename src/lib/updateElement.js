@@ -54,19 +54,23 @@ function updateAttributes($el, oldProps = {}, newProps = {}) {
 }
 
 function updateChildren($parent, oldChildren = [], newChildren = []) {
-  const oldLen = oldChildren.length;
-  const newLen = newChildren.length;
+  // 안전한 기본값 설정
+  const safeOldChildren = Array.isArray(oldChildren) ? oldChildren : [];
+  const safeNewChildren = Array.isArray(newChildren) ? newChildren : [];
+
+  const oldLen = safeOldChildren.length;
+  const newLen = safeNewChildren.length;
   const currentDomChildren = Array.from($parent.childNodes); // Make a static copy
 
   // Update existing children
   for (let i = 0; i < Math.min(oldLen, newLen); i++) {
-    updateElement(currentDomChildren[i], oldChildren[i], newChildren[i]);
+    updateElement(currentDomChildren[i], safeOldChildren[i], safeNewChildren[i]);
   }
 
   // Add new children
   if (newLen > oldLen) {
     for (let i = oldLen; i < newLen; i++) {
-      $parent.appendChild(createElement(newChildren[i]));
+      $parent.appendChild(createElement(safeNewChildren[i]));
     }
   }
   // Remove excess old children
@@ -107,6 +111,6 @@ export function updateElement($el, oldVNode, newVNode) {
     return;
   }
 
-  updateAttributes($el, oldVNode.props || {}, newVNode.props || {});
-  updateChildren($el, oldVNode.children || [], newVNode.children || []);
+  updateAttributes($el, oldVNode?.props || {}, newVNode?.props || {});
+  updateChildren($el, oldVNode?.children || [], newVNode?.children || []);
 }
