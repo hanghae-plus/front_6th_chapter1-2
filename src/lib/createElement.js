@@ -19,6 +19,13 @@ function updateAttributes($el, props) {
       case "className":
         $el.setAttribute("class", String(value));
         break;
+      case "checked":
+        $el.checked = !!value;
+        break;
+      case "disabled":
+      case "selected":
+        $el[key] = !!value;
+        break;
       default:
         $el.setAttribute(key, value);
     }
