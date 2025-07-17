@@ -28,6 +28,7 @@ export function createElement(vNode) {
 
 // 가상 노드의 props를 실제 DOM 요소인 $el에 적용
 // 해야 하는 일: setAttribute, className -> class, 이벤트리스너 바인딩
+// TODO: 아래 분기처리에서 처리되지 않는 속성은 없는지 고민..
 function updateAttributes($el, props) {
   Object.entries(props).forEach(([key, value]) => {
     if (key === "className") {
