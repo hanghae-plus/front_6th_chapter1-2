@@ -54,7 +54,7 @@ function setAttributes($el, props) {
         if (!props[attribute]) {
           $el.removeAttribute(attribute);
         } else {
-          $el.setAttribute(attribute);
+          $el.setAttribute(attribute, "");
         }
       } else {
         $el.setAttribute(attribute, props[attribute]);
