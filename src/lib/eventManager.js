@@ -1,7 +1,7 @@
 const eventMap = new WeakMap();
 
 export function setupEventListeners(root) {
-  const eventTypeList = ["click", "input", "change", "submit", "keydown", "keyup"];
+  const eventTypeList = ["click", "input", "change", "submit", "keydown", "keyup", "mouseover", "focus"];
   eventTypeList.forEach((eventType) => {
     root.addEventListener(eventType, (e) => {
       const events = eventMap.get(e.target);
