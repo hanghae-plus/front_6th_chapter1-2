@@ -18,9 +18,10 @@ export function renderElement(vNode, container) {
     // 최초 렌더링시
 
     $el = createElement(normalized);
-    // console.log($el, "$el..");
     container.innerHTML = "";
     container.appendChild($el);
+
+    // console.log($el, "$el", container, "container");
   } else {
     // console.log("두번째 렌더링");
     // 이후 렌더링 시

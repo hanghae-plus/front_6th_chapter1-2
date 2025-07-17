@@ -27,50 +27,30 @@ export function normalizeVNode(vNode) {
     return String(vNode);
   }
 
-  // function이면 재귀
-  if (typeof vNode === "function") {
-    return normalizeVNode(vNode());
+  if (Array.isArray(vNode)) {
+    return cleanChildren(vNode);
   }
 
-  // 함수형 컴포넌트면
-  // falsy 체크 + <Component />라고 하면 내부적으로 Object로 변환 (babel)
-  if (vNode && typeof vNode === "object") {
-    // 함수형 컴포넌트 타입은 자기 자신, 즉 함수
-    if (typeof vNode.type === "function") {
-      // vNode의 props는, 기존의 Props + children
-      const props = {
-        ...vNode.props,
-        children: vNode.children,
-      };
-
-      // vNode.type이 함수 -> TestComponent(props)
-      return normalizeVNode(vNode.type(props));
-    }
-
-    // 컴포넌트가 함수형 const MyComp = () => ... 이 아닌 일반 태그일 때
-    // 1. children이 있는지 확인하고, 없으면 빈 배열
-    // 2. children(array) 반복문으로 normalizeVNode 재귀
-    // 3. 그리고 거기에서 null, undefined, false, 빈 스트링 빼고 리턴
-
-    function cleanChildren(children) {
-      const childArray = Array.isArray(children) ? children : [];
-      return childArray
-        .map((child) => normalizeVNode(child))
-        .filter((child) => {
-          const isEmpty = child === null || child === undefined || child === false || child === "";
-          // 다음 중 위에 거가 아닌 것만 리턴
-          return !isEmpty;
-        });
-    }
+  if (typeof vNode.type === "function") {
+    const props = {
+      ...vNode.props,
+      children: cleanChildren(vNode.children),
+    };
 
     const normalizedChildren = cleanChildren(vNode.children);
-
-    return {
-      type: vNode.type,
-      props: vNode.props,
-      children: normalizedChildren,
-    };
+    const result = normalizeVNode(vNode.type({ ...props, children: normalizedChildren }));
+    return result;
   }
 
   return vNode;
+}
+
+function cleanChildren(children) {
+  const arr = Array.isArray(children) ? children : [children];
+  return arr.map(normalizeVNode).filter((child) => child !== "");
+  // const childArray = Array.isArray(children)
+  //   ? children.map((child) => normalizeVNode(child)).filter((child) => child !== "")
+  //   : [children];
+
+  // return childArray;
 }

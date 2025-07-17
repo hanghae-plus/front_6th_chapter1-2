@@ -47,9 +47,11 @@ function updateAttributes(target, originNewProps, originOldProps) {
 }
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
-  const targetElement = parentElement.childNodes[index];
+  const targetElement = parentElement.children[index];
+
   // new가 없고 old만 있으면 -> 노드 제거
   if (!newNode && oldNode) {
+    if (!targetElement) return;
     parentElement.removeChild(targetElement);
     return;
   }
@@ -87,12 +89,16 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     parentElement.replaceChild($el, targetElement);
   }
 
+  if (!targetElement) {
+    console.log("sdfsd");
+    return;
+  }
+
   // 같은 타입의 노드 업데이트 -> 속성 업데이트, 자식 노드 재귀적 업데이트, 불필요한 자식 노드 제거
 
   updateAttributes(targetElement, newNode.props, oldNode.props);
-
-  const newNodeChildren = newNode.props?.children || [];
-  const oldNodeChildren = oldNode.props?.children || [];
+  const newNodeChildren = newNode.children || [];
+  const oldNodeChildren = oldNode.children || [];
   // 자식 요소 캐치하기 위함
   // newChildren만 돌면 삭제된 요소 감지 못하고
   // oldChildren만 돌면 추가된 요소 감지 못해서

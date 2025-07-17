@@ -582,7 +582,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       console.log(result, "result----------------");
 
       const newButton = $container.querySelectorAll("button")[1];
-      console.log(newButton, "newButton", $container, "container");
+      // console.log(newButton, "newButton", $container, "container");
       newButton.click();
 
       expect(clickHandler).toHaveBeenCalledTimes(1);
