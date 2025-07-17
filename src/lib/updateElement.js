@@ -110,8 +110,8 @@ function updateAttributes(target, originNewProps, originOldProps) {
         }
         addEvent(target, eventType, newValue);
       } else if (typeof newValue === "boolean" || newValue === null) {
-        // 특별한 boolean 속성들 처리
         if (key === "checked" || key === "selected") {
+          // 특별한 boolean 속성들 처리
           // Property만 설정하고 DOM 속성은 제거
           if (newValue === null) {
             target[key] = false; // null이면 기본값으로
