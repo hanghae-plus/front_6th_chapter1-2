@@ -1,6 +1,13 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
+/**
+ * DOM 엘리먼트의 속성을 업데이트하는 함수
+ * 이전 속성을 제거하고 새로운 속성을 설정
+ * @param {HTMLElement} target - 업데이트할 DOM 엘리먼트
+ * @param {Object} newProps - 새로운 속성 객체
+ * @param {Object} oldProps - 이전 속성 객체
+ */
 function updateAttributes(target, newProps, oldProps) {
   for (const [key, value] of Object.entries(oldProps)) {
     if (key === "children") continue;
@@ -44,6 +51,14 @@ function updateAttributes(target, newProps, oldProps) {
   }
 }
 
+/**
+ * Virtual DOM의 변경사항을 실제 DOM에 반영하는 함수
+ * 재귀적으로 자식 노드들을 비교하여 효율적으로 DOM을 업데이트
+ * @param {HTMLElement} parentElement - 부모 DOM 엘리먼트
+ * @param {any} newNode - 새로운 Virtual DOM 노드
+ * @param {any} oldNode - 이전 Virtual DOM 노드
+ * @param {number} index - 자식 노드의 인덱스 (기본값: 0)
+ */
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (!parentElement) return;
 
