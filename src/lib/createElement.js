@@ -1,6 +1,14 @@
+import { addEvent } from "./eventManager";
+
 function updateAttributes($el, props) {
   for (const key in props) {
     const value = props[key];
+
+    if (key.startsWith("on") && typeof value === "function") {
+      const eventType = key.toLowerCase().substring(2);
+      addEvent($el, eventType, value);
+      continue;
+    }
 
     switch (key) {
       case "style":
