@@ -42,7 +42,7 @@ export function createElement(vNode) {
   return $el;
 }
 
-//배포
+//배포 테스트
 function updateAttributes($el, props) {
   if (!props) return;
 
