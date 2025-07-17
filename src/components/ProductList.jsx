@@ -68,10 +68,10 @@ export function ProductList({ products = [], loading = false, error = null, tota
       <div className="grid grid-cols-2 gap-4 mb-6" id="products-grid">
         {/* 로딩 스켈레톤 */}
         {products.map((product) => (
-          <ProductCard {...product} onClick={goToDetailPage} />
+          <ProductCard key={product.productId} {...product} onClick={goToDetailPage} />
         ))}
 
-        {loading && Array.from({ length: 6 }).map(() => <ProductCardSkeleton />)}
+        {loading && Array.from({ length: 6 }).map((_, idx) => <ProductCardSkeleton key={`skeleton-${idx}`} />)}
       </div>
 
       {/* 무한 스크롤 로딩 */}

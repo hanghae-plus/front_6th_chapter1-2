@@ -14,12 +14,11 @@ function isTextish(value) {
 function updateAttributes($el, newProps = {}, oldProps = {}) {
   Object.entries(oldProps).forEach(([key, oldVal]) => {
     if (key === "key") return;
-    const newVal = newProps[key];
-    if (newVal !== undefined) return;
+    if (newProps[key] !== undefined) return;
 
     if (key.startsWith("on") && typeof oldVal === "function") {
-      const eventType = key.slice(2).toLowerCase();
-      removeEvent($el, eventType, oldVal);
+      const evt = key.slice(2).toLowerCase();
+      removeEvent($el, evt, oldVal);
       return;
     }
 
@@ -43,16 +42,14 @@ function updateAttributes($el, newProps = {}, oldProps = {}) {
     if (oldVal === newVal) return;
 
     if (key.startsWith("on") && typeof newVal === "function") {
-      const eventType = key.slice(2).toLowerCase();
-      if (typeof oldVal === "function") {
-        removeEvent($el, eventType, oldVal);
-      }
-      addEvent($el, eventType, newVal);
+      const evt = key.slice(2).toLowerCase();
+      if (typeof oldVal === "function") removeEvent($el, evt, oldVal);
+      addEvent($el, evt, newVal);
       return;
     }
 
     if (key === "className") {
-      if (newVal == null || newVal === "") {
+      if (!newVal) {
         $el.removeAttribute("class");
       } else {
         $el.setAttribute("class", newVal);
@@ -62,21 +59,15 @@ function updateAttributes($el, newProps = {}, oldProps = {}) {
 
     if (typeof newVal === "boolean") {
       $el[key] = newVal;
-
-      const propsWithoutAttr = ["checked", "selected"];
-      if (propsWithoutAttr.includes(key)) {
+      const propOnly = ["checked", "selected"];
+      if (propOnly.includes(key)) {
+        if ($el.hasAttribute(key)) $el.removeAttribute(key);
+      } else {
         if (newVal) {
-          $el.removeAttribute(key);
+          $el.setAttribute(key, "");
         } else {
           $el.removeAttribute(key);
         }
-        return;
-      }
-
-      if (newVal) {
-        $el.setAttribute(key, "");
-      } else {
-        $el.removeAttribute(key);
       }
       return;
     }
@@ -85,54 +76,83 @@ function updateAttributes($el, newProps = {}, oldProps = {}) {
   });
 }
 
-export function updateElement(parentElement, newNode, oldNode, index = 0) {
-  const existingElement = parentElement.childNodes[index];
+function getKey(child, index) {
+  if (child && typeof child === "object" && child.props && child.props.key !== undefined) {
+    return child.props.key;
+  }
+  return index;
+}
 
-  if (oldNode === undefined) {
-    const newEl = createElement(newNode);
-    if (existingElement) {
-      parentElement.insertBefore(newEl, existingElement);
-    } else {
-      parentElement.appendChild(newEl);
-    }
+export function updateElement(parentEl, newVNode, oldVNode, index = 0) {
+  const existingDom = parentEl.childNodes[index];
+
+  if (oldVNode === undefined) {
+    const newDom = createElement(newVNode);
+    if (existingDom) parentEl.insertBefore(newDom, existingDom);
+    else parentEl.appendChild(newDom);
     return;
   }
 
-  if (newNode === undefined) {
-    if (existingElement) {
-      parentElement.removeChild(existingElement);
-    }
+  if (newVNode === undefined) {
+    if (existingDom) parentEl.removeChild(existingDom);
     return;
   }
 
-  if (isTextish(newNode) && isTextish(oldNode)) {
-    const newText = newNode == null || typeof newNode === "boolean" ? "" : newNode.toString();
-    const oldText = oldNode == null || typeof oldNode === "boolean" ? "" : oldNode.toString();
+  if (isTextish(newVNode) && isTextish(oldVNode)) {
+    const newText = newVNode == null || typeof newVNode === "boolean" ? "" : newVNode.toString();
+    const oldText = oldVNode == null || typeof oldVNode === "boolean" ? "" : oldVNode.toString();
     if (newText !== oldText) {
-      if (existingElement) existingElement.textContent = newText;
+      existingDom.textContent = newText;
     }
     return;
   }
 
-  const newIsObj = typeof newNode === "object" && newNode !== null;
-  const oldIsObj = typeof oldNode === "object" && oldNode !== null;
+  const newIsObj = typeof newVNode === "object" && newVNode !== null;
+  const oldIsObj = typeof oldVNode === "object" && oldVNode !== null;
 
-  if (!newIsObj || !oldIsObj || newNode.type !== oldNode.type) {
-    const newEl = createElement(newNode);
-    if (existingElement) {
-      parentElement.replaceChild(newEl, existingElement);
+  if (!newIsObj || !oldIsObj || newVNode.type !== oldVNode.type) {
+    const newDom = createElement(newVNode);
+    parentEl.replaceChild(newDom, existingDom);
+    return;
+  }
+
+  updateAttributes(existingDom, newVNode.props || {}, oldVNode.props || {});
+
+  const newChildren = newVNode.children || [];
+  const oldChildren = oldVNode.children || [];
+
+  const oldKeyMap = new Map();
+  oldChildren.forEach((child, idx) => {
+    oldKeyMap.set(getKey(child, idx), { vnode: child, dom: existingDom.childNodes[idx] });
+  });
+
+  let nextDomIdx = 0;
+  const processedKeys = new Set();
+
+  newChildren.forEach((child, newIdx) => {
+    const key = getKey(child, newIdx);
+    processedKeys.add(key);
+    const match = oldKeyMap.get(key);
+
+    if (match) {
+      const desiredPosDom = existingDom.childNodes[nextDomIdx];
+      if (match.dom !== desiredPosDom) {
+        existingDom.insertBefore(match.dom, desiredPosDom || null);
+      }
+      updateElement(existingDom, child, match.vnode, nextDomIdx);
     } else {
-      parentElement.appendChild(newEl);
+      updateElement(existingDom, child, undefined, nextDomIdx);
     }
-    return;
-  }
+    nextDomIdx += 1;
+  });
 
-  updateAttributes(existingElement, newNode.props || {}, oldNode.props || {});
-
-  const newChildren = newNode.children || [];
-  const oldChildren = oldNode.children || [];
-  const maxLen = Math.max(newChildren.length, oldChildren.length);
-  for (let i = maxLen - 1; i >= 0; i--) {
-    updateElement(existingElement, newChildren[i], oldChildren[i], i);
-  }
+  oldChildren.forEach((child, idx) => {
+    const key = getKey(child, idx);
+    if (!processedKeys.has(key)) {
+      const info = oldKeyMap.get(key);
+      if (info && info.dom.parentNode === existingDom) {
+        existingDom.removeChild(info.dom);
+      }
+    }
+  });
 }
