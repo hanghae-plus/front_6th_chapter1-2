@@ -1,6 +1,6 @@
 import { addEvent } from "./eventManager";
 
-const booleanAttr = ["checked", "disabled", "readonly", "required", "autofocus", "multiple", "selected"];
+const booleanAttr = ["checked", "disabled", "readonly", "readOnly", "required", "autofocus", "multiple", "selected"];
 
 export function createElement(vNode) {
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
@@ -54,9 +54,10 @@ function updateAttributes($el, props) {
     if (key === "children") continue;
 
     if (key.startsWith("on") && typeof value === "function") {
-      // 이벤트 처리
+      // 이벤트 처리 - 위임 방식으로 처리하므로 DOM 속성으로 설정하지 않음
       const eventType = key.slice(2).toLowerCase();
       addEvent($el, eventType, value);
+      continue;
     }
 
     if (key === "style") {
@@ -65,18 +66,11 @@ function updateAttributes($el, props) {
 
     if (key === "className") {
       $el.setAttribute("class", value);
-    }
-
-    if (key === "id") {
-      $el.setAttribute("id", value);
+      continue;
     }
 
     if (booleanAttr.includes(key)) {
-      if (value) {
-        $el[key] = true;
-      } else {
-        $el[key] = false;
-      }
+      $el[key] = !!value;
       continue;
     }
 
@@ -89,8 +83,7 @@ function updateAttributes($el, props) {
       continue;
     }
 
-    if (key.startsWith("data-")) {
-      $el.setAttribute(key, value);
-    }
+    // 일반 속성들 (type, id 등)
+    $el.setAttribute(key, value);
   }
 }

@@ -1,9 +1,10 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
-const booleanAttr = ["checked", "disabled", "readonly", "required", "autofocus", "multiple", "selected"];
+const booleanAttr = ["checked", "disabled", "readonly", "readOnly", "required", "autofocus", "multiple", "selected"];
 
 const setAttributes = (target, newProps, oldProps) => {
+  console.log({ newProps, oldProps });
   for (const [attr, newAttrValue] of Object.entries(newProps)) {
     // 먼저 newProps를 key, value로 나누고
 
@@ -19,6 +20,7 @@ const setAttributes = (target, newProps, oldProps) => {
     }
 
     if (attr === "className") {
+      console.log(attr, "attr.");
       target.setAttribute("class", newAttrValue);
       continue;
     }
@@ -41,6 +43,7 @@ const setAttributes = (target, newProps, oldProps) => {
 
 const removeAttributes = (target, newProps, oldProps) => {
   for (const attr of Object.keys(oldProps)) {
+    console.log(attr, "attr", newProps, attr in newProps);
     if (!(attr in newProps)) {
       // new Props에 old에 있는 props가 없으면 (사라져야 함)
       if (attr.startsWith("on")) {
@@ -48,6 +51,11 @@ const removeAttributes = (target, newProps, oldProps) => {
         removeEvent(target, eventType, oldProps[attr]);
         continue;
       }
+
+      // if (attr === "class") {
+      //   target.removeAttribute("classname");
+      //   continue;
+      // }
 
       if (attr === "className") {
         target.removeAttribute("class");
@@ -67,13 +75,6 @@ const removeAttributes = (target, newProps, oldProps) => {
 
       target.removeAttribute(attr);
     }
-
-    // if (booleanAttr.includes(attr)) {
-    //   // newProps[attr] !== oldProps[attr] &&
-    //   console.log("tes", newProps, oldProps);
-    //   // target[attr] = !!newProps[attr];
-    //   console.log(target[attr], "target[attr]...");
-    // }
   }
 };
 
@@ -81,7 +82,6 @@ function updateAttributes(target, originNewProps, originOldProps) {
   // 언디파인드 방지
   const newProps = originNewProps || {};
   const oldProps = originOldProps || {};
-  console.log({ newProps, oldProps });
   // old에는 있고 new에는 없음 -> 사라진 속성 지우기
   removeAttributes(target, newProps, oldProps);
   // new에 생긴 새로운 속성
@@ -107,13 +107,12 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     } else {
       parentElement.appendChild($el);
     }
-    updateAttributes(targetElement, newNode?.props, oldNode?.props);
+    updateAttributes($el, newNode?.props, oldNode?.props);
     return;
   }
 
   if (typeof newNode === "string" || typeof newNode === "number") {
     if (newNode !== oldNode) {
-      console.log({ newNode, oldNode });
       const $text = document.createTextNode(newNode);
       parentElement.replaceChild($text, targetElement);
     }
@@ -124,6 +123,8 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   if (newNode.type !== oldNode.type) {
     const $el = createElement(newNode);
     parentElement.replaceChild($el, targetElement);
+    updateAttributes($el, newNode.props, oldNode.props);
+    return;
   }
 
   updateAttributes(targetElement, newNode.props, oldNode.props);
@@ -131,7 +132,8 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const oldNodeChildren = Array.isArray(oldNode.children) ? oldNode.children : [];
   const max = Math.max(newNodeChildren.length, oldNodeChildren.length);
 
-  for (let i = 0; i < max; i++) {
+  // 뒤에서부터 처리하여 인덱스 문제 방지
+  for (let i = max - 1; i >= 0; i--) {
     updateElement(targetElement, newNodeChildren[i], oldNodeChildren[i], i);
   }
 }
