@@ -1,5 +1,10 @@
 import { addEvent } from "./eventManager";
 
+/**
+ * Virtual DOM 노드를 실제 DOM 엘리먼트로 변환하는 함수
+ * @param {any} vNode - 변환할 Virtual DOM 노드
+ * @returns {HTMLElement|Text|DocumentFragment} 실제 DOM 노드
+ */
 export function createElement(vNode) {
   // vNode가 null, undefined, boolean이면 빈 텍스트 노드 반환
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
@@ -36,7 +41,11 @@ export function createElement(vNode) {
   }
 }
 
-// 실제 DOM 엘리먼트에 속성/이벤트를 바인딩하는 함수
+/**
+ * 실제 DOM 엘리먼트에 속성과 이벤트를 바인딩하는 함수
+ * @param {HTMLElement} $el - 속성을 설정할 DOM 엘리먼트
+ * @param {Object} props - 설정할 속성과 이벤트 핸들러를 담은 객체
+ */
 function updateAttributes($el, props) {
   for (const [attr, value] of Object.entries(props)) {
     // on으로 시작하면 이벤트로 간주

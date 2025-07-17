@@ -1,11 +1,22 @@
-// 엘리먼트별 이벤트 핸들러들을 저장할 WeakMap
-// 구조 예: WeakMap<HTMLElement, { click: [handler1, handler2], ... }>
+/**
+ * 엘리먼트별 이벤트 핸들러들을 저장할 WeakMap
+ * 구조: Map<HTMLElement, { eventType: [handler1, handler2, ...], ... }>
+ * @type {Map<HTMLElement, Object>}
+ */
 const eventHandlers = new WeakMap();
 
-// 루트에 중복 이벤트 등록 방지를 위한 Set
+/**
+ * 루트에 중복 이벤트 등록 방지를 위한 Set
+ * 이미 루트에 등록된 이벤트 타입들을 추적
+ * @type {Set<string>}
+ */
 const delegatedEvents = new Set();
 
-// 루트에 이벤트 리스너를 등록하는 함수
+/**
+ * 루트 엘리먼트에 이벤트 리스너를 등록하는 함수
+ * 이벤트 위임을 위해 루트 레벨에서 모든 이벤트를 처리
+ * @param {HTMLElement} root - 이벤트 위임을 위한 루트 엘리먼트
+ */
 export function setupEventListeners(root) {
   // 현재까지 등록된 이벤트 타입들(delegatedEvents) 반복
   delegatedEvents.forEach((eventType) => {
@@ -16,7 +27,11 @@ export function setupEventListeners(root) {
   });
 }
 
-// 루트에 등록된 이벤트 리스너로, 모든 이벤트는 여기로 들어옴
+/**
+ * 루트에 등록된 이벤트 리스너로, 모든 이벤트는 여기로 들어옴
+ * 이벤트 버블링을 통해 실제 타겟 엘리먼트까지 거슬러 올라가며 핸들러를 찾아 실행
+ * @param {Event} event - 발생한 이벤트 객체
+ */
 function handleEvent(event) {
   let target = event.target; // 이벤트 발생한 실제 엘리먼트
   const root = event.currentTarget; // 이벤트 리스너가 붙은 루트 엘리먼트
@@ -39,7 +54,12 @@ function handleEvent(event) {
   }
 }
 
-// 엘리먼트에 이벤트 핸들러를 등록하는 함수
+/**
+ * 엘리먼트에 이벤트 핸들러를 등록하는 함수
+ * @param {HTMLElement} element - 이벤트 핸들러를 등록할 엘리먼트
+ * @param {string} eventType - 이벤트 타입 (예: 'click', 'submit', 'change' 등)
+ * @param {Function} handler - 실행할 이벤트 핸들러 함수
+ */
 export function addEvent(element, eventType, handler) {
   // 해당 엘리먼트에 아직 등록된 게 없으면 초기화
   if (!eventHandlers.has(element)) {
@@ -64,7 +84,12 @@ export function addEvent(element, eventType, handler) {
   }
 }
 
-// 엘리먼트에서 특정 이벤트 핸들러를 제거하는 함수
+/**
+ * 엘리먼트에서 특정 이벤트 핸들러를 제거하는 함수
+ * @param {HTMLElement} element - 이벤트 핸들러를 제거할 엘리먼트
+ * @param {string} eventType - 이벤트 타입 (예: 'click', 'submit', 'change' 등)
+ * @param {Function} handler - 제거할 이벤트 핸들러 함수
+ */
 export function removeEvent(element, eventType, handler) {
   const handlersMap = eventHandlers.get(element);
 
