@@ -2,7 +2,13 @@ import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
 // boolean 속성들은 property로 직접 설정해야 함
-const BOOLEAN_PROPS = ["checked", "selected", "disabled", "readOnly", "multiple", "hidden"];
+const BOOLEAN_PROPS = ["checked", "disabled", "selected", "readonly", "multiple", "autofocus", "required"];
+// property만 설정하고 attribute는 설정하지 않는 속성들
+const PROPERTY_ONLY_BOOLEAN_PROPS = ["checked", "selected"];
+// prop name -> attribute name 매핑
+const PROP_TO_ATTRIBUTE_MAP = {
+  readOnly: "readonly",
+};
 
 function updateAttributes(target, newProps = {}, oldProps = {}) {
   // props가 null이나 undefined인 경우 빈 객체로 처리
@@ -17,9 +23,11 @@ function updateAttributes(target, newProps = {}, oldProps = {}) {
       } else if (key.startsWith("on") && typeof oldProps[key] === "function") {
         const eventType = key.toLowerCase().slice(2);
         removeEvent(target, eventType, oldProps[key]);
-      } else if (BOOLEAN_PROPS.includes(key)) {
-        target[key] = false;
-        target.removeAttribute(key);
+      } else if (BOOLEAN_PROPS.includes(key) || key === "readOnly") {
+        const propKey = key === "readOnly" ? "readOnly" : key;
+        const attrKey = PROP_TO_ATTRIBUTE_MAP[key] || key;
+        target[propKey] = false;
+        target.removeAttribute(attrKey);
       } else {
         target.removeAttribute(key);
       }
@@ -44,12 +52,15 @@ function updateAttributes(target, newProps = {}, oldProps = {}) {
           removeEvent(target, eventType, oldValue);
         }
         addEvent(target, eventType, newValue);
-      } else if (BOOLEAN_PROPS.includes(key)) {
-        target[key] = Boolean(newValue);
-        if (newValue) {
-          target.setAttribute(key, "");
+      } else if (BOOLEAN_PROPS.includes(key) || key === "readOnly") {
+        const propKey = key === "readOnly" ? "readOnly" : key;
+        const attrKey = PROP_TO_ATTRIBUTE_MAP[key] || key;
+
+        target[propKey] = Boolean(newValue);
+        if (newValue && !PROPERTY_ONLY_BOOLEAN_PROPS.includes(propKey)) {
+          target.setAttribute(attrKey, "");
         } else {
-          target.removeAttribute(key);
+          target.removeAttribute(attrKey);
         }
       } else {
         target.setAttribute(key, newValue ?? "");

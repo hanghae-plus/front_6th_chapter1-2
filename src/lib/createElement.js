@@ -30,11 +30,27 @@ export function createElement(vNode) {
 // 해야 하는 일: setAttribute, className -> class, 이벤트리스너 바인딩
 // TODO: 아래 분기처리에서 처리되지 않는 속성은 없는지 고민..
 function updateAttributes($el, props) {
+  const booleanProps = ["checked", "disabled", "selected", "readonly", "multiple", "autofocus", "required"];
+  const propertyOnlyBooleanProps = ["checked", "selected"];
+  const propToAttributeMap = {
+    readOnly: "readonly",
+  };
+
   Object.entries(props).forEach(([key, value]) => {
     if (key === "className") {
       $el.setAttribute("class", value);
     } else if (key.startsWith("on") && typeof value === "function") {
       addEvent($el, key.toLowerCase().slice(2), value);
+    } else if (booleanProps.includes(key) || key === "readOnly") {
+      const propKey = key === "readOnly" ? "readOnly" : key;
+      const attrKey = propToAttributeMap[key] || key;
+
+      $el[propKey] = Boolean(value);
+      if (value && !propertyOnlyBooleanProps.includes(propKey)) {
+        $el.setAttribute(attrKey, "");
+      } else {
+        $el.removeAttribute(attrKey);
+      }
     } else {
       $el.setAttribute(key, value ?? "");
     }
