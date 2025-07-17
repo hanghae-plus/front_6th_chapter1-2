@@ -10,6 +10,11 @@ const knownBooleanAttributeMap = new Map([
   ["readOnly", "readonly"],
 ]);
 
+const knownUrlAttributeMap = new Map([
+  ["href", "href"],
+  ["src", "src"],
+]);
+
 export function updateAttribute(target, key, value) {
   if (isEvent(key, value)) {
     addEvent(target, normalizeEventName(key), value);
@@ -28,6 +33,11 @@ export function updateAttribute(target, key, value) {
 
   if (knownBooleanAttributeMap.has(key)) {
     target[key] = value;
+    return;
+  }
+
+  if (knownUrlAttributeMap.has(key)) {
+    target[key] = safeUrl(value);
     return;
   }
 
@@ -50,4 +60,18 @@ export function removeAttribute(target, key, value) {
 
 function normalizeEventName(name) {
   return name.replace("on", "").toLowerCase();
+}
+
+function safeUrl(value) {
+  if (value.startsWith("#")) {
+    const url = new URL(location.href);
+    url.hash = value;
+    return url.toString();
+  }
+
+  if (value.startsWith("/")) {
+    return new URL(value, location.origin);
+  }
+
+  return new URL(value);
 }
