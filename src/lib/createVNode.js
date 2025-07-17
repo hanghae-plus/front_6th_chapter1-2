@@ -1,3 +1,9 @@
+import { flattenArray } from "../utils/nodeUtils";
+
 export function createVNode(type, props, ...children) {
-  return {};
+  return {
+    type,
+    props,
+    children: flattenArray(children),
+  };
 }
