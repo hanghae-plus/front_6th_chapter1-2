@@ -1,4 +1,5 @@
 // 실제 가상돔에서 직접 돔에 전달받아서 렌더링 하는 함수
+import { addEvent } from "./eventManager";
 
 /*
 *
@@ -12,14 +13,15 @@
  * 
  * 
  */
+
 export function createElement(vNode) {
   //1. vNode가 null, undefined, boolean 일 경우, 빈 텍스트 노드를 반환합니다.
-  if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
+  if (shouldRenderAsEmpty(vNode)) {
     // 실제 돔 환경에선 document.createTextNode("") 로 빈 문자열로 바꿔줘야 함
     return document.createTextNode("");
   }
   //2. vNode가 문자열이나 숫자면 텍스트 노드를 생성하여 반환합니다.
-  if (typeof vNode === "string" || typeof vNode === "number") {
+  if (isStringOrNumber(vNode)) {
     // 실제 돔 환경에선 document.createTextNode(vNode.toString()) 로 문자열로 바꿔줘야 함
     return document.createTextNode(vNode.toString());
   }
@@ -47,31 +49,57 @@ export function createElement(vNode) {
   return element;
 }
 
-function updateAttributes($el, props) {
-  //   console.log("props => ", props.children);
-  //   console.log("element => ", $el);
+function shouldRenderAsEmpty(value) {
+  return value === false || value === true || value === null || value === undefined;
+}
 
-  console.log("props => ", props.props);
-  // 필수 변환하는 것들이 몇 있는거 같다.
-  // className -> class
-  // onclick -> onClick
-  // onsubmit -> onSubmit
-  // onreset -> onReset
-  // onfocus -> onFocus
-  // onblur -> onBlur
-  // onkeydown -> onKeyDown
+function isStringOrNumber(value) {
+  return typeof value === "string" || typeof value === "number";
+}
+
+function updateAttributes($el, props) {
   if (props.props) {
     for (const key in props.props) {
-      console.log("key => ", key);
+      const value = props.props[key];
+
       if (key === "className") {
-        console.log("classname 으로 호출");
         $el.setAttribute("class", props.props["className"]);
-      } else {
-        $el.setAttribute(key, props.props[key]);
+      } else if (key.startsWith("on") && typeof value === "function") {
+        const eventType = key.slice(2).toLowerCase();
+        addEvent($el, eventType, value);
+      } else if (typeof value === "boolean" || value === null) {
+        // Boolean 또는 null 값 처리
+        if (key === "checked" || key === "selected") {
+          // Property만 설정하고 DOM 속성은 제거
+          if (value === null) {
+            $el[key] = false; // null이면 기본값으로
+          } else {
+            $el[key] = value;
+          }
+          $el.removeAttribute(key);
+        } else {
+          // 일반 boolean 속성들 (disabled, readOnly 등)
+          if (value === null) {
+            $el[key] = false; // null이면 기본값으로
+            $el.removeAttribute(key);
+          } else {
+            $el[key] = value;
+            if (value) {
+              $el.setAttribute(key, "");
+            } else {
+              $el.removeAttribute(key);
+            }
+          }
+        }
+      } else if (!key.startsWith("on")) {
+        // 일반 속성 처리
+        if (value === null || value === undefined) {
+          $el.removeAttribute(key);
+        } else {
+          $el.setAttribute(key, value);
+        }
       }
     }
-  } else {
-    return;
   }
 
   return {
@@ -79,29 +107,3 @@ function updateAttributes($el, props) {
     $el,
   };
 }
-
-{
-  /* <ul id="item-3" classname="list-item last-item">
-  <li>- Item 1</li>
-  <li>- Item 2</li>
-  <li>- Item 3</li>
-</ul>; */
-}
-
-{
-  /* <ul>
-  <li id="item-1" classname="list-item ">- Item 1</li>
-<li id="item-2" classname="list-item ">- Item 2</li>
-<li id="item-3" classname="list-item last-item">- Item 3</li>
-</ul>; */
-}
-
-{
-  /* <ul>
-  <li id="item-1" class="list-item ">- Item 1</li>
-  <li id="item-2" class="list-item ">- Item 2</li>
-  <li id="item-3" class="list-item last-item">- Item 3</li>
-</ul>; */
-}
-
-// 왜 classname을 class로 못바꾸나...?
