@@ -4,12 +4,14 @@ import { normalizeVNode } from "./normalizeVNode";
 import { updateElement } from "./updateElement";
 
 export function renderElement(vNode, container) {
+  const normalizedVNode = normalizeVNode(vNode);
+  const prevVNode = container._vNode;
+
   // 이미 렌더링된 요소가 있다면 업데이트 로직 실행
-  if (container._vNode) {
-    updateElement(container, vNode, container._vNode);
+  if (container.firstChild && prevVNode) {
+    updateElement(container, normalizedVNode, prevVNode);
   } else {
     // 최초 렌더링시에는 createElement로 DOM을 생성하고
-    const normalizedVNode = normalizeVNode(vNode);
     const element = createElement(normalizedVNode);
     container.appendChild(element);
   }

@@ -1,6 +1,5 @@
 import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
-import { normalizeVNode } from "./normalizeVNode.js";
 
 function updateAttributes(target, originNewProps, originOldProps) {
   const newProps = originNewProps || {};
@@ -8,7 +7,9 @@ function updateAttributes(target, originNewProps, originOldProps) {
 
   // 기존 속성 제거
   for (const key in oldProps) {
-    if (!(key in newProps) && key !== "children") {
+    if (key === "children") continue;
+
+    if (!(key in newProps)) {
       if (key.startsWith("on")) {
         const eventType = key.slice(2).toLowerCase();
         removeEvent(target, eventType, oldProps[key]);
@@ -25,7 +26,7 @@ function updateAttributes(target, originNewProps, originOldProps) {
     if (key === "children") continue;
 
     // on 이벤트
-    if (key.startsWith("on") && typeof newProps[key] === "function") {
+    if (key.startsWith("on")) {
       const eventType = key.slice(2).toLowerCase();
       if (oldProps[key] !== newProps[key]) {
         if (oldProps[key]) {
@@ -51,51 +52,50 @@ function updateAttributes(target, originNewProps, originOldProps) {
 }
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
-  const normalizedNewNode = normalizeVNode(newNode);
-  const normalizedOldNode = normalizeVNode(oldNode);
+  if (!parentElement) return;
 
   // 기존 노드가 없으면 새로 생성
-  if (!normalizedOldNode) {
-    const newElement = createElement(normalizedNewNode);
+  if (!oldNode) {
+    const newElement = createElement(newNode);
     parentElement.appendChild(newElement);
     return;
   }
 
   if (parentElement) {
     // 새 노드가 없으면 기존 노드 제거
-    if (!normalizedNewNode) {
+    if (!newNode) {
       parentElement.removeChild(parentElement.childNodes[index]);
       return;
     }
 
     // 둘 다 텍스트 노드인 경우
-    if (typeof normalizedNewNode === "string" && typeof normalizedOldNode === "string") {
-      if (normalizedNewNode !== normalizedOldNode) {
-        parentElement.childNodes[index].textContent = normalizedNewNode;
+    if (typeof newNode === "string" && typeof oldNode === "string") {
+      if (newNode !== oldNode) {
+        parentElement.childNodes[index].textContent = newNode;
       }
       return;
     }
 
     // 하나는 텍스트, 하나는 요소인 경우 교체
-    if (typeof normalizedNewNode === "string" || typeof normalizedOldNode === "string") {
-      const newElement = createElement(normalizedNewNode);
+    if (typeof newNode === "string" || typeof oldNode === "string") {
+      const newElement = createElement(newNode);
       parentElement.replaceChild(newElement, parentElement.childNodes[index]);
       return;
     }
 
     // 요소 타입이 다르면 교체
-    if (normalizedNewNode.type !== normalizedOldNode.type) {
-      const newElement = createElement(normalizedNewNode);
+    if (newNode.type !== oldNode.type) {
+      const newElement = createElement(newNode);
       parentElement.replaceChild(newElement, parentElement.childNodes[index]);
       return;
     }
 
     // 같은 타입의 요소면 속성과 자식들을 업데이트
     const target = parentElement.childNodes[index];
-    updateAttributes(target, normalizedNewNode.props, normalizedOldNode.props);
+    updateAttributes(target, newNode.props, oldNode.props);
 
-    const newChildren = normalizedNewNode.children || [];
-    const oldChildren = normalizedOldNode.children || [];
+    const newChildren = newNode.children || [];
+    const oldChildren = oldNode.children || [];
 
     // 자식 노드들을 바뀐 수만큼 업데이트
     let i = 0;
