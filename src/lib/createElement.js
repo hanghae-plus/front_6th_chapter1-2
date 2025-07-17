@@ -1,5 +1,7 @@
 import { addEvent } from "./eventManager";
 
+const booleanAttr = ["checked", "disabled", "readonly", "required", "autofocus", "multiple", "selected"];
+
 export function createElement(vNode) {
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
     return document.createTextNode("");
@@ -69,13 +71,20 @@ function updateAttributes($el, props) {
       $el.setAttribute("id", value);
     }
 
+    if (booleanAttr.includes(key)) {
+      if (value) {
+        $el[key] = true;
+      } else {
+        $el[key] = false;
+      }
+      continue;
+    }
+
     if (typeof value === "boolean") {
       if (value) {
         $el.setAttribute(key, "");
-        $el[key] = true;
       } else {
         $el.removeAttribute(key);
-        $el[key] = false;
       }
       continue;
     }

@@ -9,7 +9,7 @@ export function renderElement(vNode, container) {
   // 3. 렌더링이 끝난 뒤 → container에 이벤트 등록
 
   let newVNode = normalizeVNode(vNode);
-  let oldVNode = container._vNode;
+  const oldVNode = container._vNode;
 
   if (!oldVNode) {
     // 최초 렌더링시
@@ -19,10 +19,9 @@ export function renderElement(vNode, container) {
   } else {
     // 이후 렌더링 시
     // id를 안 넘기는 이유는 update 안에서 재귀적으로 호출할 때만 사용하니까
-    updateElement(container, oldVNode, newVNode);
-    // $el = container.firstChild; // 왜넣엇지? 기억도안나요
+    updateElement(container, newVNode, oldVNode);
   }
 
-  oldVNode = newVNode;
+  container._vNode = newVNode;
   setupEventListeners(container);
 }
