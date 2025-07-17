@@ -1,3 +1,5 @@
+import { addEvent } from "./eventManager";
+
 /**
  * 가상 노드를 기반으로 DOM 요소를 생성하는 함수
  * @param {any} vNode - 가상 노드
@@ -22,22 +24,14 @@ export function createElement(vNode) {
   // 배열 타입인 경우 DocumentFragment 생성
   if (Array.isArray(vNode)) {
     const fragment = document.createDocumentFragment();
-
     vNode.forEach((child) => fragment.appendChild(createElement(child)));
     return fragment;
   }
 
   // 실제 DOM 요소 생성
   const el = document.createElement(vNode.type);
-  const props = vNode.props ?? {};
 
-  for (const [key, value] of Object.entries(props)) {
-    if (key === "className") {
-      el.setAttribute("class", value);
-    } else {
-      el.setAttribute(key, value);
-    }
-  }
+  updateAttributes(el, vNode.props);
 
   vNode.children?.forEach((child) => {
     const childEl = createElement(child);
@@ -47,5 +41,35 @@ export function createElement(vNode) {
   return el;
 }
 
-// 추후 심화에서 작성
-// function updateAttributes($el, props) {}
+function updateAttributes($el, props) {
+  if (!props) return;
+
+  Object.entries(props).forEach(([key, value]) => {
+    if (key.startsWith("on") && typeof value === "function") {
+      const eventType = key.slice(2).toLowerCase();
+      addEvent($el, eventType, value);
+      return;
+    }
+
+    if (key === "className") {
+      $el.setAttribute("class", value);
+      return;
+    }
+
+    // boolean 처리
+    if (typeof value === "boolean") {
+      if (value) {
+        $el.setAttribute(key, "");
+      }
+      return;
+    }
+
+    // data-* 처리
+    if (key.startsWith("data-")) {
+      $el.setAttribute(key, value);
+      return;
+    }
+
+    $el.setAttribute(key, value);
+  });
+}
