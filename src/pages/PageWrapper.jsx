@@ -3,8 +3,8 @@ import { createVNode } from "../lib";
 import { cartStore, uiStore, UI_ACTIONS } from "../stores";
 import { CartModal, Footer, PublicImage, Toast } from "../components";
 
-// 장바구니 모달 열기 핸들러
-const close = () => {
+// 장바구니 모달 열기 핸들러를 전역으로 등록
+window.openCartModal = () => {
   uiStore.dispatch({ type: UI_ACTIONS.OPEN_CART_MODAL });
 };
 
@@ -30,7 +30,7 @@ export const PageWrapper = ({ headerLeft, children }) => {
               <button
                 id="cart-icon-btn"
                 className="relative p-2 text-gray-700 hover:text-gray-900 transition-colors"
-                onClick={close}
+                onclick="window.openCartModal()"
               >
                 <PublicImage src="/cart-header-icon.svg" alt="장바구니" className="w-6 h-6" />
                 {cartSize > 0 && cartCount}

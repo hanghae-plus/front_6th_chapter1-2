@@ -21,20 +21,45 @@ const goToHomeWithCurrentCategory = async () => {
   router.push(`/?${queryString}`);
 };
 
-// 상품 상세 페이지에서 수량 증가/감소
-const incrementQuantity = () => {
+// 수량 증가/감소 함수들을 전역으로 등록
+window.incrementQuantity = () => {
   const input = document.getElementById("quantity-input");
   if (input) {
+    let currentValue = parseInt(input.value) || 1;
     const max = parseInt(input.getAttribute("max")) || 100;
-    input.value = Math.min(max, parseInt(input.value) + 1);
+    const newValue = Math.min(max, currentValue + 1);
+    input.value = newValue;
+    // Playwright가 감지할 수 있도록 모든 이벤트 발생
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    input.dispatchEvent(new Event("blur", { bubbles: true }));
+    // 강제로 input을 다시 포커스
+    input.focus();
+    // 디버깅용 로그
+    console.log("incrementQuantity called, new value:", newValue);
   }
 };
 
-const decrementQuantity = () => {
+window.decrementQuantity = () => {
   const input = document.getElementById("quantity-input");
   if (input) {
-    input.value = Math.max(1, parseInt(input.value) - 1);
+    let currentValue = parseInt(input.value) || 1;
+    const newValue = Math.max(1, currentValue - 1);
+    input.value = newValue;
+    // Playwright가 감지할 수 있도록 모든 이벤트 발생
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    input.dispatchEvent(new Event("blur", { bubbles: true }));
+    // 강제로 input을 다시 포커스
+    input.focus();
+    // 디버깅용 로그
+    console.log("decrementQuantity called, new value:", newValue);
   }
+};
+
+// 관련 상품 클릭 함수를 전역으로 등록
+window.goToRelatedProduct = (productId) => {
+  router.push(`/product/${productId}`);
 };
 
 const addToCart = () => {
@@ -44,7 +69,6 @@ const addToCart = () => {
   const product = productState.currentProduct;
 
   if (product) {
-    console.log("🛒 상품 상세 페이지에서 장바구니 추가:", product);
     addToCartWithProduct(product, quantity);
   }
 };
@@ -81,6 +105,17 @@ export function ProductDetail({ product, relatedProducts = [] }) {
       value: category2,
     });
 
+  // input 초기화 (렌더링 후)
+  if (typeof window !== "undefined") {
+    setTimeout(() => {
+      const input = document.getElementById("quantity-input");
+      if (input) {
+        input.value = 1;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    }, 0);
+  }
+
   return (
     <div>
       {/* 브레드크럼 */}
@@ -108,7 +143,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                     goToHomeWithCategory(
                       index === 0
                         ? { category1: item.value }
-                        : { category1: breadcrumbItems[index - 1].value, category2: item.value },
+                        : { category1: breadcrumbItems[0].value, category2: item.value },
                     )
                   } // 카테고리 클릭 시 홈으로 이동
                 >
@@ -176,7 +211,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                 id="quantity-decrease"
                 className="w-8 h-8 flex items-center justify-center border border-gray-300
                              rounded-l-md bg-gray-50 hover:bg-gray-100"
-                onClick={decrementQuantity}
+                onclick="window.decrementQuantity()"
               >
                 <PublicImage src="/quantity-minus-icon.svg" alt="수량 감소" className="w-4 h-4" />
               </button>
@@ -184,7 +219,6 @@ export function ProductDetail({ product, relatedProducts = [] }) {
               <input
                 type="number"
                 id="quantity-input"
-                value="1"
                 min="1"
                 max={stock}
                 className="w-16 h-8 text-center text-sm border-t border-b border-gray-300
@@ -195,7 +229,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                 id="quantity-increase"
                 className="w-8 h-8 flex items-center justify-center border border-gray-300
                              rounded-r-md bg-gray-50 hover:bg-gray-100"
-                onClick={incrementQuantity}
+                onclick="window.incrementQuantity()"
               >
                 <PublicImage src="/quantity-plus-icon.svg" alt="수량 증가" className="w-4 h-4" />
               </button>
@@ -240,7 +274,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                   key={relatedProduct.productId}
                   className="bg-gray-50 rounded-lg p-3 related-product-card cursor-pointer"
                   data-product-id={relatedProduct.productId}
-                  onClick={() => router.push(`/product/${relatedProduct.productId}`)}
+                  onclick={`window.goToRelatedProduct('${relatedProduct.productId}')`}
                 >
                   <div className="aspect-square bg-white rounded-md overflow-hidden mb-2">
                     <img

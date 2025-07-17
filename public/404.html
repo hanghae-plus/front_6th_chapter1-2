@@ -18,9 +18,19 @@
         },
       };
     </script>
+    <script type="module" crossorigin src="./assets/main-DAg3ksoD.js"></script>
   </head>
   <body class="bg-gray-50">
     <div id="root"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script>
+      // GitHub Pages SPA 라우팅을 위한 리다이렉트
+      (function () {
+        let redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect != location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
   </body>
 </html>

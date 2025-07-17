@@ -3,28 +3,21 @@ import { createVNode } from "../lib";
 import { toggleCartSelect, updateCartQuantity, removeFromCart } from "../services";
 import { PublicImage } from "./PublicImage";
 
-const handleQuantityIncrease = (e) => {
-  const target = e.target.closest("[data-product-id]");
-  const productId = target.getAttribute("data-product-id");
-  const quantityInput = target.previousElementSibling;
-
-  if (productId && quantityInput) {
-    const newQuantity = parseInt(quantityInput.value) + 1;
-    quantityInput.value = newQuantity;
-    updateCartQuantity(productId, newQuantity);
-  }
+// 수량 증가/감소 함수들을 전역으로 등록
+window.handleCartQuantityIncrease = (productId) => {
+  // store에서 현재 수량을 가져와서 +1
+  const cart = window.cartStore ? window.cartStore.getState() : null;
+  const item = cart ? cart.items.find((i) => i.id === productId) : null;
+  const currentQuantity = item ? item.quantity : 1;
+  updateCartQuantity(productId, currentQuantity + 1);
 };
 
-const handleQuantityDecrease = (e) => {
-  const target = e.target.closest("[data-product-id]");
-  const productId = target.getAttribute("data-product-id");
-  const quantityInput = target.nextElementSibling;
-
-  if (productId && quantityInput) {
-    const newQuantity = Math.max(1, parseInt(quantityInput.value) - 1);
-    quantityInput.value = newQuantity;
-    updateCartQuantity(productId, newQuantity);
-  }
+window.handleCartQuantityDecrease = (productId) => {
+  // store에서 현재 수량을 가져와서 -1 (최소 1)
+  const cart = window.cartStore ? window.cartStore.getState() : null;
+  const item = cart ? cart.items.find((i) => i.id === productId) : null;
+  const currentQuantity = item ? item.quantity : 1;
+  updateCartQuantity(productId, Math.max(1, currentQuantity - 1));
 };
 
 const changeQuantity = (id, value) => {
@@ -71,7 +64,7 @@ export function CartItem({ id, title, image, price, quantity, selected }) {
             className="quantity-decrease-btn w-7 h-7 flex items-center justify-center
                          border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100"
             data-product-id={id}
-            onClick={handleQuantityDecrease}
+            onclick={`window.handleCartQuantityDecrease('${id}')`}
           >
             <PublicImage src="/minus-icon.svg" alt="감소" className="w-3 h-3" />
           </button>
@@ -91,7 +84,7 @@ export function CartItem({ id, title, image, price, quantity, selected }) {
             className="quantity-increase-btn w-7 h-7 flex items-center justify-center
                          border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100"
             data-product-id={id}
-            onClick={handleQuantityIncrease}
+            onclick={`window.handleCartQuantityIncrease('${id}')`}
           >
             <PublicImage src="/plus-icon.svg" alt="증가" className="w-3 h-3" />
           </button>

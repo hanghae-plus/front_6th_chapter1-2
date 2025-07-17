@@ -101,8 +101,24 @@ const handleSubCategoryClick = async (e) => {
   }
 };
 
-export function SearchBar({ searchQuery = "", limit = 20, sort = "price_asc", category = {}, categories = {} }) {
-  const categoryList = Object.keys(categories).length > 0 ? Object.keys(categories) : [];
+export function SearchBar({
+  searchQuery = "",
+  limit = 20,
+  sort = "price_asc",
+  category = {},
+  categories = null,
+  loading = false,
+}) {
+  const categoryList = categories && Object.keys(categories).length > 0 ? Object.keys(categories) : [];
+
+  // 디버깅용 로그
+  console.log("SearchBar render:", {
+    categories,
+    categoryList,
+    categoryListLength: categoryList.length,
+    shouldShowLoading: categories === null || categoryList.length === 0,
+  });
+
   const limitOptions = OPTION_LIMITS.map((value) => (
     <option key={value} value={value} selected={Number(limit) === value}>
       {value}개
@@ -198,16 +214,12 @@ export function SearchBar({ searchQuery = "", limit = 20, sort = "price_asc", ca
           {/* 1depth 카테고리 */}
           {!category.category1 && (
             <div className="flex flex-wrap gap-2">
-              {categoryList.length > 0 ? (
-                categoryButtons
-              ) : (
-                <div className="text-sm text-gray-500 italic">카테고리 로딩 중...</div>
-              )}
+              {loading ? <div className="text-sm text-gray-500 italic">카테고리 로딩 중...</div> : categoryButtons}
             </div>
           )}
 
           {/* 2depth 카테고리 */}
-          {category.category1 && categories[category.category1] && (
+          {category.category1 && categories && categories[category.category1] && (
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
                 {Object.keys(categories[category.category1]).map((category2) => {

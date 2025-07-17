@@ -15,8 +15,6 @@ const headerLeft = (
   </h1>
 );
 
-console.log(headerLeft);
-
 // 무한 스크롤 이벤트 등록
 let scrollHandlerRegistered = false;
 
@@ -74,8 +72,6 @@ export const HomePage = withLifecycle(
     ],
   },
   () => {
-    console.log("🏠 홈 페이지 로드");
-
     const productState = productStore.getState();
     const { search: searchQuery, limit, sort, category1, category2 } = router.query;
     const { products, loading, error, totalCount, categories } = productState;
@@ -85,7 +81,14 @@ export const HomePage = withLifecycle(
     return (
       <PageWrapper headerLeft={headerLeft}>
         {/* 검색 및 필터 */}
-        <SearchBar searchQuery={searchQuery} category={category} sort={sort} limit={limit} categories={categories} />
+        <SearchBar
+          searchQuery={searchQuery}
+          category={category}
+          sort={sort}
+          limit={limit}
+          categories={categories}
+          loading={loading}
+        />
 
         {/* 상품 목록 */}
         <div className="mb-6">

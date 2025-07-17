@@ -12,21 +12,34 @@ import { ErrorContent, ProductDetail, PublicImage } from "../components";
 export const ProductDetailPage = withLifecycle(
   {
     onMount: () => {
+      console.log("ProductDetailPage mounted");
       loadProductDetailForPage(router.params.id);
+
+      // 뒤로가기 버튼 이벤트 리스너 추가
+      setTimeout(() => {
+        const backButton = document.getElementById("back-button");
+        if (backButton) {
+          console.log("Back button found, adding event listener");
+          backButton.addEventListener("click", () => {
+            console.log("Back button clicked via addEventListener!");
+            router.safeBack();
+          });
+        } else {
+          console.log("Back button not found");
+        }
+      }, 100);
     },
     watches: [() => [router.params.id], () => loadProductDetailForPage(router.params.id)],
   },
   () => {
+    console.log("ProductDetailPage rendering");
     const { currentProduct: product, relatedProducts = [], error, loading } = productStore.getState();
 
     return (
       <PageWrapper
         headerLeft={
           <div className="flex items-center space-x-3">
-            <button
-              onClick={() => window.history.back()}
-              className="p-2 text-gray-700 hover:text-gray-900 transition-colors"
-            >
+            <button id="back-button" className="p-2 text-gray-700 hover:text-gray-900 transition-colors">
               <PublicImage src="/back-icon.svg" alt="뒤로" className="w-6 h-6" />
             </button>
             <h1 className="text-lg font-bold text-gray-900">상품 상세</h1>
