@@ -273,7 +273,6 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
     });
   });
-*/
 
   describe("createElement", () => {
     let container;
@@ -418,7 +417,8 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(result.dataset.test).toBe("값");
     });
   });
-  /*
+  */
+
   describe("eventManager", () => {
     let container;
 
@@ -469,7 +469,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       expect(clickHandler).toHaveBeenCalledTimes(1);
     });
   });
-
+  /*
   describe("renderElement", () => {
     let $container;
 
