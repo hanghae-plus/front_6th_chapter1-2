@@ -1,7 +1,6 @@
 import { addEvent } from "./eventManager";
 
 export function createElement(vNode) {
-  console.log(vNode);
   const isFalsyVNodeValue = (value) => value == null || typeof value === "boolean";
   const isPrimitive = (value) => typeof value === "string" || typeof value === "number";
 
@@ -37,8 +36,6 @@ export function createElement(vNode) {
     });
   }
 
-  console.log(" $el", $el);
-
   return $el;
 }
 
@@ -50,17 +47,27 @@ function updateAttributes($el, props) {
     if (key === "className") {
       $el.className = value;
     } else if (/^on[A-Z]/.test(key) && typeof value === "function") {
-      // 이벤트 핸들러는 addEventListener로 등록
       const eventType = key.slice(2).toLowerCase();
       addEvent($el, eventType, value);
+    } else if (key === "checked" || key === "disabled" || key === "readOnly" || key === "selected") {
+      $el[key] = !!value;
+      if (key === "disabled" || key === "readOnly") {
+        if (value) {
+          $el.setAttribute(key.toLowerCase(), "");
+        } else {
+          $el.removeAttribute(key.toLowerCase());
+        }
+      }
+      // checked, selected는 attribute를 조작하지 않음
     } else if (typeof value === "boolean") {
-      // 불리언 속성은 true일 때만 설정
       if (value) {
         $el.setAttribute(key, "");
-        $el[key] = true; // 실제 DOM 속성도 설정
+        $el[key] = true;
+      } else {
+        $el.removeAttribute(key);
+        $el[key] = false;
       }
     } else if (value != null) {
-      // null/undefined가 아닌 경우만 setAttribute
       $el.setAttribute(key, value);
     }
   });
