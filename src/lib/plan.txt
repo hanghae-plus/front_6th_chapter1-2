@@ -1,0 +1,211 @@
+가상돔을 기반으로 렌더링하기
+ createVNode 함수를 이용하여 vNode를 만든다.
+ normalizeVNode 함수를 이용하여 vNode를 정규화한다.
+ createElement 함수를 이용하여 vNode를 실제 DOM으로 만든다.
+ 결과적으로, JSX를 실제 DOM으로 변환할 수 있도록 만들었다.
+
+
+
+1. vNode -> tag, 속성, 자식노드를 prop으로 받아야함
+    function createVNode(tag, props, children):
+        return {
+            tag, 
+            props: props || {}
+            children: Array.isArray(children) ?  children : [children]
+        }
+    
+    const VNode = createVNode('div', {}, [
+        'title',
+        createVNode('header', {}, [
+            createVNode('h1', {}, ['welcome'])
+        ]),
+        createVNode('main', {}, [
+            createVNode('section', {}, [
+                createVNode('h2', {}, ['home']),
+                createVNode('p', {class: 'page-content'}, ['content'])
+            ])
+        ])
+        ]);
+
+
+2. normalizeVNode   -> 모든 children이 무조건! 배열. 그 안에는 정리된 vnode혹은 문자열만 있도록하는 과정
+    - vNode는 중첩된 트리. DFS로 돌고 leaf에 도달하면 return. 
+                 div 
+            /    |     \
+        'title' header  main  
+                    |       |
+                    h1     section
+                    |       /\
+                'welcome'  h2    p.page-content
+                           |    |    
+                        'home'  'content' 
+
+    plan
+        - function normalizeVNode(vNode)
+            - if vNode is null -> return (base case)
+            - if vNode.children is undefined -> vNode.children = []
+            - if vNode.children is not an array -> vNode.children = [vNode.children]
+
+            - for each child in vNode.children
+                - if child is an object, (vNode인 경우) normalizeVNode(child) 재귀 호출
+                - if child is a string -> continue 그대로둠
+                - else -> 빈문자열 변환
+
+            - return vNode
+
+=> 뒤늦게 과제 요구사항을 봤는데(ㅠㅜㅠㅠㅠ), 
+과제에서는:
+주어진 가상 노드(vNode)를 표준화된 형태로 변환하는 역할을 합니다. 이 함수는 다양한 타입의 입력을 처리하여 
+일관된 형식의 가상 노드를 반환하여 DOM 조작이나 렌더링 과정에서 일관된 데이터 구조를 사용할 수 있도록 합니다.
+
+1. vNode가 null, undefined 또는 boolean 타입일 경우 빈 문자열을 반환합니다.
+2. vNode가 문자열 또는 숫자일 경우 문자열로 변환하여 반환합니다.
+3. vNode의 타입이 함수일 경우 해당 함수를 호출하여 반환된 결과를 재귀적으로 표준화합니다.
+4. 그 외의 경우, vNode의 자식 요소들을 재귀적으로 표준화하고, null 또는 undefined 값을 필터링하여 반환합니다.
+
+를 요구하고있음. 
+
+즉, 
+1. null, undefined, boolean → '' (빈 문자열)
+2. 문자열/숫자 → 문자열
+3. 함수형 컴포넌트 → 호출 → 반환 결과를 재귀 정규화
+4. 나머지(vNode) → children 도 재귀적으로 정규화 + null 필터링
+
+
+3. createElement 사용해서 vNode를 실제 DOM으로 만들기
+
+    지금까지의 흐름?
+    const vNode = createVNode(...) // 가상 트리 생성
+    const normalizedVNode = normalizedVNode(vNode) // 가상 트리 정리 (children 배열로 만들기)
+
+    다음 -> 
+    const dom = createElement(normalizedVNode) // 실제 브라우저용 DOM 요소 생성
+    document.body.appendChild(dom) // 화면에 붙이기
+
+createElement 요구사항
+1. vNode가 null, undefined, boolean 일 경우, 빈 텍스트 노드를 반환합니다.  -> 빈 텍스트 노드??
+2. vNode가 문자열이나 숫자면 텍스트 노드를 생성하여 반환합니다.
+3. vNode가 배열이면 DocumentFragment를 생성하고 각 자식에 대해 createElement를 재귀 호출하여 추가합니다.
+4. 위 경우가 아니면 실제 DOM 요소를 생성합니다:
+    - vNode.type에 해당하는 요소를 생성
+    - vNode.props의 속성들을 적용 (이벤트 리스너, className, 일반 속성 등 처리)
+    - vNode.children의 각 자식에 대해 createElement를 재귀 호출하여 추가
+
+여기서 실제 DOM 요소 생성이 뭘까,,, 
+const vNode = <div><span>Hello</span><b>World</b></div>;
+->
+{
+  type: "div",
+  props: {},
+  children: [
+    { type: "span", props: {}, children: ["Hello"] },
+    { type: "b", props: {}, children: ["World"] }
+  ]
+}
+-> 
+<div>
+  <span>Hello</span>
+  <b>World</b>
+</div>
+
+즉, 가상 노드구조를 보고 진짜 div, span... 을 붙이면서 DOM구조로 만드는것!
+
+[챗지피티 설명]
+    document.createElement("태그명")
+    이걸 "실제 DOM 요소 생성" 이라고 부르는 거야.
+
+- vNode.type을 보고 진짜 엘리먼트 만들고 (div, span, input 등)
+- vNode.props를 DOM 속성으로 붙이고 (className, disabled, data-xxx 등)
+- vNode.children은 재귀적으로 createElement 호출해서 붙이기
+
+- 텍스트 노드란? (챗지피티)
+    텍스트 노드(Text Node)란,
+    👉 HTML 문서에서 글자(텍스트)를 나타내는 DOM 노드야.
+
+    빈 텍스트 노드란,
+    👉 document.createTextNode("")처럼 내용이 없는 텍스트 노드를 말해.
+    즉, 화면에는 아무것도 표시되지 않는 글자 노드야.
+    보통 null, undefined, false, true 같은 걸 처리할 때 이걸 만들어줘.
+
+4. 이벤트 위임
+- 과제 자료를 보면 이벤트 위임이란 여러 요소의 이벤트를 관리할 때, 
+각 요소에 이벤트 리스너를 추가하는 대신 공통 조상 요소에 하나의 리스너를 추가하는 방법이라고 나와있다.
+즉, 이벤트 버블링의 특성을 이용해 처리하는 방식이다. 
+
+    button1.addEventListenr('click', handler);
+    button2.addEventListener('click', handler);
+이런식이 아니라 
+container.addEventListenr('click', (e)=>{
+    if (e.target.matches('button')){
+        ...
+    }
+})
+이런식으로 처리!
+
+eventManager.js에 보면 이렇게 함수 세개가 있다. 
+    export function setupEventListeners(root) {}
+    export function addEvent(element, eventType, handler) {}
+    export function removeEvent(element, eventType, handler) {}
+
+우리의 목표는
+1. addEvent와 removeEvent를 통해 element에 대한 이벤트 함수를 어딘가에 저장하거나 삭제합니다.
+2. setupEventListeners를 이용해서 이벤트 함수를 가져와서 한 번에 root에 이벤트를 등록합니다.
+
+왜 element에 대한 이벤트 함수를 어딘가에 저장해야하는가..?
+일단 우리의 목표는 event delegation을 구현하는것. 
+즉, 각 요소에 이벤트 핸들러를 붙이는게 아니라 공통 조상에 한번 등록하는 것인데
+그러기 위해서는 클릭한 대상에 어떤 이벤트 핸들러가 등록되어있었는지 찾아야한다. 
+
+여기서 Map을 쓰면 좋을것같다. 
+키-벨류로 등록해서 O(1)으로 바로 찾을수 있으니 시간복잡도상 유리
+
+    Map initialization 
+        - 키: DOM요소
+        - 벨류: 이벤트 타입별 핸들러 객체
+            {button1 => {
+                click: [handler1]
+            }}
+    export function setupEventListeners(root) {
+        루트에 모든 이벤트(click...) 등록
+        이벤트 발생시 map에서 등록된 핸들러 찾아서 실행
+    }
+    export function addEvent(element, eventType, handler) {
+        map에 해당 element에 대한 handler 추가
+    }
+    export function removeEvent(element, eventType, handler) {
+        맵에서 해당 핸들러 제거 (empty인경우 키, 벨류 .. 클린업하기)
+    }
+
+-> 이부분 renderElement작업하면서 엣지케이스가 발견이 되었는데,
+setupEventListeners는 root에 이벤트를 한번만 등록하고, 중복 등록이 되는 경우를 방지해야한다. 
+registeredRoots 라는 set을 하나 만들어서 이미 등록된건 재등록 되지 않도록 관리해야한다. 
+
+5. renderElement
+renderElement는 앞에서 작성된 함수들을 조합하여 vNode를 container에 렌더링하는 작업을 수행하는 역할을 한다. 
+
+export function renderElement(vNode, container) {
+  // vNode를 정규화 한 다음에
+  // createElement로 노드를 만들고
+  // container에 삽입하고
+	  // 이벤트를 등록합니다.
+}
+
+조합하면 끝난다!!
+
+6. Diff 알고리즘
+우리는 지금까지 DOM을 만들었고, diff 알고리즘을 통해 상태변경시 이전 트리와 비교해서 새로운 트리를 만드는 과정을 만들어야한다.
+일단 이부분 생각해보면 DFS 트리 순회를 하면서 
+    - 변경된 노드가 잇다면 노드 교체
+    - 새로 추가된 노드가 있다면 새로 추가된 노드가 있다면 새로 추가
+    - 사라진 노드가 있다면 밑에 children까지 전부 삭제 
+이렇게 구현하면 될것같다..!
+
+=> 이부분 챗지피티로 확인한 결과 방향성은 맞고 내가 놓친부분은
+    - 변경된 노드 -> (1)타입 (2) 텍스트 두개로 나눠서 확인
+        타입이 다르면 노드 전체를 교체하고, 텍스트 노드인경우 텍스트 비교후 교체!
+    - prop이나 children이 다른경우 순서대로 재귀 diff 호출
+
+...
+에러가 나서 확인해보니 
+여기서 빼먹었던게 previousVNodeMap을 renderElement.js에 저장을 안했었다. 
+- previousVNodeMap이 없다면 생성, 있다면 updateElement 적용하기!ㄴ
