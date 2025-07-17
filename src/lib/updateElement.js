@@ -74,8 +74,8 @@ function updateAttributes(target, originNewProps, originOldProps) {
         }
       } else {
         // attr가 존재하지 않음
-        // true이면 빈 문자열로 추가, false이면 제거
-        value ? target.setAttribute(attr, "") : target.removeAttribute(attr);
+        // true일 때 빈 문자열로 속성 추가
+        value && target.setAttribute(attr, "");
       }
     } else if (attr.startsWith("on")) {
       // 이벤트 업데이트
