@@ -238,7 +238,6 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       );
 
       const normalized = normalizeVNode(<TestComponent />);
-
       expect(normalized).toEqual(
         <ul {...{}}>
           <li id="item-1" className="list-item ">
