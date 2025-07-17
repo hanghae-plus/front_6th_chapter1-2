@@ -4,7 +4,24 @@ import { normalizeVNode } from "./normalizeVNode";
 import { updateElement } from "./updateElement";
 
 export function renderElement(vNode, container) {
-  // 최초 렌더링시에는 createElement로 DOM을 생성하고
-  // 이후에는 updateElement로 기존 DOM을 업데이트한다.
-  // 렌더링이 완료되면 container에 이벤트를 등록한다.
+  // 1. 최초 렌더링 시 → createElement로 DOM 생성해서 container에 붙임
+  // 2. 이후 렌더링 시 → updateElement로 기존 DOM 업데이트
+  // 3. 렌더링이 끝난 뒤 → container에 이벤트 등록
+
+  let newVNode = normalizeVNode(vNode);
+  const oldVNode = container._vNode;
+
+  if (!oldVNode) {
+    // 최초 렌더링시
+    // createElement(newVNode);
+    container.innerHTML = "";
+    container.appendChild(createElement(newVNode));
+  } else {
+    // 이후 렌더링 시
+    // id를 안 넘기는 이유는 update 안에서 재귀적으로 호출할 때만 사용하니까
+    updateElement(container, newVNode, oldVNode);
+  }
+
+  container._vNode = newVNode;
+  setupEventListeners(container);
 }
