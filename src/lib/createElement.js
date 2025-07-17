@@ -1,3 +1,5 @@
+import { addEvent } from "./eventManager";
+
 export function createElement(vNode) {
   if (vNode === null || vNode === undefined || typeof vNode === "boolean") {
     return document.createTextNode("");
@@ -31,7 +33,7 @@ function updateAttributes($el, props) {
       $el.setAttribute("class", value);
     } else if (key.startsWith("on") && typeof value === "function") {
       const event = key.slice(2).toLowerCase(); // onClick -> click
-      $el.addEventListener(event, value);
+      addEvent($el, event, value);
     } else {
       $el.setAttribute(key, value);
     }
