@@ -92,7 +92,6 @@ function updateAttributes($el, props) {
           }
         }
       } else if (!key.startsWith("on")) {
-        // 일반 속성 처리
         if (value === null || value === undefined) {
           $el.removeAttribute(key);
         } else {
