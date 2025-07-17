@@ -2,6 +2,7 @@
  * 간단한 SPA 라우터
  */
 import { createObserver } from "./createObserver.js";
+import { addEvent } from "./eventManager.js";
 
 export class Router {
   #routes;
@@ -19,7 +20,7 @@ export class Router {
       this.#observer.notify();
     });
 
-    document.addEventListener("click", (e) => {
+    addEvent(document, "click", (e) => {
       if (e.target.closest("[data-link]")) {
         e.preventDefault();
         const url = e.target.getAttribute("href") || e.target.closest("[data-link]").getAttribute("href");
