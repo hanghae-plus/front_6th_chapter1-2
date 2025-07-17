@@ -14,19 +14,23 @@ const setAttributes = (target, newProps, oldProps) => {
       const eventType = attr.slice(2).toLowerCase(); // onClick -> click
       if (oldAttrValue && typeof oldAttrValue === "function") removeEvent(target, eventType, oldAttrValue);
       if (newAttrValue) addEvent(target, eventType, newAttrValue);
+      continue;
     }
 
     if (attr === "className") {
-      target.setAttributes("class", newAttrValue);
+      target.setAttribute("class", newAttrValue);
+      continue;
     }
 
     if (attr === "style" && typeof newAttrValue === "object") {
       for (const [styleKey, styleValue] of Object.entries(newAttrValue)) {
         target.style[styleKey] = styleValue;
       }
+
+      continue;
     }
 
-    target.setAttributes(attr, newAttrValue);
+    target.setAttribute(attr, newAttrValue);
   }
 };
 
@@ -37,9 +41,21 @@ const removeAttributes = (target, newProps, oldProps) => {
       if (key.startsWith("on")) {
         const eventType = key.slice(2).toLowerCase();
         removeEvent(target, eventType, oldProps[key]);
+        continue;
       }
 
-      target.removeAttributes(key);
+      if (key === "className") {
+        target.removeAttribute("class");
+        continue;
+      }
+
+      // style 객체 초기화
+      if (key === "style") {
+        target.removeAttribute("style");
+        continue;
+      }
+
+      target.removeAttribute(key);
     }
   }
 };
@@ -55,7 +71,6 @@ function updateAttributes(target, originNewProps, originOldProps) {
 }
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
-  console.log("eee");
   const targetElement = parentElement.childNodes[index];
 
   // new가 없고 old만 있으면 -> 노드 제거
@@ -99,13 +114,17 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   // 같은 타입의 노드 업데이트 -> 속성 업데이트, 자식 노드 재귀적 업데이트, 불필요한 자식 노드 제거
 
   updateAttributes(targetElement, newNode.props, oldNode.props);
-  const newNodeChildren = newNode.children || [];
-  const oldNodeChildren = oldNode.children || [];
+  // const newNodeChildren = newNode.children || [];
+  // const oldNodeChildren = oldNode.children || [];
+  const newNodeChildren = Array.isArray(newNode.children) ? newNode.children : [];
+  const oldNodeChildren = Array.isArray(oldNode.children) ? oldNode.children : [];
   // 자식 요소 캐치하기 위함
   // newChildren만 돌면 삭제된 요소 감지 못하고
   // oldChildren만 돌면 추가된 요소 감지 못해서
   // 둘 중 더 긴 걸 기준으로 돌기
   const max = Math.max(newNodeChildren.length, oldNodeChildren.length);
+
+  console.log(max, "max..");
 
   for (let i = 0; i < max; i++) {
     updateElement(targetElement, newNodeChildren[i], oldNodeChildren[i], i);

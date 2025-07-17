@@ -1,4 +1,5 @@
 const eventStore = new Map();
+const eventHandlers = new Map(); // 이벤트 타입별 핸들러 함수를 저장
 
 const handler = (elementMap) => (event) => {
   for (const [element, handlers] of elementMap.entries()) {
@@ -13,9 +14,17 @@ const handler = (elementMap) => (event) => {
 };
 
 export function setupEventListeners(root) {
+  // 기존 이벤트 리스너 모두 제거
+  for (const [eventType, handlerFn] of eventHandlers.entries()) {
+    root.removeEventListener(eventType, handlerFn);
+  }
+  eventHandlers.clear();
+
+  // 새로운 이벤트 리스너 등록
   for (const [eventType, elementMap] of eventStore.entries()) {
-    root.removeEventListener(eventType, handler(elementMap));
-    root.addEventListener(eventType, handler(elementMap));
+    const handlerFn = handler(elementMap);
+    eventHandlers.set(eventType, handlerFn);
+    root.addEventListener(eventType, handlerFn);
   }
 }
 
