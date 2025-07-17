@@ -1,3 +1,32 @@
+## 과제 체크포인트
+### 배포 링크
+[https://hanghae-plus.github.io/front_6th_chapter1-2/](https://hanghae-plus.github.io/front_6th_chapter1-2/)
+
+### 기본과제
+
+#### 가상돔을 기반으로 렌더링하기
+
+- [x] createVNode 함수를 이용하여 vNode를 만든다.
+- [x] normalizeVNode 함수를 이용하여 vNode를 정규화한다.
+- [x] createElement 함수를 이용하여 vNode를 실제 DOM으로 만든다.
+- [x] 결과적으로, JSX를 실제 DOM으로 변환할 수 있도록 만들었다.
+
+#### 이벤트 위임
+
+- [x] 노드를 생성할 때 이벤트를 직접 등록하는게 아니라 이벤트 위임 방식으로 등록해야 한다
+- [x] 동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다
+- [x] 이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다
+
+### 심화 과제
+
+#### Diff 알고리즘 구현
+
+- [x] 초기 렌더링이 올바르게 수행되어야 한다
+- [x] diff 알고리즘을 통해 변경된 부분만 업데이트해야 한다
+- [x] 새로운 요소를 추가하고 불필요한 요소를 제거해야 한다
+- [x] 요소의 속성만 변경되었을 때 요소를 재사용해야 한다
+- [x] 요소의 타입이 변경되었을 때 새로운 요소를 생성해야 한다
+
 ## 과제 셀프회고
 
 <!-- 과제에 대한 회고를 작성해주세요 -->
@@ -51,7 +80,7 @@ setAttribute 는 요소에 문자열로 된 값만을 설정할 수 있고, bool
 #### XSS 공격
 
 href, src 와 같이 URL 관련 속성을 사용할 때 XSS 공격을 주의해야 하는 것을 배웠다.
-실행 가능한 자바스크립트 코드로 해석하고 실행하도록 설계 된 부분에 보안을 유지할 수 있는 장치를 추가해야 한다. 헌재 프로젝트에서는 href, src 값을 할당할 때 URL 생성자를 통해 올바른 url 만 설정할 수 있도록 설정했다.
+실행 가능한 자바스크립트 코드로 해석하고 실행하도록 설계 된 부분에 보안을 유지할 수 있는 장치를 추가해야 한다. 헌재 프로젝트에서는 href, src 값을 할당할 때 URL 생성자를 통해 올바른 url 형태인지 검사하고, 'javascript:' 프로토콜일시 오류를 던지도록 만들었다.
 
 > 추가로 알게 된 사실은 `data:image/png;base64` 형태의 값도 URL 생성자에 사용할 수 있다.
 > css 에서 사용하는 url 값 에도 적용이 가능하다고 한다.
@@ -248,6 +277,12 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 반복문을 아래와 같이 분리하면 조금 더 의도가 명확해 지는 것 같은데, 어떻게 생각하시나요?
 
 ```js
+export function updateElement(parentElement, newNode, oldNode, index = 0) {
+  ...
+  removeChildren(currentDomNode, newNode, oldNode);
+  updateChildren(currentDomNode, newNode, oldNode);
+}
+
 // 함수로 선언
 
 function removeChildren(parent, newNode, oldNode) {
@@ -339,12 +374,14 @@ function updateChildren(parent, newNode, oldNode) {
 >}
 >```
 
-이벤트를 위임하지 않고, 각 요소에 이벤트리스너를 설정한 환경을 구현하고 싶었습니다.
+---
+
+이벤트 위임을 하면서 각 요소에 이벤트리스너를 설정한 것과 동일한 환경을 구현하고 싶었습니다.
 반복문을 돌면서 이벤트가 발생한 타겟의 부모 핸들러를 호출 하는 것과, `stopPropagation` 기능을 구현하기 위해 이벤트 발생시 이벤트 타겟의 부모 요소들을 필터링 하고, 정렬하는 과정을 거치게 됩니다.
 
 지금 생각으로는 이벤트를 추가할 때 정렬해서 저장하는 것과, 이벤트가 발생할 때 정렬해서 사용하는 방법이 있을 것 같은데, 현재 쇼핑몰과 같은 서비스에서 어떤 방법이 더 효율적이라 생각 하시나요?
 
-이외에 다른 방법도 있는지 궁금합니다.
+아니면 해당 기능을 구현하기 위해 코치님이 생각하신 더 효율적인 방법이 있는지 궁금합니다
 
 >```js
 >$root.addEventListener(eventType, (e) => {
@@ -366,3 +403,7 @@ function updateChildren(parent, newNode, oldNode) {
 >  }
 >});
 >```
+
+---
+
+focus 이벤트와 같이 버블링을 지원하지 않는 이벤트의 경우 개별 요소에 이벤트리스너를 설정하는 것과, focusin 처럼 버블링을 지원하는 이벤트로 변경해 위임을 하는 것 어떤 것을 더 선호하시나요?
