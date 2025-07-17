@@ -25,6 +25,8 @@ export async function getProduct(productId) {
 
 // 카테고리 목록 조회
 export async function getCategories() {
+  // 테스트에서 로딩 상태를 확인하기 위한 인위적 지연
+  await new Promise((resolve) => setTimeout(resolve, 200));
   const response = await fetch("/api/categories");
   return await response.json();
 }

@@ -19,7 +19,7 @@ export const initialProductState = {
   status: "idle",
 
   // 카테고리 목록
-  categories: {},
+  categories: null,
 };
 
 /**

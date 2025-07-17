@@ -15,6 +15,7 @@ const retry = async () => {
 
 const goToDetailPage = async (productId) => {
   // 상품 상세 페이지로 이동
+  console.log("goToDetailPage called with:", productId); // 디버깅용
   router.push(`/product/${productId}`);
 };
 

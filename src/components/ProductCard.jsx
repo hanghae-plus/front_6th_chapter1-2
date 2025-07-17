@@ -20,6 +20,8 @@ export function ProductCard({ productId, title, image, lprice, brand, onClick })
 
   const handleClick = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    console.log("ProductCard clicked:", productId); // 디버깅용
     onClick(productId);
   };
 
@@ -29,12 +31,13 @@ export function ProductCard({ productId, title, image, lprice, brand, onClick })
       data-product-id={productId}
     >
       {/* 상품 이미지 */}
-      <div className="aspect-square bg-gray-100 overflow-hidden cursor-pointer product-image" onClick={handleClick}>
+      <div className="aspect-square bg-gray-100 overflow-hidden cursor-pointer product-image">
         <img
           src={image}
           alt={title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
           loading="lazy"
+          onClick={handleClick}
         />
       </div>
 

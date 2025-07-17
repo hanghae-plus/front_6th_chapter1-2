@@ -14,6 +14,11 @@ const close = () => {
   uiStore.dispatch({ type: UI_ACTIONS.CLOSE_CART_MODAL });
 };
 
+// 모달 닫기 함수를 전역으로 등록
+window.closeCartModal = () => {
+  uiStore.dispatch({ type: UI_ACTIONS.CLOSE_CART_MODAL });
+};
+
 const handleSelectAllChange = (e) => {
   if (e.target.checked) {
     selectAllCart();
@@ -69,13 +74,13 @@ export function CartModal({ items = [], selectedAll = false, isOpen = false }) {
   const selectedAmount = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto cart-modal">
+    <div className="fixed inset-0 z-50 overflow-y-auto cart-modal-overlay">
       {/* 배경 오버레이 */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity cart-modal-overlay" onClick={close} />
+      <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={close} />
 
       {/* 모달 컨테이너 */}
       <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
-        <div className="relative bg-white rounded-t-lg sm:rounded-lg shadow-xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-hidden">
+        <div className="relative bg-white rounded-t-lg sm:rounded-lg shadow-xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-hidden cart-modal">
           {/* 헤더 */}
           <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-900 flex items-center">
@@ -84,7 +89,11 @@ export function CartModal({ items = [], selectedAll = false, isOpen = false }) {
               {items.length > 0 && <span className="text-sm font-normal text-gray-600 ml-1">({items.length})</span>}
             </h2>
 
-            <button id="cart-modal-close-btn" className="text-gray-400 hover:text-gray-600 p-1" onClick={close}>
+            <button
+              id="cart-modal-close-btn"
+              className="text-gray-400 hover:text-gray-600 p-1"
+              onclick="window.closeCartModal()"
+            >
               <PublicImage src="/close-icon.svg" alt="닫기" className="w-6 h-6" />
             </button>
           </div>

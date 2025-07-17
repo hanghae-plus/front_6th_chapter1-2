@@ -74,7 +74,9 @@ export class Router {
       })
       .replace(/\//g, "\\/");
 
-    const regex = new RegExp(`^${this.#baseUrl}${regexPath}$`);
+    const regex = new RegExp(`^${regexPath}$`); // baseUrl 제거
+
+    console.log("Adding route:", path, "regex:", regex); // 디버깅용
 
     this.#routes.set(path, {
       regex,
@@ -85,9 +87,13 @@ export class Router {
 
   #findRoute(url = window.location.pathname) {
     const { pathname } = new URL(url, window.location.origin);
+    console.log("Finding route for pathname:", pathname); // 디버깅용
+
     for (const [routePath, route] of this.#routes) {
+      console.log("Checking route:", routePath, "regex:", route.regex); // 디버깅용
       const match = pathname.match(route.regex);
       if (match) {
+        console.log("Route matched:", routePath); // 디버깅용
         // 매치된 파라미터들을 객체로 변환
         const params = {};
         route.paramNames.forEach((name, index) => {
@@ -101,6 +107,7 @@ export class Router {
         };
       }
     }
+    console.log("No route found for:", pathname); // 디버깅용
     return null;
   }
 
@@ -110,13 +117,13 @@ export class Router {
    */
   push(url) {
     try {
-      // baseUrl이 없으면 자동으로 붙여줌
-      let fullUrl = url.startsWith(this.#baseUrl) ? url : this.#baseUrl + (url.startsWith("/") ? url : "/" + url);
+      // 절대 경로로 처리
+      const fullUrl = url.startsWith("/") ? url : "/" + url;
 
-      const prevFullUrl = `${window.location.pathname}${window.location.search}`;
+      const prevUrl = window.location.pathname + window.location.search;
 
       // 히스토리 업데이트
-      if (prevFullUrl !== fullUrl) {
+      if (prevUrl !== fullUrl) {
         window.history.pushState(null, "", fullUrl);
       }
 

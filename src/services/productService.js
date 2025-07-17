@@ -14,13 +14,21 @@ export const loadProductsAndCategories = async () => {
   });
 
   try {
-    const [
-      {
+    const minLoadingTimePromise = new Promise((resolve) => setTimeout(resolve, 300)); // 최소 300ms 로딩 유지
+
+    const dataLoadingPromise = (async () => {
+      // 카테고리 먼저 로드
+      const categories = await getCategories();
+
+      // 카테고리 로드 완료 후 상품 로드
+      const {
         products,
         pagination: { total },
-      },
-      categories,
-    ] = await Promise.all([getProducts(router.query), getCategories()]);
+      } = await getProducts(router.query);
+      return { products, categories, total };
+    })();
+
+    const [{ products, categories, total }] = await Promise.all([dataLoadingPromise, minLoadingTimePromise]);
 
     // 페이지 리셋이면 새로 설정, 아니면 기존에 추가
     productStore.dispatch({
