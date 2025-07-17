@@ -94,13 +94,22 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     const target = parentElement.childNodes[index];
     updateAttributes(target, normalizedNewNode.props, normalizedOldNode.props);
 
-    // 자식 노드들 업데이트
     const newChildren = normalizedNewNode.children || [];
     const oldChildren = normalizedOldNode.children || [];
-    const maxLength = Math.max(newChildren.length, oldChildren.length);
 
-    for (let i = 0; i < maxLength; i++) {
-      updateElement(target, newChildren[i], oldChildren[i], i);
+    // 자식 노드들을 바뀐 수만큼 업데이트
+    let i = 0;
+    let maxChildrenLength = Math.max(newChildren.length, oldChildren.length);
+    while (i < maxChildrenLength) {
+      const newChild = newChildren[i];
+      const oldChild = oldChildren[i];
+      if (!newChild && oldChild) {
+        updateElement(target, null, oldChild, i);
+        maxChildrenLength -= 1;
+      } else {
+        updateElement(target, newChild, oldChild, i);
+        i += 1;
+      }
     }
   }
 }

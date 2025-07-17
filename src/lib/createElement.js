@@ -48,7 +48,6 @@ function setAttributes($el, props) {
       } else if (attribute === "className") {
         $el.setAttribute("class", props[attribute]);
       } else if (typeof props[attribute] === "boolean") {
-        console.log("attribute", attribute, props[attribute]);
         // boolean property는 직접 설정
         $el[attribute] = props[attribute];
         // false인 경우 DOM attribute 제거
@@ -57,7 +56,6 @@ function setAttributes($el, props) {
         } else {
           $el.setAttribute(attribute);
         }
-        console.log("attribute", attribute, $el[attribute]);
       } else {
         $el.setAttribute(attribute, props[attribute]);
       }
