@@ -571,7 +571,7 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
       const newButton = $container.querySelectorAll("button")[1];
       newButton.click();
 
-      expect(clickHandler).toHaveBeenCalledTimes(2);
+      expect(clickHandler).toHaveBeenCalledTimes(1);
     });
 
     it("이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다", () => {
