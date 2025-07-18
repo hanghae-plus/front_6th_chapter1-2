@@ -432,12 +432,18 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     it("이벤트가 위임 방식으로 등록되어야 한다", () => {
       const clickHandler = vi.fn();
       const button = document.createElement("button");
+      // addEvent에 vNode를 전달해야 가상 DOM 기반 이벤트 위임 구조를 테스트할 수 있어서 추가했습니다.
+      const vNode = {
+        type: "button",
+        props: { onClick: clickHandler },
+        children: [],
+      };
       container.appendChild(button);
 
-      addEvent(button, "click", clickHandler);
+      addEvent(button, "click", clickHandler, vNode);
       setupEventListeners(container);
-      button.click();
 
+      button.click();
       expect(clickHandler).toHaveBeenCalledTimes(1);
 
       const handleClick = (e) => e.stopPropagation();
@@ -454,9 +460,16 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     it("이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다", () => {
       const clickHandler = vi.fn();
       const button = document.createElement("button");
+      // addEvent에 vNode를 전달해야 가상 DOM 기반 이벤트 위임 구조를 테스트할 수 있어서 추가했습니다.
+      const vNode = {
+        type: "button",
+        props: { onClick: clickHandler },
+        children: [],
+      };
+
       container.appendChild(button);
 
-      addEvent(button, "click", clickHandler);
+      addEvent(button, "click", clickHandler, vNode);
       setupEventListeners(container);
       button.click();
       expect(clickHandler).toHaveBeenCalledTimes(1);

@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages
+
+# main 브랜치에 push 되거나, 수동 실행(workflow_dispatch)할 때 실행됨
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 현재 레포지토리 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. pnpm 설치 (공식 setup 액션 사용)
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      # 3. Node.js 설치 및 pnpm 캐시 설정
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22       # LTS 버전 사용 가능
+          cache: 'pnpm'          # pnpm 캐시 사용
+
+      # 4. 패키지 설치 및 빌드 실행
+      - name: Install dependencies and build
+        run: |
+          pnpm install
+          pnpm run build         # vite build 실행
+
+      # 5. gh-pages 브랜치에 dist 폴더 내용 배포 (main 브랜치일 때만)
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'  # main 브랜치일 때만 실행
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # 자동 제공되는 안전한 토큰
+          publish_dir: ./dist                        # 빌드 결과물이 위치한 폴더
+          publish_branch: gh-pages                   # 배포 대상 브랜치
