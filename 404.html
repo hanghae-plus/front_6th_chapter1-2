@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>페이지를 찾을 수 없습니다 · 상품 쇼핑몰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b82f6",
+              secondary: "#6b7280",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-gray-50">
+    <!-- GitHub Pages 404 fallback: load SPA -->
+    <div id="root" class="flex flex-col items-center justify-center min-h-screen text-center">
+      <h1 class="text-3xl font-bold mb-4">페이지를 찾을 수 없습니다</h1>
+      <p class="text-gray-600 mb-8">요청하신 페이지가 존재하지 않지만, 곧 쇼핑몰 홈으로 이동합니다.</p>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+    <!-- 자동 홈 리다이렉트 제거: SPA가 로드되면 자체 라우팅 -->
+  </body>
+</html>
