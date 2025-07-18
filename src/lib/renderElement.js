@@ -10,17 +10,17 @@ export function renderElement(vNode, container) {
   // 이후에는 updateElement로 기존 DOM을 업데이트한다.
   // 렌더링이 완료되면 container에 이벤트를 등록한다.
 
-  const normalizedVNode = normalizeVNode(vNode);
   const oldVNode = vNodeMap.get(container);
+  const newVnode = normalizeVNode(vNode);
 
   if (!oldVNode) {
-    const element = createElement(normalizedVNode);
+    const element = createElement(newVnode);
     container.appendChild(element);
   } else {
-    updateElement(container, normalizedVNode, oldVNode);
+    updateElement(container, newVnode, oldVNode);
   }
 
-  vNodeMap.set(container, normalizedVNode);
+  vNodeMap.set(container, newVnode);
 
   setupEventListeners(container);
 }
