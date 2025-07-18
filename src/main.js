@@ -1,12 +1,20 @@
 import { initRender } from "./render";
 import { loadCartFromStorage } from "./services";
 import { router } from "./router";
+import { BASE_URL } from "./constants";
 
 /**
  * 개발 환경에서만 MSW 워커 시작
  */
 const enableMocking = () =>
-  import("./mocks/browser.js").then(({ worker, workerOptions }) => worker.start(workerOptions));
+  import("./mocks/browser.js").then(({ worker }) =>
+    worker.start({
+      serviceWorker: {
+        url: `${BASE_URL}mockServiceWorker.js`,
+      },
+      onUnhandledRequest: "bypass",
+    }),
+  );
 
 /**
  * 애플리케이션 초기화
