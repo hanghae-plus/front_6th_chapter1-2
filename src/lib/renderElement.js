@@ -3,8 +3,44 @@ import { createElement } from "./createElement";
 import { normalizeVNode } from "./normalizeVNode";
 import { updateElement } from "./updateElement";
 
+const containerMap = new WeakMap();
+
 export function renderElement(vNode, container) {
-  // 최초 렌더링시에는 createElement로 DOM을 생성하고
-  // 이후에는 updateElement로 기존 DOM을 업데이트한다.
-  // 렌더링이 완료되면 container에 이벤트를 등록한다.
+  const normalizedVNode = normalizeVNode(vNode);
+  const previousRenderInfo = containerMap.get(container);
+
+  let rootElement = null;
+
+  if (!previousRenderInfo) {
+    // create
+    rootElement = createElement(normalizedVNode);
+
+    container.innerHTML = "";
+    container.appendChild(rootElement);
+  } else {
+    // update
+    rootElement = updateElement(container, normalizedVNode, previousRenderInfo.vNode, 0);
+
+    if (rootElement && rootElement !== previousRenderInfo.dom) {
+      if (container.contains(previousRenderInfo.dom)) {
+        container.replaceChild(rootElement, previousRenderInfo.dom);
+      }
+    } else if (rootElement === null && previousRenderInfo.dom) {
+      if (container.contains(previousRenderInfo.dom)) {
+        container.removeChild(previousRenderInfo.dom);
+      }
+    }
+  }
+
+  if (rootElement) {
+    containerMap.set(container, {
+      vNode: normalizedVNode,
+      dom: rootElement,
+    });
+  } else {
+    containerMap.delete(container);
+    container.innerHTML = "";
+  }
+
+  setupEventListeners(container);
 }
