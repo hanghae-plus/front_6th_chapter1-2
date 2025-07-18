@@ -35,8 +35,8 @@ function updateAttributes(target, newProps, oldProps = {}) {
         case "checked":
         case "disabled":
         case "selected":
+        case "readOnly":
           target.removeAttribute(key);
-          target[key] = false;
           break;
         case "value":
           target.value = "";
@@ -88,10 +88,9 @@ function updateAttributes(target, newProps, oldProps = {}) {
 
       case "disabled":
       case "selected":
+      case "readOnly":
         target[key] = !!newValue;
-        if (newValue) {
-          target.setAttribute(key, "");
-        } else {
+        if (!newValue) {
           target.removeAttribute(key);
         }
         break;

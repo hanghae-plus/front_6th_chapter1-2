@@ -24,6 +24,7 @@ function updateAttributes($el, props) {
         break;
       case "disabled":
       case "selected":
+      case "readOnly":
         $el[key] = !!value;
         break;
       default:
