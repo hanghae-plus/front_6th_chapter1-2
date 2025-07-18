@@ -1,7 +1,7 @@
 import { initRender } from "./render";
 import { loadCartFromStorage } from "./services";
 import { router } from "./router";
-import { BASE_URL } from "./constants.js";
+import { BASE_URL } from "./constants";
 
 /**
  * 개발 환경에서만 MSW 워커 시작

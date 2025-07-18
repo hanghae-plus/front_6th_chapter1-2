@@ -16,20 +16,20 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
   });
 
   describe("renderElement > ", () => {
-    it("초기 렌더링이 올바르게 수행되어야 한다", () => {
+    it("초기 렌더링이 올바르게 수행되어야 한다", async () => {
       const vNode = <div id="test">Hello</div>;
-      renderElement(vNode, container);
+      await renderElement(vNode, container);
       expect(container.innerHTML).toBe('<div id="test">Hello</div>');
     });
 
-    it("diff 알고리즘을 통해 변경된 부분만 업데이트해야 한다", () => {
+    it("diff 알고리즘을 통해 변경된 부분만 업데이트해야 한다", async () => {
       const initialVNode = (
         <div>
           <h1>Title</h1>
           <p>Paragraph 1</p>
         </div>
       );
-      renderElement(initialVNode, container);
+      await renderElement(initialVNode, container);
 
       const originalH1 = container.querySelector("h1");
       const originalP = container.querySelector("p");
@@ -40,7 +40,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           <p>Paragraph 1</p>
         </div>
       );
-      renderElement(updatedVNode, container);
+      await renderElement(updatedVNode, container);
 
       expect(container.innerHTML).toBe("<div><h1>Updated Title</h1><p>Paragraph 1</p></div>");
       expect(container.querySelector("h1")).toBe(originalH1); // 같은 요소 참조 확인
@@ -49,14 +49,14 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
       expect(container.querySelector("p").textContent).toBe("Paragraph 1");
     });
 
-    it("새로운 요소를 추가하고 불필요한 요소를 제거해야 한다", () => {
+    it("새로운 요소를 추가하고 불필요한 요소를 제거해야 한다", async () => {
       const initialVNode = (
         <ul>
           <li>Item 1</li>
           <li>Item 2</li>
         </ul>
       );
-      renderElement(initialVNode, container);
+      await renderElement(initialVNode, container);
 
       const originalFirstLi = container.querySelector("li:first-child");
 
@@ -67,20 +67,20 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           <li>Item 3</li>
         </ul>
       );
-      renderElement(updatedVNode, container);
+      await renderElement(updatedVNode, container);
 
       expect(container.querySelectorAll("li").length).toBe(3);
       expect(container.querySelector("li:nth-child(2)").textContent).toBe("New Item");
       expect(container.querySelector("li:first-child")).toBe(originalFirstLi); // 같은 요소 참조 확인
     });
 
-    it("요소의 속성만 변경되었을 때 요소를 재사용해야 한다", () => {
+    it("요소의 속성만 변경되었을 때 요소를 재사용해야 한다", async () => {
       const initialVNode = (
         <div id="test" className="old">
           Hello
         </div>
       );
-      renderElement(initialVNode, container);
+      await renderElement(initialVNode, container);
 
       const originalDiv = container.querySelector("div");
 
@@ -89,26 +89,26 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           Hello
         </div>
       );
-      renderElement(updatedVNode, container);
+      await renderElement(updatedVNode, container);
 
       expect(container.innerHTML).toBe('<div id="test" class="new">Hello</div>');
       expect(container.querySelector("div")).toBe(originalDiv); // 같은 요소 참조 확인
     });
 
-    it("요소의 타입이 변경되었을 때 새로운 요소를 생성해야 한다", () => {
+    it("요소의 타입이 변경되었을 때 새로운 요소를 생성해야 한다", async () => {
       const initialVNode = <div>Hello</div>;
-      renderElement(initialVNode, container);
+      await renderElement(initialVNode, container);
 
       const originalElement = container.firstChild;
 
       const updatedVNode = <span>Hello</span>;
-      renderElement(updatedVNode, container);
+      await renderElement(updatedVNode, container);
 
       expect(container.innerHTML).toBe("<span>Hello</span>");
       expect(container.firstChild).not.toBe(originalElement); // 다른 요소 참조 확인
     });
 
-    it("함수형 컴포넌트가 업데이트될 때 필요한 부분만 렌더링해야 한다", () => {
+    it("함수형 컴포넌트가 업데이트될 때 필요한 부분만 렌더링해야 한다", async () => {
       const FuncComponent = ({ title, content }) => (
         <div>
           <h1>{title}</h1>
@@ -117,13 +117,13 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
       );
 
       const initialVNode = <FuncComponent title="Initial Title" content="Initial Content" />;
-      renderElement(initialVNode, container);
+      await renderElement(initialVNode, container);
 
       const originalH1 = container.querySelector("h1");
       const originalP = container.querySelector("p");
 
       const updatedVNode = <FuncComponent title="Updated Title" content="Initial Content" />;
-      renderElement(updatedVNode, container);
+      await renderElement(updatedVNode, container);
 
       expect(container.querySelector("h1")).toBe(originalH1);
       expect(container.querySelector("p")).toBe(originalP);
@@ -131,7 +131,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
       expect(container.querySelector("p").textContent).toBe("Initial Content");
     });
 
-    it("중첩된 함수형 컴포넌트에서 깊은 레벨의 변경사항만 업데이트해야 한다", () => {
+    it("중첩된 함수형 컴포넌트에서 깊은 레벨의 변경사항만 업데이트해야 한다", async () => {
       const ChildComponent = ({ text }) => <p>{text}</p>;
       const ParentComponent = ({ title, childText }) => (
         <div>
@@ -142,13 +142,13 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
 
       const initialVNode = <ParentComponent title="Parent Title" childText="Child Text" />;
 
-      renderElement(initialVNode, container);
+      await renderElement(initialVNode, container);
 
       const originalH1 = container.querySelector("h1");
       const originalP = container.querySelector("p");
 
       const updatedVNode = <ParentComponent title="Parent Title" childText="Updated Child Text" />;
-      renderElement(updatedVNode, container);
+      await renderElement(updatedVNode, container);
 
       expect(container.querySelector("h1")).toBe(originalH1);
       expect(container.querySelector("p")).toBe(originalP);
@@ -157,7 +157,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
     });
 
     describe("특수한 속성 처리 > ", () => {
-      it("className이 props에서 제거될 때 class 속성이 올바르게 제거되어야 한다", () => {
+      it("className이 props에서 제거될 때 class 속성이 올바르게 제거되어야 한다", async () => {
         // className이 있는 초기 요소
         const initialVNode = (
           <div className="initial-class another-class" id="test-element">
@@ -165,7 +165,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const element = container.querySelector("#test-element");
         expect(element.className).toBe("initial-class another-class");
@@ -177,7 +177,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         // className을 제거한 업데이트된 요소
         const updatedVNode = <div id="test-element">Content</div>;
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         const updatedElement = container.querySelector("#test-element");
         expect(updatedElement).toBe(element); // 같은 요소 재사용 확인
@@ -187,11 +187,11 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(container.outerHTML).toBe(`<div><div id="test-element">Content</div></div>`);
       });
 
-      it("boolean type props가 property로 직접 업데이트되어야 한다 (checked)", () => {
+      it("boolean type props가 property로 직접 업데이트되어야 한다 (checked)", async () => {
         // checked가 false인 초기 체크박스
         const initialVNode = <input type="checkbox" id="test-checkbox" checked={false} />;
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const checkbox = container.querySelector("#test-checkbox");
         expect(checkbox.checked).toBe(false);
@@ -200,7 +200,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         // checked를 true로 업데이트
         const updatedVNode = <input type="checkbox" id="test-checkbox" checked={true} />;
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         expect(container.querySelector("#test-checkbox")).toBe(checkbox); // 같은 요소 재사용
         expect(checkbox.checked).toBe(true); // property로 직접 업데이트
@@ -210,14 +210,14 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         // 다시 false로 업데이트
         const uncheckedVNode = <input type="checkbox" id="test-checkbox" checked={false} />;
 
-        renderElement(uncheckedVNode, container);
+        await renderElement(uncheckedVNode, container);
 
         expect(checkbox.checked).toBe(false);
         expect(checkbox.getAttribute("checked")).toBe(null); // DOM에는 없어야 함
         expect(container.outerHTML).toBe(`<div><input type="checkbox" id="test-checkbox"></div>`);
       });
 
-      it("boolean type props가 property로 직접 업데이트되어야 한다 (disabled)", () => {
+      it("boolean type props가 property로 직접 업데이트되어야 한다 (disabled)", async () => {
         // disabled가 false인 초기 버튼
         const initialVNode = (
           <button id="test-button" disabled={false}>
@@ -225,7 +225,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </button>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const button = container.querySelector("#test-button");
         expect(button.disabled).toBe(false);
@@ -238,7 +238,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </button>
         );
 
-        renderElement(disabledVNode, container);
+        await renderElement(disabledVNode, container);
 
         expect(container.querySelector("#test-button")).toBe(button); // 같은 요소 재사용
         expect(button.disabled).toBe(true); // property로 직접 업데이트
@@ -252,14 +252,14 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </button>
         );
 
-        renderElement(enabledVNode, container);
+        await renderElement(enabledVNode, container);
 
         expect(button.disabled).toBe(false);
         expect(button.getAttribute("disabled")).toBe(null); // DOM에도 반영
         expect(container.outerHTML).toBe(`<div><button id="test-button">Click me</button></div>`);
       });
 
-      it("boolean type props가 property로 직접 업데이트되어야 한다 (selected)", () => {
+      it("boolean type props가 property로 직접 업데이트되어야 한다 (selected)", async () => {
         // selected가 false인 초기 옵션들
         const initialVNode = (
           <select id="test-select">
@@ -275,7 +275,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </select>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const select = container.querySelector("#test-select");
         const option1 = select.querySelector('option[value="1"]');
@@ -304,7 +304,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </select>
         );
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         expect(container.querySelector("#test-select")).toBe(select); // 같은 요소 재사용
         expect(option1.selected).toBe(false);
@@ -329,7 +329,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </select>
         );
 
-        renderElement(thirdSelectedVNode, container);
+        await renderElement(thirdSelectedVNode, container);
 
         expect(option1.selected).toBe(false);
         expect(option2.selected).toBe(false);
@@ -339,13 +339,13 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(option3.getAttribute("selected")).toBe(null);
       });
 
-      it("여러 boolean props가 동시에 올바르게 처리되어야 한다", () => {
+      it("여러 boolean props가 동시에 올바르게 처리되어야 한다", async () => {
         // 여러 boolean props가 있는 input
         const initialVNode = (
           <input type="checkbox" id="multi-props-input" checked={false} disabled={false} readOnly={false} />
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const input = container.querySelector("#multi-props-input");
         expect(input.checked).toBe(false);
@@ -358,7 +358,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           <input type="checkbox" id="multi-props-input" checked={true} disabled={true} readOnly={true} />
         );
 
-        renderElement(allTrueVNode, container);
+        await renderElement(allTrueVNode, container);
 
         expect(container.querySelector("#multi-props-input")).toBe(input); // 같은 요소 재사용
         expect(input.checked).toBe(true);
@@ -373,7 +373,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           <input type="checkbox" id="multi-props-input" checked={true} disabled={false} readOnly={true} />
         );
 
-        renderElement(partialFalseVNode, container);
+        await renderElement(partialFalseVNode, container);
 
         expect(input.checked).toBe(true);
         expect(input.disabled).toBe(false);
@@ -383,7 +383,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
     });
 
     describe("updateElement 엣지케이스 > ", () => {
-      it("oldChildren이 newChildren보다 많을 때 초과하는 자식들이 제거되어야 한다", () => {
+      it("oldChildren이 newChildren보다 많을 때 초과하는 자식들이 제거되어야 한다", async () => {
         // 초기 상태: 5개의 자식
         const initialVNode = (
           <div>
@@ -395,7 +395,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
         expect(container.firstChild.children.length).toBe(5);
 
         // 새 상태: 2개의 자식
@@ -406,7 +406,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         // 결과 검증: 3개의 자식이 제거되어야 함
         expect(container.firstChild.children.length).toBe(2);
@@ -414,7 +414,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(container.firstChild.children[1].textContent).toBe("Second Updated");
       });
 
-      it("빈 배열로 모든 자식이 제거되는 경우", () => {
+      it("빈 배열로 모든 자식이 제거되는 경우", async () => {
         const initialVNode = (
           <div>
             <span>Item 1</span>
@@ -423,18 +423,18 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
         expect(container.firstChild.children.length).toBe(3);
 
         const emptyVNode = <div></div>;
 
-        renderElement(emptyVNode, container);
+        await renderElement(emptyVNode, container);
 
         // 결과 검증: 모든 자식이 제거되어야 함
         expect(container.firstChild.children.length).toBe(0);
       });
 
-      it("큰 차이가 있는 자식 배열 처리", () => {
+      it("큰 차이가 있는 자식 배열 처리", async () => {
         // 많은 자식을 가진 초기 상태
         const manyChildrenVNode = (
           <ul>
@@ -444,7 +444,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </ul>
         );
 
-        renderElement(manyChildrenVNode, container);
+        await renderElement(manyChildrenVNode, container);
         expect(container.firstChild.children.length).toBe(20);
 
         // 적은 수의 자식으로 업데이트
@@ -456,7 +456,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </ul>
         );
 
-        renderElement(fewChildrenVNode, container);
+        await renderElement(fewChildrenVNode, container);
 
         // 결과 검증: 17개의 자식이 제거되어야 함
         expect(container.firstChild.children.length).toBe(3);
@@ -465,7 +465,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(container.firstChild.children[2].textContent).toBe("New Item 3");
       });
 
-      it("역순으로 자식 제거 로직이 올바르게 작동하는지 확인", () => {
+      it("역순으로 자식 제거 로직이 올바르게 작동하는지 확인", async () => {
         const initialVNode = (
           <div>
             <span id="first">First</span>
@@ -475,7 +475,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const initialIds = Array.from(container.firstChild.children).map((child) => child.id);
         expect(initialIds).toEqual(["first", "second", "third", "fourth"]);
@@ -486,7 +486,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         // 역순으로 제거되므로 "fourth", "third", "second" 순서로 제거
         expect(container.firstChild.children.length).toBe(1);
@@ -494,7 +494,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(container.firstChild.children[0].textContent).toBe("First Updated");
       });
 
-      it("중첩된 구조에서 자식 제거가 올바르게 동작해야 한다", () => {
+      it("중첩된 구조에서 자식 제거가 올바르게 동작해야 한다", async () => {
         const initialVNode = (
           <div>
             <div>
@@ -508,7 +508,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         expect(container.firstChild.children.length).toBe(2);
         expect(container.firstChild.children[0].children.length).toBe(2);
@@ -522,7 +522,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </div>
         );
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         // 두 번째 div가 제거되고, 첫 번째 div의 두 번째 span이 제거되어야 함
         expect(container.firstChild.children.length).toBe(1);
@@ -530,38 +530,38 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(container.firstChild.children[0].children[0].textContent).toBe("Updated Nested 1");
       });
 
-      it("maxLength가 0인 경우 (둘 다 빈 배열)", () => {
+      it("maxLength가 0인 경우 (둘 다 빈 배열)", async () => {
         const initialVNode = <div></div>;
         const updatedVNode = <div></div>;
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
         expect(container.firstChild.children.length).toBe(0);
 
-        expect(() => {
-          renderElement(updatedVNode, container);
+        expect(async () => {
+          await renderElement(updatedVNode, container);
         }).not.toThrow();
 
         expect(container.firstChild.children.length).toBe(0);
       });
 
-      it("newChildren.length가 0이고 oldChildren.length가 1인 경우", () => {
+      it("newChildren.length가 0이고 oldChildren.length가 1인 경우", async () => {
         const initialVNode = (
           <div>
             <span>Remove me</span>
           </div>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
         expect(container.firstChild.children.length).toBe(1);
 
         const emptyVNode = <div></div>;
 
-        renderElement(emptyVNode, container);
+        await renderElement(emptyVNode, container);
 
         expect(container.firstChild.children.length).toBe(0);
       });
 
-      it("복잡한 배열 변경 시나리오", () => {
+      it("복잡한 배열 변경 시나리오", async () => {
         // 테이블 형태의 복잡한 구조
         const initialVNode = (
           <table>
@@ -585,7 +585,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </table>
         );
 
-        renderElement(initialVNode, container);
+        await renderElement(initialVNode, container);
 
         const tbody = container.querySelector("tbody");
         expect(tbody.children.length).toBe(3);
@@ -602,7 +602,7 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
           </table>
         );
 
-        renderElement(updatedVNode, container);
+        await renderElement(updatedVNode, container);
 
         expect(tbody.children.length).toBe(1);
         expect(tbody.children[0].children.length).toBe(1);
