@@ -1,25 +1,14 @@
 const eventMap = new WeakMap();
 const delegatedEvents = new Set();
+let rootElement = null;
 
 export function setupEventListeners(root) {
+  rootElement = root;
+
   delegatedEvents.forEach((eventType) => {
-    root.addEventListener(eventType, (e) => {
-      let target = e.target;
-
-      while (target && target !== root) {
-        const elementEvents = eventMap.get(target);
-
-        if (elementEvents) {
-          const handlers = elementEvents.get(eventType);
-
-          if (handlers) {
-            handlers.forEach((handler) => handler(e));
-          }
-        }
-
-        target = target.parentNode;
-      }
-    });
+    // 중복 방지: 이미 등록되어 있으면 제거
+    root.removeEventListener(eventType, handleEvent);
+    root.addEventListener(eventType, handleEvent);
   });
 }
 
@@ -28,32 +17,31 @@ export function addEvent(element, eventType, handler) {
     eventMap.set(element, new Map());
   }
 
-  const events = eventMap.get(element);
+  const elementEvents = eventMap.get(element);
+  elementEvents.set(eventType, handler);
 
-  if (!events.has(eventType)) {
-    events.set(eventType, new Set());
-  }
-
-  events.get(eventType).add(handler);
-
-  if (!delegatedEvents.has(eventType)) {
-    delegatedEvents.add(eventType);
-  }
+  delegatedEvents.add(eventType);
 }
 
-export function removeEvent(element, eventType, handler) {
-  const events = eventMap.get(element);
-  if (!events) return;
+export function removeEvent(element, eventType) {
+  const elementEvents = eventMap.get(element);
+  elementEvents.delete(eventType);
+}
 
-  const handlers = events.get(eventType);
-  if (!handlers) return;
+// 이벤트 위임 핸들러
+function handleEvent(event) {
+  let target = event.target;
 
-  handlers.delete(handler);
+  while (target && target !== rootElement) {
+    const elementEvents = eventMap.get(target);
 
-  if (handlers.size === 0) {
-    events.delete(eventType);
-  }
-  if (events.size === 0) {
-    eventMap.delete(element);
+    if (elementEvents?.has(event.type)) {
+      const handler = elementEvents.get(event.type);
+      handler();
+
+      return;
+    }
+
+    target = target.parentNode;
   }
 }
