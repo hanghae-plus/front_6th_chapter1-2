@@ -186,7 +186,6 @@ describe("Chapter1-2 > 심화과제 > Virtual DOM과 이벤트 관리", () => {
         expect(updatedElement.textContent).toBe("Content");
         expect(container.outerHTML).toBe(`<div><div id="test-element">Content</div></div>`);
       });
-
       it("boolean type props가 property로 직접 업데이트되어야 한다 (checked)", () => {
         // checked가 false인 초기 체크박스
         const initialVNode = <input type="checkbox" id="test-checkbox" checked={false} />;

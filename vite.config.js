@@ -2,7 +2,7 @@ import { defineConfig as defineTestConfig, mergeConfig } from "vitest/config";
 import { defineConfig } from "vite";
 import { resolve } from "path";
 
-const base = process.env.NODE_ENV === "production" ? "/front_6th_chapter1-2/" : "";
+const base = process.env.NODE_ENV === "production" ? "/front_6th_chapter1-2/" : "/";
 
 export default mergeConfig(
   defineConfig({
@@ -20,7 +20,13 @@ export default mergeConfig(
     },
     base,
     build: {
+      outDir: "dist",
+      assetsDir: "assets",
+      sourcemap: false,
       rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
         input: {
           main: resolve(__dirname, "index.html"),
           404: resolve(__dirname, "404.html"),
@@ -28,6 +34,7 @@ export default mergeConfig(
       },
     },
   }),
+
   defineTestConfig({
     test: {
       globals: true,

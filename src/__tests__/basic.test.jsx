@@ -320,6 +320,8 @@ describe("Chapter1-2 > 기본과제 > 가상돔 만들기 > ", () => {
     describe("컴포넌트를 element로 만들기", () => {
       it("컴포넌트를 createElement로 처리하려고 하면 오류가 발생한다.", () => {
         const FuncComponent = ({ text }) => <div>{text}</div>;
+        console.log("typeof FuncComponent:", typeof FuncComponent);
+        console.log("FuncComponent:", createVNode(<FuncComponent text="Hello" />));
         expect(() => createElement(<FuncComponent text="Hello" />)).toThrowError();
       });
 
