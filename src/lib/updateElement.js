@@ -112,7 +112,6 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     if (oldNode !== newNode) {
       const newTextNode = document.createTextNode(String(newNode));
       const currentNode = parentElement.childNodes[index];
-
       if (currentNode) {
         parentElement.replaceChild(newTextNode, currentNode);
       } else {
@@ -131,28 +130,33 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
     return;
   }
 
+  // 현재 엘리먼트 캐싱 (childNodes 접근 최소화)
   const currentElement = parentElement.childNodes[index];
   if (!currentElement) return;
 
+  // 속성 업데이트
   updateAttributes(currentElement, newNode.props, oldNode.props);
 
+  // 자식 노드 처리: 업데이트, 추가, 삭제를 분리하여 처리
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
+  const commonLength = Math.min(newChildren.length, oldChildren.length);
 
-  for (let i = 0; i < Math.min(newChildren.length, oldChildren.length); i++) {
+  // 1. 공통 인덱스 업데이트
+  for (let i = 0; i < commonLength; i++) {
     updateElement(currentElement, newChildren[i], oldChildren[i], i);
   }
 
+  // 2. 추가 (newChildren가 더 많을 때)
   for (let i = oldChildren.length; i < newChildren.length; i++) {
     updateElement(currentElement, newChildren[i], null, i);
   }
 
-  const childrenToRemove = oldChildren.length - newChildren.length;
-
-  for (let i = 0; i < childrenToRemove; i++) {
-    const lastChild = currentElement.lastChild;
-    if (lastChild) {
-      currentElement.removeChild(lastChild);
+  // 3. 삭제 (oldChildren가 더 많을 때, 반드시 역순으로!)
+  for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+    const childNode = currentElement.childNodes[i];
+    if (childNode) {
+      currentElement.removeChild(childNode);
     }
   }
 }
