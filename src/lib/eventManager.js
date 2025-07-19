@@ -37,7 +37,7 @@ function handleEvent(event) {
 
     if (elementEvents?.has(event.type)) {
       const handler = elementEvents.get(event.type);
-      handler();
+      handler(event);
 
       return;
     }
