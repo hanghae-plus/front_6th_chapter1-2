@@ -57,7 +57,7 @@ function updateAttributes($el, props) {
       value ? $el.setAttribute("class", value) : $el.removeAttribute("class");
     } else if (attr === "style" && typeof value === "object") {
       // style이 객체면 그대로 style 속성에 할당 (문자열이어야 정상 동작)
-      $el.setAttribute("style", value);
+      Object.assign($el.style, value);
     } else if (["checked", "disabled", "readOnly", "selected"].includes(attr)) {
       // boolean 속성은 직접 프로퍼티로 할당
       $el[attr] = Boolean(value);
