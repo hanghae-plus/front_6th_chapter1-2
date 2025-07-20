@@ -1,14 +1,10 @@
 const eventMap = new WeakMap();
 const delegatedEvents = new Set();
-let rootElement = null;
 
 export function setupEventListeners(root) {
-  rootElement = root;
-
   delegatedEvents.forEach((eventType) => {
-    // 중복 방지: 이미 등록되어 있으면 제거
-    root.removeEventListener(eventType, handleEvent);
-    root.addEventListener(eventType, handleEvent);
+    root.removeEventListener(eventType, handleDelegatedEvent);
+    root.addEventListener(eventType, handleDelegatedEvent);
   });
 }
 
@@ -28,18 +24,16 @@ export function removeEvent(element, eventType) {
   elementEvents.delete(eventType);
 }
 
-// 이벤트 위임 핸들러
-function handleEvent(event) {
+function handleDelegatedEvent(event) {
   let target = event.target;
 
-  while (target && target !== rootElement) {
+  // NOTE: cancelBubble 속성은 deprecated이므로 다른 방법으로 구현해야 함
+  while (target && !event.cancelBubble) {
     const elementEvents = eventMap.get(target);
 
     if (elementEvents?.has(event.type)) {
       const handler = elementEvents.get(event.type);
       handler(event);
-
-      return;
     }
 
     target = target.parentNode;
