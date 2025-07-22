@@ -43,8 +43,8 @@ export function updateAttributes(target, originNewProps, originOldProps) {
         return;
       }
 
-      if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
-        target[key] = Boolean(value);
+      if (typeof value === "boolean") {
+        target[key] = value;
         return;
       }
 
