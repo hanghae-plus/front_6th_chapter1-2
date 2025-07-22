@@ -31,8 +31,8 @@ function updateAttributes($el, props) {
       addEvent($el, attribute.toLowerCase().substring(2), value);
     } else if (attribute === "className") {
       $el.setAttribute("class", value);
-    } else if (["checked", "disabled", "selected", "readOnly"].includes(attribute)) {
-      $el[attribute] = Boolean(value);
+    } else if (typeof value === "boolean") {
+      $el[attribute] = value;
     } else {
       $el.setAttribute(attribute, value);
     }
