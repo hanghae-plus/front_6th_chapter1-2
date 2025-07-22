@@ -5,7 +5,7 @@ export function updateAttributes(target, originNewProps, originOldProps) {
   if (!originNewProps && !originOldProps) return;
 
   if (originOldProps) {
-    Object.keys(originOldProps).forEach((key) => {
+    Object.entries(originOldProps).forEach(([key, value]) => {
       if (key === "children") return;
 
       if (key.startsWith("on")) {
@@ -14,7 +14,7 @@ export function updateAttributes(target, originNewProps, originOldProps) {
       } else if (!originNewProps || !(key in originNewProps)) {
         if (key === "className") {
           target.removeAttribute("class");
-        } else if (["checked", "disabled", "selected", "readOnly"].includes(key)) {
+        } else if (typeof value === "boolean") {
           target[key] = false;
           target.removeAttribute(key);
         } else {
